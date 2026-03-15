@@ -3,11 +3,19 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	_ = godotenv.Load()
+	dsn := os.Getenv("DATABASE_URL")
+	port := os.Getenv("PORT")
+	_ = dsn
+	_ = port
+
 	router := gin.Default()
 
 	router.Static("/assets", "../frontend-web/dist/assets")
@@ -15,7 +23,10 @@ func main() {
 	router.POST("/api/register", register)
 	router.NoRoute(root)
 
-	router.Run(":7373")
+	err := router.Run(":" + port)
+	if err != nil {
+		return
+	}
 }
 
 func root(c *gin.Context) {
