@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/handziurdmytro/go-service/internal/database/postgres"
 	"github.com/joho/godotenv"
 )
 
@@ -13,8 +15,10 @@ func main() {
 	_ = godotenv.Load()
 	dsn := os.Getenv("DATABASE_URL")
 	port := os.Getenv("PORT")
-	_ = dsn
-	_ = port
+
+	pool, err := postgres.GetNewPool(context.Background(), dsn)
+	_ = pool
+	_ = err
 
 	router := gin.Default()
 
@@ -23,7 +27,7 @@ func main() {
 	router.POST("/api/register", register)
 	router.NoRoute(root)
 
-	err := router.Run(":" + port)
+	err = router.Run(":" + port)
 	if err != nil {
 		return
 	}

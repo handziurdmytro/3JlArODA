@@ -1,4 +1,4 @@
-package database
+package postgres
 
 import (
 	"context"
@@ -24,5 +24,6 @@ func GetNewPool(ctx context.Context, dsn string) (*pgxpool.Pool, error) {
 		return nil, ErrPingFailed
 	}
 
+	pool.Exec()
 	return pool, nil
 }
