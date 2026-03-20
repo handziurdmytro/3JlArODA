@@ -1,4 +1,4 @@
-package internal
+package category
 
 import "github.com/jackc/pgx/v5/pgxpool"
 
@@ -6,10 +6,6 @@ type Repository struct {
 	pool *pgxpool.Pool
 }
 
-func NewRepository(pool *pgxpool.Pool) *Repository {
+func NewCategoryRepository(pool *pgxpool.Pool) *Repository {
 	return &Repository{pool: pool}
-}
-
-func (repo Repository) CreateEmployee() {
-
 }

@@ -19,6 +19,7 @@ func main() {
 	pool, err := postgres.GetNewPool(context.Background(), dsn)
 	_ = pool
 	_ = err
+	defer pool.Close()
 
 	router := gin.Default()
 
