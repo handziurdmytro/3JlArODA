@@ -1,0 +1,16 @@
+[package]
+name = "crypto-service"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tonic = "0.14"
+tonic-prost = "0.14"
+prost = "0.14"
+tokio = { version = "1.50", features = ["macros", "rt-multi-thread"] }
+hex = "0.4"
+ed25519-dalek = { version = "2.2", features = ["rand_core"] }
+rand_core = { version = "0.6", features = ["std"] }
+
+[build-dependencies]
+tonic-prost-build = "0.14"
