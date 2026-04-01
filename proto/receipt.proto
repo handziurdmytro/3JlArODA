@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package receipt;
+
+option go_package = "./pb";
+
+service ReceiptSigner {
+  rpc SignReceipt (SignRequest) returns (SignResponse);
+}
+
+message SignRequest {
+  string check_number = 1;
+  string id_employee = 2;
+  string card_number = 3; 
+  int64 print_date = 4;
+  string sum_total = 5;
+  string vat = 6;
+}
+
+message SignResponse {
+  string signature_hex = 1;
+  string public_key_hex = 2;
+}
