@@ -3,7 +3,7 @@ import {useNavigate} from 'react-router-dom'
 
 import {authApi} from '../api/auth.js'
 
-export const Auth = ({onAuthSuccess}) => {
+export const Auth = () => {
     const [isLoginMode, setIsLoginMode] = useState(true);
 
     const [email, setEmail] = useState('');
@@ -69,54 +69,69 @@ export const Auth = ({onAuthSuccess}) => {
     };
 
     return (
-        <div className="authContainer">
-            <h2>{isLoginMode ? 'Login' : 'Registration'}</h2>
-
-            {error && <div style={{color: 'red', marginBottom: '10px'}}>{error}</div>}
-            {isSuccess && <div style={{color: 'green', marginBottom: '10px'}}>Success!</div>}
-
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor={"email"}>Email:</label>
-                    <input
-                        id={"email"}
-                        type={"email"}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        disabled={isLoading}
-                        required
-                    />
+        <div className="auth-wrapper">
+            <div className={"auth-card"}>
+                <div className={"auth-image-panel"}>
+                    <div className={"image-content"}>
+                        {/*<h1>Злагода</h1>*/}
+                        {/*<p>Relaxing Your Mind From Madness</p>*/}
+                        {/*<div className="image-footer"></div>*/}
+                    </div>
                 </div>
 
-                <div>
-                    <label htmlFor={"password"}>Password:</label>
-                    <input
-                        id={"password"}
-                        type={"password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        disabled={isLoading}
-                        required
-                        minLength={8}
-                    />
+                <div className="auth-form-panel">
+                    <h2>{isLoginMode ? 'Login' : 'Registration'}</h2>
+
+                    {error && <div className={"error-message"}>{error}</div>}
+                    {isSuccess && <div className={"success-message"}>Success!</div>}
+
+                    <form onSubmit={handleSubmit} className={"auth-form"}>
+                        <div className={"input-group"}>
+                            <label htmlFor={"email"}>email</label>
+                            <input
+                                id={"email"}
+                                type={"email"}
+                                placeholder={"username"}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                disabled={isLoading}
+                                required
+                            />
+                        </div>
+
+                        <div className={"input-group"}>
+                            <label htmlFor={"password"}>password</label>
+                            <input
+                                id={"password"}
+                                type={"password"}
+                                placeholder={"password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                disabled={isLoading}
+                                required
+                                minLength={8}
+                            />
+                        </div>
+
+                        <div className={"form-actions"}>
+                            <div className={"checkbox-group"}>
+                                <input type={"checkbox"} id={"remember"}/>
+                                <label htmlFor={"remember"}>Remember Password</label>
+                            </div>
+
+                            <button type={"submit"} className={"submit-btn"} disabled={isLoading}>
+                                {isLoading ? 'Wait...' : (isLoginMode ? 'LOGIN' : 'REGISTER')}
+                            </button>
+                        </div>
+                    </form>
+
+                    <div className={"toggle-mode"}>
+                        <span>{isLoginMode ? "Don't have an account?" : "Have an account?"}</span>
+                        <button type={"button"} onClick={toggleMode} className={"toggle-btn"}>
+                            {isLoginMode ? "Create your account here!" : "Log in here!"}
+                        </button>
+                    </div>
                 </div>
-
-                <button type="submit" disabled={isLoading}>
-                    {isLoading ? 'Loading...' : (isLoginMode ? 'Login' : 'Register')}
-                </button>
-            </form>
-
-            <div style={{marginTop: '15px'}}>
-                <button
-                    type={"button"}
-                    onClick={toggleMode}
-                    style={{background: 'transparent', border: 'none', color: '#646cff', textDecoration: 'underline'}}
-                >
-                    {
-                        isLoginMode ? "Don't have an account yet? Sign up"
-                            : "Have an account? Log in"
-                    }
-                </button>
             </div>
         </div>
     );
