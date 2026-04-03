@@ -1,6 +1,6 @@
-use crate::crypto::engine::ReceiptEngine;
-use crate::crypto::server::pd::receipt_service_server::ReceiptService;
-use crate::crypto::server::pd::{SignRequest, SignResponse};
+use crate::receipt::engine::ReceiptEngine;
+use crate::receipt::server::pd::receipt_service_server::ReceiptService;
+use crate::receipt::server::pd::{SignRequest, SignResponse};
 use tonic::{Request, Response, Status};
 
 pub mod pd {

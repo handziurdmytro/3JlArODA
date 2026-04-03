@@ -1,16 +1,16 @@
 use crate::auth::engine::AuthSecretEngine;
 use crate::auth::server::AuthSecretServiceImpl;
 use crate::auth::server::pb::auth_secret_service_server::AuthSecretServiceServer;
-use crate::crypto::engine::ReceiptEngine;
-use crate::crypto::server::ReceiptServiceImpl;
-use crate::crypto::server::pd::receipt_service_server::ReceiptServiceServer;
+use crate::receipt::engine::ReceiptEngine;
+use crate::receipt::server::ReceiptServiceImpl;
+use crate::receipt::server::pd::receipt_service_server::ReceiptServiceServer;
 use std::net::SocketAddr;
 use tonic::transport::Server;
 use crate::config::AppConfig;
 
 mod auth;
 mod config;
-mod crypto;
+mod receipt;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
