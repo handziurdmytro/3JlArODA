@@ -1,6 +1,6 @@
-use crate::crypto::engine::ReceiptCryptoEngine;
-use crate::server::pd::receipt_signer_server::ReceiptSigner;
-use crate::server::pd::{SignRequest, SignResponse};
+use crate::crypto::engine::ReceiptEngine;
+use crate::crypto::server::pd::receipt_service_server::ReceiptService;
+use crate::crypto::server::pd::{SignRequest, SignResponse};
 use tonic::{Request, Response, Status};
 
 pub mod pd {
@@ -8,18 +8,18 @@ pub mod pd {
 }
 
 #[derive(Debug)]
-pub struct ReceiptService {
-    pub crypto_engine: ReceiptCryptoEngine,
+pub struct ReceiptServiceImpl {
+    pub crypto_engine: ReceiptEngine,
 }
 
-impl ReceiptService {
-    pub fn new(crypto_engine: ReceiptCryptoEngine) -> Self {
+impl ReceiptServiceImpl {
+    pub fn new(crypto_engine: ReceiptEngine) -> Self {
         Self { crypto_engine }
     }
 }
 
 #[tonic::async_trait]
-impl ReceiptSigner for ReceiptService {
+impl ReceiptService for ReceiptServiceImpl {
     async fn sign_receipt(
         &self,
         request: Request<SignRequest>,
@@ -37,7 +37,10 @@ impl ReceiptSigner for ReceiptService {
             req.check_number, req.id_employee, card, req.print_date, req.sum_total, req.vat,
         );
 
-        println!("[INFO] received request form signing a bill: {}", req.check_number);
+        println!(
+            "[INFO] received request form signing a bill: {}",
+            req.check_number
+        );
 
         let signature_hex = self.crypto_engine.sign_data(&raw_string);
         let public_key_hex = self.crypto_engine.get_public_key();

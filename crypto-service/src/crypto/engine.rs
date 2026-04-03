@@ -1,19 +1,20 @@
 use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
-use rand_core::OsRng;
 
 #[derive(Clone, Debug)]
-pub struct ReceiptCryptoEngine {
+pub struct ReceiptEngine {
     signing_key: SigningKey,
 }
 
-impl ReceiptCryptoEngine {
-    pub fn new() -> Self {
-        let mut csprng = OsRng;
-        let signing_key: SigningKey = SigningKey::generate(&mut csprng);
+impl ReceiptEngine {
+    pub fn new(hex: &str) -> Result<Self, String> {
+        let bytes = hex::decode(hex).map_err(|e| format!("Invalid SIGNING_KEY hex: {}", e))?;
 
-        /* reading from file logic will be here */
+        let key_bytes: [u8; 32] = bytes
+            .try_into()
+            .map_err(|_| "PRIVATE_KEY must be exactly 32 bytes (64 hex chars)".to_string())?;
 
-        Self { signing_key }
+        let signing_key = SigningKey::from_bytes(&key_bytes);
+        Ok(Self { signing_key })
     }
 
     pub fn get_public_key(&self) -> String {
