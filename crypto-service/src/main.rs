@@ -1,26 +1,36 @@
-use crate::crypto::engine::ReceiptCryptoEngine;
-use crate::server::pd::receipt_signer_server::ReceiptSignerServer;
-use crate::server::ReceiptService;
+use crate::auth::engine::AuthSecretEngine;
+use crate::auth::server::AuthSecretServiceImpl;
+use crate::auth::server::pb::auth_secret_service_server::AuthSecretServiceServer;
+use crate::crypto::engine::ReceiptEngine;
+use crate::crypto::server::ReceiptServiceImpl;
+use crate::crypto::server::pd::receipt_service_server::ReceiptServiceServer;
 use std::net::SocketAddr;
 use tonic::transport::Server;
+use crate::config::AppConfig;
 
-mod server;
+mod auth;
+mod config;
 mod crypto;
-mod reports;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let address: SocketAddr = "0.0.0.0:3030".parse()?;
+    let config = AppConfig::load();
+
+    let address: SocketAddr = format!("0.0.0.0:{}", &config.port).parse()?;
 
     println!("[INFO] Cryptographic module initialization");
-    let crypto_engine = ReceiptCryptoEngine::new();
-    println!("[INFO] Server public key: {}", crypto_engine.get_public_key());
 
-    let receipt_service = ReceiptService::new(crypto_engine);
-    println!("[INFO] gRPC server is running on: {}", address);
+    let receipt_engine = ReceiptEngine::new(&config.signing_key_hex)
+        .expect("Failed to initialize ReceiptEngine");
+
+    let auth_engine = AuthSecretEngine::new(config.pepper);
+
+    let receipt_service = ReceiptServiceImpl::new(receipt_engine);
+    let auth_service = AuthSecretServiceImpl::new(auth_engine);
 
     Server::builder()
-        .add_service(ReceiptSignerServer::new(receipt_service))
+        .add_service(ReceiptServiceServer::new(receipt_service))
+        .add_service(AuthSecretServiceServer::new(auth_service))
         .serve(address)
         .await?;
 
