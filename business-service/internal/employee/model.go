@@ -17,8 +17,7 @@ type Employee struct {
 	ZipCode        string    `json:"zip_code"`
 }
 
-type EmployeeCreateRequest struct {
-	IdEmployee     string    `json:"id_employee"`
+type CreateRequest struct {
 	EmplSurname    string    `json:"empl_surname"`
 	EmplName       string    `json:"empl_name"`
 	EmplPatronymic *string   `json:"empl_patronymic,omitempty"`

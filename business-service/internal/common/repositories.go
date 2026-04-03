@@ -1,4 +1,4 @@
-package postgres
+package common
 
 import "github.com/jackc/pgx/v5/pgxpool"
 
@@ -23,4 +23,3 @@ func NewRepositories(pool *pgxpool.Pool) *Repositories {
 		CustomerCards: NewCustomerCardRepository(pool),
 	}
 }
-
