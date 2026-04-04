@@ -1,16 +1,16 @@
 package product
 
 type Product struct {
-	IdProduct       int     `json:"id_product"`
+	ID              int     `json:"id"`
 	CategoryNumber  int     `json:"category_number"`
-	ProductName     string  `json:"product_name"`
+	Name            string  `json:"name"`
 	Producer        *string `json:"producer,omitempty"`
 	Characteristics string  `json:"characteristics"`
 }
 
-type ProductCreateRequest struct {
+type CreateRequest struct {
 	CategoryNumber  int     `json:"category_number"`
-	ProductName     string  `json:"product_name"`
+	Name            string  `json:"name"`
 	Producer        *string `json:"producer,omitempty"`
 	Characteristics string  `json:"characteristics"`
 }

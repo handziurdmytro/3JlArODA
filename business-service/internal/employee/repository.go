@@ -25,8 +25,8 @@ func (repository Repository) CreateEmployee(ctx context.Context, employee Employ
 			$5, $6, $7, $8, 
 			$9, $10, $11, $12
 		)`,
-		employee.IdEmployee, employee.EmplSurname, employee.EmplName, employee.EmplPatronymic,
-		employee.EmplRole, employee.Salary, employee.DateOfBirth, employee.DateOfStart,
+		employee.ID, employee.Surname, employee.Name, employee.Patronymic,
+		employee.Role, employee.Salary, employee.DateOfBirth, employee.DateOfStart,
 		employee.PhoneNumber, employee.City, employee.Street, employee.ZipCode,
 	)
 	return err

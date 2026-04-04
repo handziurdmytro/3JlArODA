@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/routes"
 )
@@ -10,5 +12,8 @@ func main() {
 
 	routes.SetupRoutes(router)
 
-	router.Run(":8080") // Or from env
+	err := router.Run(":8080")
+	if err != nil {
+		log.Fatal(err)
+	}
 }
