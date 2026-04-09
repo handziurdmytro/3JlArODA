@@ -1,6 +1,6 @@
-import {Auth} from './components/Auth.jsx'
+import {Auth} from './components/Auth/Auth.jsx'
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
-import {ProtectedRoute} from "./components/ProtectedRoute.jsx";
+import {ProtectedRoute} from "./components/Auth/ProtectedRoute.jsx";
 import {Dashboard} from "./components/Dashboard.jsx";
 
 function App() {
