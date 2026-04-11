@@ -1,4 +1,4 @@
-import axios, {Axios} from 'axios';
+import axios from 'axios';
 
 const apiClient = axios.create({
     baseURL: '/api',
@@ -23,9 +23,9 @@ apiClient.interceptors.request.use(
 )
 
 export const authApi = {
-    register: async (email, password) => {
-        return await apiClient.post('/register', {email, password});
-    },
+    // register: async (email, password) => {
+    //     return await apiClient.post('/register', {email, password});
+    // },
 
     // login: async (email, password) => {
     //     return await apiClient.post('/login', {email, password});
