@@ -1,4 +1,4 @@
--- name: create-employee
+-- name: CreateEmployee :exec
 -- task: Додавати нові дані про працівників (Manager #1)
 INSERT INTO employees (id_employee, empl_surname, empl_name, empl_patronymic,
                        empl_role, salary, date_of_birth, date_of_start,
@@ -7,7 +7,7 @@ VALUES ($1, $2, $3, $4,
         $5, $6, $7, $8,
         $9, $10, $11, $12);
 
--- name: update-employee-by-id
+-- name: UpdateEmployeeByID :exec
 -- task: Редагувати дані про працівників (Manager #2)
 UPDATE employees
 SET empl_surname    = $2,
@@ -23,14 +23,14 @@ SET empl_surname    = $2,
     zip_code        = $12
 WHERE id_employee = $1;
 
--- name: delete-employee-by-id
+-- name: DeleteEmployeeByID :exec
 -- task: Видаляти дані про працівників (Manager #3)
 -- todo: handle On Delete No Action
 DELETE
 FROM employees
 WHERE id_employee = $1;
 
--- name: get-all-employees
+-- name: GetAllEmployees :many
 -- task: Отримати інформацію про усіх працівників, відсортованих за прізвищем (Manager #5)
 SELECT id_employee,
        empl_surname,
@@ -47,7 +47,7 @@ SELECT id_employee,
 FROM employees
 ORDER BY empl_surname, empl_name, empl_patronymic;
 
--- name: get-employee-by-id
+-- name: GetEmployeeByID :one
 -- task: Можливість отримати усю інформацію про себе. (Cashier #15)
 SELECT id_employee,
        empl_surname,
@@ -64,7 +64,7 @@ SELECT id_employee,
 FROM employees
 WHERE id_employee = $1;
 
--- name: get-employees-by-role
+-- name: GetEmployeesByRole :many
 -- task: Отримати інформацію про усіх працівників, що займають посаду касира,
 -- відсортованих за прізвищем (Manager #6)
 SELECT id_employee,
@@ -83,7 +83,7 @@ FROM employees
 WHERE empl_role = $1
 ORDER BY empl_surname, empl_name, empl_patronymic;
 
--- name: get-employee-data-by-surname
+-- name: GetEmployeeDataBySurname :many
 -- task: За прізвищем працівника знайти його телефон та адресу (Manager #11)
 SELECT phone_number,
        city,
@@ -92,7 +92,7 @@ SELECT phone_number,
 FROM employees
 WHERE empl_surname = $1;
 
--- name: get-employee-data-by-full-name
+-- name: GetEmployeeDataByFullName :many
 -- task: За прізвищем працівника знайти його телефон та адресу (Manager #11)
 SELECT phone_number,
        city,
