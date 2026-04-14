@@ -5,7 +5,7 @@ import (
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/handlers"
 )
 
-func SetupRoutes(router *gin.Engine) {
+func SetupRoutes(router *gin.Engine, authHandler *handlers.AuthHandler) {
 	api := router.Group("/api/v1")
 	{
 		employee := api.Group("/employee")
@@ -70,7 +70,8 @@ func SetupRoutes(router *gin.Engine) {
 
 		auth := api.Group("/auth")
 		{
-			auth.POST("/login", handlers.Login)
+			auth.POST("/register", authHandler.Register)
+			auth.POST("/login", authHandler.Login)
 		}
 	}
 }
