@@ -35,23 +35,6 @@ func ListChecks(c *gin.Context) {
 	c.JSON(http.StatusOK, []string{})
 }
 
-func UpdateCheck(c *gin.Context) {
-	number := c.Param("number")
-	if number == "" {
-		c.JSON(http.StatusBadRequest, common.ErrorResponse{Error: "Number is required"})
-		return
-	}
-
-	var req models.UpdateCheckRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, common.ErrorResponse{Error: "Invalid request: " + err.Error()})
-		return
-	}
-
-	// TODO: Send update to the business service via gRPC
-	c.JSON(http.StatusOK, gin.H{"number": number, "status": "updated"})
-}
-
 func DeleteCheck(c *gin.Context) {
 	number := c.Param("number")
 	if number == "" {

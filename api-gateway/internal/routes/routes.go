@@ -58,7 +58,6 @@ func SetupRoutes(router *gin.Engine) {
 			check.GET("/", handlers.ListChecks)
 			check.GET("/:number", handlers.GetCheckByNumber)
 			check.POST("/", handlers.CreateCheck)
-			check.PUT("/:number", handlers.UpdateCheck)
 			check.DELETE("/:number", handlers.DeleteCheck)
 		}
 
@@ -67,13 +66,11 @@ func SetupRoutes(router *gin.Engine) {
 			sale.GET("/", handlers.ListSales)
 			sale.GET("/item", handlers.GetSale)
 			sale.POST("/", handlers.CreateSale)
-			sale.PUT("/item", handlers.UpdateSale)
-			sale.DELETE("/item", handlers.DeleteSale)
 		}
 
 		auth := api.Group("/auth")
 		{
-			auth.POST("/login")
+			auth.POST("/login", handlers.Login)
 		}
 	}
 }
