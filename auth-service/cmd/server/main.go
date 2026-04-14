@@ -8,7 +8,9 @@ import (
 
 	"github.com/handziurdmytro/3JlArODA/auth-service/internal/config"
 	"github.com/handziurdmytro/3JlArODA/auth-service/internal/crypto"
+	"github.com/handziurdmytro/3JlArODA/auth-service/internal/gateway"
 	"github.com/handziurdmytro/3JlArODA/auth-service/internal/repository"
+	"github.com/handziurdmytro/3JlArODA/auth-service/pb"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
 )
@@ -39,8 +41,8 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 
-	_ = repo
-	_ = cryptoClient
+	gatewayServer := gateway.NewServer(repo, cryptoClient)
+	pb.RegisterAuthServiceServer(grpcServer, gatewayServer)
 
 	log.Printf("[INFO] auth-service listening on port %s", cfg.Port)
 	if err := grpcServer.Serve(listener); err != nil {
