@@ -3,12 +3,22 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/handlers"
+	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/middleware"
 )
 
-func SetupRoutes(router *gin.Engine, authHandler *handlers.AuthHandler) {
+func SetupRoutes(router *gin.Engine, authHandler *handlers.AuthHandler, authValidator middleware.AuthValidator) {
 	api := router.Group("/api/v1")
 	{
-		employee := api.Group("/employee")
+		auth := api.Group("/auth")
+		{
+			auth.POST("/register", authHandler.Register)
+			auth.POST("/login", authHandler.Login)
+		}
+
+		protected := api.Group("")
+		protected.Use(middleware.AuthMiddleware(authValidator))
+
+		employee := protected.Group("/employee")
 		{
 			employee.GET("/", handlers.ListEmployees)
 			employee.GET("/:id", handlers.GetEmployeeByID)
@@ -17,7 +27,7 @@ func SetupRoutes(router *gin.Engine, authHandler *handlers.AuthHandler) {
 			employee.DELETE("/:id", handlers.DeleteEmployee)
 		}
 
-		category := api.Group("/category")
+		category := protected.Group("/category")
 		{
 			category.GET("/", handlers.ListCategories)
 			category.GET("/:number", handlers.GetCategoryByNumber)
@@ -26,7 +36,7 @@ func SetupRoutes(router *gin.Engine, authHandler *handlers.AuthHandler) {
 			category.DELETE("/:number", handlers.DeleteCategory)
 		}
 
-		product := api.Group("/product")
+		product := protected.Group("/product")
 		{
 			product.GET("/", handlers.ListProducts)
 			product.GET("/:id", handlers.GetProductByID)
@@ -35,7 +45,7 @@ func SetupRoutes(router *gin.Engine, authHandler *handlers.AuthHandler) {
 			product.DELETE("/:id", handlers.DeleteProduct)
 		}
 
-		storeProduct := api.Group("/store-product")
+		storeProduct := protected.Group("/store-product")
 		{
 			storeProduct.GET("/", handlers.ListStoreProducts)
 			storeProduct.GET("/:upc", handlers.GetStoreProductByUPC)
@@ -44,7 +54,7 @@ func SetupRoutes(router *gin.Engine, authHandler *handlers.AuthHandler) {
 			storeProduct.DELETE("/:upc", handlers.DeleteStoreProduct)
 		}
 
-		customerCard := api.Group("/customer-card")
+		customerCard := protected.Group("/customer-card")
 		{
 			customerCard.GET("/", handlers.ListCustomerCards)
 			customerCard.GET("/:number", handlers.GetCustomerCardByNumber)
@@ -53,7 +63,7 @@ func SetupRoutes(router *gin.Engine, authHandler *handlers.AuthHandler) {
 			customerCard.DELETE("/:number", handlers.DeleteCustomerCard)
 		}
 
-		check := api.Group("/check")
+		check := protected.Group("/check")
 		{
 			check.GET("/", handlers.ListChecks)
 			check.GET("/:number", handlers.GetCheckByNumber)
@@ -61,17 +71,11 @@ func SetupRoutes(router *gin.Engine, authHandler *handlers.AuthHandler) {
 			check.DELETE("/:number", handlers.DeleteCheck)
 		}
 
-		sale := api.Group("/sale")
+		sale := protected.Group("/sale")
 		{
 			sale.GET("/", handlers.ListSales)
 			sale.GET("/item", handlers.GetSale)
 			sale.POST("/", handlers.CreateSale)
-		}
-
-		auth := api.Group("/auth")
-		{
-			auth.POST("/register", authHandler.Register)
-			auth.POST("/login", authHandler.Login)
 		}
 	}
 }

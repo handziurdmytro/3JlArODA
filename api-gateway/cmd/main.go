@@ -30,7 +30,7 @@ func main() {
 	gin.SetMode(cfg.GinMode)
 	router := gin.Default()
 
-	routes.SetupRoutes(router, authHandler)
+	routes.SetupRoutes(router, authHandler, authClient)
 
 	addr := fmt.Sprintf(":%s", cfg.Port)
 	log.Printf(

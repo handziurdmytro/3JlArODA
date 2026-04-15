@@ -43,6 +43,12 @@ func (cl *Auth) Login(ctx context.Context, username, password string) (*pb.Login
 	})
 }
 
+func (cl *Auth) Validate(ctx context.Context, token string) (*pb.ValidateResponse, error) {
+	return cl.grpcClient.Validate(ctx, &pb.ValidateRequest{
+		Token: token,
+	})
+}
+
 func (cl *Auth) Close() error {
 	return cl.conn.Close()
 }
