@@ -2,6 +2,7 @@ use crate::receipt::engine::ReceiptEngine;
 use crate::receipt::server::pd::receipt_service_server::ReceiptService;
 use crate::receipt::server::pd::{SignRequest, SignResponse};
 use tonic::{Request, Response, Status};
+use tracing::{info, instrument};
 
 pub mod pd {
     tonic::include_proto!("receipt");
@@ -20,6 +21,7 @@ impl ReceiptServiceImpl {
 
 #[tonic::async_trait]
 impl ReceiptService for ReceiptServiceImpl {
+    #[instrument(skip(self, request), fields(check_number = %request.get_ref().check_number))]
     async fn sign_receipt(
         &self,
         request: Request<SignRequest>,
@@ -37,10 +39,7 @@ impl ReceiptService for ReceiptServiceImpl {
             req.check_number, req.id_employee, card, req.print_date, req.sum_total, req.vat,
         );
 
-        println!(
-            "[INFO] received request form signing a bill: {}",
-            req.check_number
-        );
+        info!("Received request form signing a bill: {}", req.check_number);
 
         let signature_hex = self.crypto_engine.sign_data(&raw_string);
         let public_key_hex = self.crypto_engine.get_public_key();

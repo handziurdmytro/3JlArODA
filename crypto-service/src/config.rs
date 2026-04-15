@@ -2,6 +2,7 @@ use ed25519_dalek::SigningKey;
 use rand_core::{OsRng, RngCore};
 use std::fs::OpenOptions;
 use std::io::Write;
+use tracing::{info, warn};
 
 fn get_or_generate(key: &str, generate: impl Fn() -> String) -> String {
     if let Ok(val) = std::env::var(key) {
@@ -20,7 +21,7 @@ fn get_or_generate(key: &str, generate: impl Fn() -> String) -> String {
 
     writeln!(file, "{}={}", key, val).expect("Cannot write to .env file");
 
-    println!("[INFO] Generated and saved new key: {}", key);
+    info!("Generated and saved new key: {}", key);
     val
 }
 
@@ -30,7 +31,7 @@ fn get_or_default(key: &str, default: &str) -> String {
             return val;
         }
     }
-    println!("[WARN] {} not set, using default: {}", key, default);
+    warn!("{} not set, using default: {}", key, default);
     default.to_string()
 }
 
