@@ -1,10 +1,5 @@
 use dotenvy::dotenv;
-use ed25519_dalek::SigningKey;
-use rand_core::{OsRng, RngCore};
 use std::env;
-use std::fs::OpenOptions;
-use std::io::Write;
-use tracing::{info, warn};
 
 pub struct AppConfig {
     pub port: u16,
