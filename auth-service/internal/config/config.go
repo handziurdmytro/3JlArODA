@@ -12,8 +12,6 @@ type Config struct {
 	Port              string
 	CryptoServiceAddr string
 	DatabaseURL       string
-	JWTSecret         string
-	JWTExpiration     time.Duration
 }
 
 func Load() *Config {
@@ -25,8 +23,6 @@ func Load() *Config {
 		Port:              getOrDefault("PORT", "2828"),
 		CryptoServiceAddr: getOrDefault("CRYPTO_SERVICE_ADDR", "0.0.0.0:2929"),
 		DatabaseURL:       getRequired("DATABASE_URL"),
-		JWTSecret:         getRequired("JWT_SECRET"),
-		JWTExpiration:     getDuration("JWT_EXPIRATION", "24h"),
 	}
 }
 
