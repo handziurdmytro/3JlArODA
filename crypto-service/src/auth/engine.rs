@@ -2,15 +2,31 @@ use argon2::{
     Argon2,
     password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
 };
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
+use serde::{Deserialize, Serialize};
+use std::time::{SystemTime, UNIX_EPOCH};
 
+#[derive(Debug, Serialize, Deserialize)]
+struct Claims {
+    sub: String,
+    username: String,
+    exp: u64,
+    iat: u64,
+}
 #[derive(Debug, Clone)]
 pub struct AuthSecretEngine {
     pepper: String,
+    jwt_secret: String,
+    jwt_exp_seconds: u64,
 }
 
 impl AuthSecretEngine {
-    pub fn new(pepper: String) -> Self {
-        Self { pepper }
+    pub fn new(pepper: String, jwt_secret: String, jwt_exp_seconds: u64) -> Self {
+        Self {
+            pepper,
+            jwt_secret,
+            jwt_exp_seconds,
+        }
     }
 
     pub fn hash_password(&self, plain_password: &str) -> Result<String, String> {
@@ -42,6 +58,40 @@ impl AuthSecretEngine {
             .verify_password(peppered_password.as_bytes(), &parsed_hash)
             .is_ok()
     }
+
+    pub fn sign_jwt(&self, user_id: &str, username: &str) -> Result<String, String> {
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map_err(|e| format!("Time error: {}", e))?
+            .as_secs();
+
+        let claims = Claims {
+            sub: user_id.to_string(),
+            username: username.to_string(),
+            exp: now + self.jwt_exp_seconds,
+            iat: now,
+        };
+
+        encode(
+            &Header::default(),
+            &claims,
+            &EncodingKey::from_secret(self.jwt_secret.as_bytes()),
+        )
+        .map_err(|e| format!("JWT sign error: {}", e))
+    }
+
+    pub fn validate_jwt(&self, token: &str) -> Option<(String, String)> {
+        let result = decode::<Claims>(
+            token,
+            &DecodingKey::from_secret(self.jwt_secret.as_bytes()),
+            &Validation::default(),
+        );
+
+        match result {
+            Ok(data) => Some((data.claims.sub, data.claims.username)),
+            Err(_) => None,
+        }
+    }
 }
 
 mod tests {}
@@ -49,7 +99,7 @@ mod tests {}
 #[test]
 fn simple_test() {
     let pepper = "123456".to_string();
-    let engine = AuthSecretEngine::new(pepper);
+    let engine = AuthSecretEngine::new(pepper, "".to_string(), 0);
 
     let pass1 = "c1$c0".to_string();
     // println!("{}", pass1);
