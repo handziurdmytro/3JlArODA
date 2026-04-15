@@ -1,12 +1,12 @@
 use crate::auth::engine::AuthSecretEngine;
 use crate::auth::server::AuthSecretServiceImpl;
 use crate::auth::server::pb::auth_secret_service_server::AuthSecretServiceServer;
+use crate::config::AppConfig;
 use crate::receipt::engine::ReceiptEngine;
 use crate::receipt::server::ReceiptServiceImpl;
 use crate::receipt::server::pd::receipt_service_server::ReceiptServiceServer;
 use std::net::SocketAddr;
 use tonic::transport::Server;
-use crate::config::AppConfig;
 
 mod auth;
 mod config;
@@ -20,10 +20,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("[INFO] Cryptographic module initialization");
 
-    let receipt_engine = ReceiptEngine::new(&config.signing_key_hex)
-        .expect("Failed to initialize ReceiptEngine");
+    let receipt_engine =
+        ReceiptEngine::new(&config.signing_key_hex).expect("Failed to initialize ReceiptEngine");
 
-    let auth_engine = AuthSecretEngine::new(config.pepper);
+    let auth_engine =
+        AuthSecretEngine::new(config.pepper, config.jwt_secret, config.jwt_exp_seconds);
 
     let receipt_service = ReceiptServiceImpl::new(receipt_engine);
     let auth_service = AuthSecretServiceImpl::new(auth_engine);
