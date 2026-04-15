@@ -12,7 +12,7 @@ hex = "0.4"
 ed25519-dalek = { version = "2.2", features = ["rand_core"] }
 rand_core = { version = "0.6", features = ["std"] }
 tracing = "0.1"
-tracing-subscriber = "0.3"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 dotenvy = "0.15"
 argon2 = { version = "0.5", features = ["std"] }
 jsonwebtoken = "9.3"
