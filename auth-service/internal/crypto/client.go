@@ -2,7 +2,8 @@ package crypto
 
 import (
 	"context"
-	"log"
+	"log/slog"
+	"os"
 	"time"
 
 	"github.com/handziurdmytro/3JlArODA/auth-service/pb"
@@ -22,7 +23,11 @@ func NewClient(address string) *Client {
 	)
 
 	if err != nil {
-		log.Fatalf("[FATAL] failed to connect to crypto-service at %s: %v", address, err)
+		slog.Error("failed to connect to crypto-service",
+			slog.String("address", address),
+			slog.String("error", err.Error()),
+		)
+		os.Exit(1)
 	}
 
 	c := &Client{
@@ -41,10 +46,11 @@ func (c *Client) ping() {
 
 	_, err := c.grpcClient.HashPassword(ctx, &pb.HashRequest{PlainPassword: "ping"})
 	if err != nil {
-		log.Fatalf("[FATAL] crypto-service is unreachable: %v", err)
+		slog.Error("crypto-service is unreachable", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
 
-	log.Println("[INFO] connected to crypto-service")
+	slog.Info("connected to crypto-service successfully")
 }
 
 func (c *Client) HashPassword(plainPassword string) (string, error) {
@@ -108,6 +114,6 @@ func (c *Client) ValidateJWT(token string) (*pb.ValidateJWTResponse, error) {
 
 func (c *Client) Close() {
 	if err := c.conn.Close(); err != nil {
-		log.Printf("[WARN] error closing crypto-service connection: %v", err)
+		slog.Warn("error closing crypto-service connection", slog.String("error", err.Error()))
 	}
 }

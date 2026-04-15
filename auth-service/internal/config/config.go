@@ -1,7 +1,7 @@
 package config
 
 import (
-	"log"
+	"log/slog"
 	"os"
 	"time"
 
@@ -16,7 +16,7 @@ type Config struct {
 
 func Load() *Config {
 	if err := godotenv.Load(); err != nil {
-		log.Println("[WARN] .env file not found, reading from environment")
+		slog.Warn(".env file not found, reading from environment")
 	}
 
 	return &Config{
@@ -31,7 +31,10 @@ func getOrDefault(key, defaultVal string) string {
 		return val
 	}
 
-	log.Printf("[WARN] %s not set, using default: %s\n", key, defaultVal)
+	slog.Warn("environment variable not set, using default",
+		slog.String("key", key),
+		slog.String("default", defaultVal),
+	)
 	return defaultVal
 }
 
@@ -39,7 +42,8 @@ func getRequired(key string) string {
 	if val := os.Getenv(key); val != "" {
 		return val
 	}
-	log.Fatalf("[FATAL] required config %s is not set", key)
+	slog.Error("required config is not set", slog.String("key", key))
+	os.Exit(1)
 	return ""
 }
 
@@ -47,7 +51,11 @@ func getDuration(key, defaultVal string) time.Duration {
 	val := getOrDefault(key, defaultVal)
 	duration, err := time.ParseDuration(val)
 	if err != nil {
-		log.Fatalf("[FATAL] %s must be a valid duration (e.g. 24h, 30m): %v", key, err)
+		slog.Error("invalid duration format (e.g. 24h, 30m)",
+			slog.String("key", key),
+			slog.String("error", err.Error()),
+		)
+		os.Exit(1)
 	}
 	return duration
 }

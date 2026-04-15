@@ -3,12 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"net"
+	"os"
 
 	"github.com/handziurdmytro/3JlArODA/auth-service/internal/config"
 	"github.com/handziurdmytro/3JlArODA/auth-service/internal/crypto"
 	"github.com/handziurdmytro/3JlArODA/auth-service/internal/gateway"
+	"github.com/handziurdmytro/3JlArODA/auth-service/internal/middleware"
 	"github.com/handziurdmytro/3JlArODA/auth-service/internal/repository"
 	"github.com/handziurdmytro/3JlArODA/auth-service/pb"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -16,18 +18,23 @@ import (
 )
 
 func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+
 	cfg := config.Load()
 
 	db, err := pgxpool.New(context.Background(), cfg.DatabaseURL)
 	if err != nil {
-		log.Fatalf("[FATAL] failed to connect to database: %v", err)
+		slog.Error("failed to connect to database", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
 	defer db.Close()
 
 	if err := db.Ping(context.Background()); err != nil {
-		log.Fatalf("[FATAL] database is unreachable: %v", err)
+		slog.Error("database is unreachable", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
-	log.Println("[INFO] connected to database")
+	slog.Info("connected to database")
 
 	cryptoClient := crypto.NewClient(cfg.CryptoServiceAddr)
 	defer cryptoClient.Close()
@@ -36,16 +43,20 @@ func main() {
 
 	listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", cfg.Port))
 	if err != nil {
-		log.Fatalf("[FATAL] failed to listen on port %s: %v", cfg.Port, err)
+		slog.Error("failed to listen", slog.String("port", cfg.Port), slog.String("error", err.Error()))
+		os.Exit(1)
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(middleware.LoggingInterceptor),
+	)
 
 	gatewayServer := gateway.NewServer(repo, cryptoClient)
 	pb.RegisterAuthServiceServer(grpcServer, gatewayServer)
 
-	log.Printf("[INFO] auth-service listening on port %s", cfg.Port)
+	slog.Info("auth-service started", slog.String("port", cfg.Port))
 	if err := grpcServer.Serve(listener); err != nil {
-		log.Fatalf("[FATAL] failed to serve: %v", err)
+		slog.Error("failed to serve", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
 }

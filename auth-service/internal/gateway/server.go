@@ -3,7 +3,7 @@ package gateway
 import (
 	"context"
 	"errors"
-	"log"
+	"log/slog"
 
 	"github.com/handziurdmytro/3JlArODA/auth-service/internal/crypto"
 	"github.com/handziurdmytro/3JlArODA/auth-service/internal/repository"
@@ -53,7 +53,11 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 		return nil, status.Error(codes.Internal, "failed to sign JWT")
 	}
 
-	log.Printf("[INFO] registered user: %s", user.Username)
+	slog.Info("registered new user",
+		slog.String("user_id", user.ID.String()),
+		slog.String("username", user.Username),
+	)
+
 	return &pb.RegisterResponse{Token: token}, nil
 }
 
@@ -80,7 +84,11 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 		return nil, status.Error(codes.Internal, "failed to generate JWT")
 	}
 
-	log.Printf("[INFO] user logged in: %s", user.Username)
+	slog.Info("user logged in successfully",
+		slog.String("user_id", user.ID.String()),
+		slog.String("username", user.Username),
+	)
+
 	return &pb.LoginResponse{
 		Token: token,
 	}, nil
