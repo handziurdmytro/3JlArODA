@@ -24,10 +24,22 @@ fn get_or_generate(key: &str, generate: impl Fn() -> String) -> String {
     val
 }
 
+fn get_or_default(key: &str, default: &str) -> String {
+    if let Ok(val) = std::env::var(key) {
+        if !val.is_empty() {
+            return val;
+        }
+    }
+    println!("[WARN] {} not set, using default: {}", key, default);
+    default.to_string()
+}
+
 pub struct AppConfig {
     pub port: u16,
     pub pepper: String,
     pub signing_key_hex: String,
+    pub jwt_secret: String,
+    pub jwt_exp_seconds: u64,
 }
 
 impl AppConfig {
@@ -50,10 +62,22 @@ impl AppConfig {
             hex::encode(signing_key.to_bytes())
         });
 
+        let jwt_secret = get_or_generate("JWT_SECRET", || {
+            let mut bytes = vec![0u8; 32];
+            OsRng.fill_bytes(&mut bytes);
+            hex::encode(bytes)
+        });
+
+        let jwt_exp_seconds = get_or_default("JWT_EXP_SECONDS", "86400")
+            .parse::<u64>()
+            .expect("JWT_EXP_SECONDS must be a valid number");
+
         Self {
             port,
             pepper,
             signing_key_hex,
+            jwt_secret,
+            jwt_exp_seconds,
         }
     }
 }
