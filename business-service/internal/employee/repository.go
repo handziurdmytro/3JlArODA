@@ -10,24 +10,45 @@ type Repository struct {
 	pool *pgxpool.Pool
 }
 
+type ContactData struct {
+	PhoneNumber string `json:"phone_number"`
+	City        string `json:"city"`
+	Street      string `json:"street"`
+	ZipCode     string `json:"zip_code"`
+}
+
 func NewEmployeeRepository(pool *pgxpool.Pool) *Repository {
 	return &Repository{pool: pool}
 }
 
-func (repository Repository) CreateEmployee(ctx context.Context, employee Employee) error {
-	_, err := repository.pool.Exec(ctx,
-		`INSERT INTO employees (
-			id_employee, empl_surname, empl_name, empl_patronymic, 
-			empl_role, salary, date_of_birth, date_of_start, 
-			phone_number, city, street, zip_code
-		) VALUES (
-			$1, $2, $3, $4, 
-			$5, $6, $7, $8, 
-			$9, $10, $11, $12
-		)`,
-		employee.ID, employee.Surname, employee.Name, employee.Patronymic,
-		employee.Role, employee.Salary, employee.DateOfBirth, employee.DateOfStart,
-		employee.PhoneNumber, employee.City, employee.Street, employee.ZipCode,
-	)
-	return err
+func (r *Repository) CreateEmployee(ctx context.Context, req CreateRequest) error {
+	panic("not implemented")
+}
+
+func (r *Repository) UpdateEmployeeByID(ctx context.Context, employee Employee) error {
+	panic("not implemented")
+}
+
+func (r *Repository) DeleteEmployeeByID(ctx context.Context, id string) error {
+	panic("not implemented")
+}
+
+func (r *Repository) GetAllEmployees(ctx context.Context) ([]Employee, error) {
+	panic("not implemented")
+}
+
+func (r *Repository) GetEmployeeByID(ctx context.Context, id string) (*Employee, error) {
+	panic("not implemented")
+}
+
+func (r *Repository) GetEmployeesByRole(ctx context.Context, role string) ([]Employee, error) {
+	panic("not implemented")
+}
+
+func (r *Repository) GetEmployeeDataBySurname(ctx context.Context, surname string) ([]ContactData, error) {
+	panic("not implemented")
+}
+
+func (r *Repository) GetEmployeeDataByFullName(ctx context.Context, surname, name, patronymic string) ([]ContactData, error) {
+	panic("not implemented")
 }
