@@ -18,12 +18,21 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer func(authClient *clients.Auth) {
-		err := authClient.Close()
-		if err != nil {
-
+	defer func() {
+		if err := authClient.Close(); err != nil {
+			log.Printf("[WARN] failed to close auth grpc client: %v", err)
 		}
-	}(authClient)
+	}()
+
+	businessClient, err := clients.NewBusinessClient(cfg.BusinessService)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		if err := businessClient.Close(); err != nil {
+			log.Printf("[WARN] failed to close business grpc client: %v", err)
+		}
+	}()
 
 	authHandler := handlers.NewAuthHandler(authClient)
 
