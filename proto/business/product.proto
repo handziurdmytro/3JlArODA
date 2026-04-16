@@ -1,3 +1,68 @@
-package business;
+syntax = "proto3";
 
-service
+package business.product;
+
+option go_package = "github.com/handziurdmytro/3JlArODA/business-service/pb/business/product;productpb";
+
+service ProductService {
+  rpc CreateProduct(CreateProductRequest) returns (ProductResponse);
+  rpc UpdateProduct(UpdateProductRequest) returns (ProductResponse);
+  rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
+  rpc GetProduct(GetProductRequest) returns (ProductResponse);
+  rpc GetAllProducts(GetAllProductsRequest) returns (GetProductsResponse);
+  rpc GetProductsByCategory(GetProductsByCategoryRequest) returns (GetProductsResponse);
+  rpc SearchProductsByName(SearchProductsByNameRequest) returns (GetProductsResponse);
+}
+
+message Product {
+  int32 id = 1;
+  int32 category_number = 2;
+  string name = 3;
+  optional string producer = 4;
+  string characteristics = 5;
+}
+
+message CreateProductRequest {
+  int32 category_number = 1;
+  string name = 2;
+  optional string producer = 3;
+  string characteristics = 4;
+}
+
+message UpdateProductRequest {
+  int32 id = 1;
+  int32 category_number = 2;
+  string name = 3;
+  optional string producer = 4;
+  string characteristics = 5;
+}
+
+message DeleteProductRequest {
+  int32 id = 1;
+}
+
+message DeleteProductResponse {
+  bool success = 1;
+}
+
+message GetProductRequest {
+  int32 id = 1;
+}
+
+message GetAllProductsRequest {}
+
+message GetProductsByCategoryRequest {
+  int32 category_number = 1;
+}
+
+message SearchProductsByNameRequest {
+  string name = 1;
+}
+
+message ProductResponse {
+  Product product = 1;
+}
+
+message GetProductsResponse {
+  repeated Product products = 1;
+}

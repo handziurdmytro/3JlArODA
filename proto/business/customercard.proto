@@ -1,3 +1,81 @@
-package business;
+syntax = "proto3";
 
-    service
+package business.customercard;
+
+option go_package = "github.com/handziurdmytro/3JlArODA/business-service/pb/business/customercard;customercardpb";
+
+service CustomerCardService {
+  rpc CreateCustomerCard(CreateCustomerCardRequest) returns (CustomerCardResponse);
+  rpc UpdateCustomerCard(UpdateCustomerCardRequest) returns (CustomerCardResponse);
+  rpc DeleteCustomerCard(DeleteCustomerCardRequest) returns (DeleteCustomerCardResponse);
+  rpc GetCustomerCard(GetCustomerCardRequest) returns (CustomerCardResponse);
+  rpc GetAllCustomerCards(GetAllCustomerCardsRequest) returns (GetCustomerCardsResponse);
+  rpc GetCustomerCardsByPercent(GetCustomerCardsByPercentRequest) returns (GetCustomerCardsResponse);
+  rpc SearchCustomerCardsBySurname(SearchCustomerCardsBySurnameRequest) returns (GetCustomerCardsResponse);
+}
+
+message CustomerCard {
+  string card_number = 1;
+  string surname = 2;
+  string name = 3;
+  optional string patronymic = 4;
+  string phone_number = 5;
+  optional string city = 6;
+  optional string street = 7;
+  optional string zip_code = 8;
+  int32 percent = 9;
+}
+
+message CreateCustomerCardRequest {
+  string card_number = 1;
+  string surname = 2;
+  string name = 3;
+  optional string patronymic = 4;
+  string phone_number = 5;
+  optional string city = 6;
+  optional string street = 7;
+  optional string zip_code = 8;
+  int32 percent = 9;
+}
+
+message UpdateCustomerCardRequest {
+  string card_number = 1;
+  string surname = 2;
+  string name = 3;
+  optional string patronymic = 4;
+  string phone_number = 5;
+  optional string city = 6;
+  optional string street = 7;
+  optional string zip_code = 8;
+  int32 percent = 9;
+}
+
+message DeleteCustomerCardRequest {
+  string card_number = 1;
+}
+
+message DeleteCustomerCardResponse {
+  bool success = 1;
+}
+
+message GetCustomerCardRequest {
+  string card_number = 1;
+}
+
+message GetAllCustomerCardsRequest {}
+
+message GetCustomerCardsByPercentRequest {
+  int32 percent = 1;
+}
+
+message SearchCustomerCardsBySurnameRequest {
+  string surname = 1;
+}
+
+message CustomerCardResponse {
+  CustomerCard customer_card = 1;
+}
+
+message GetCustomerCardsResponse {
+  repeated CustomerCard customer_cards = 1;
+}
