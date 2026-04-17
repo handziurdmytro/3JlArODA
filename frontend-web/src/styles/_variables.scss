@@ -1,0 +1,30 @@
+// ── Variables ──────────────────────────────────────────────
+$bg-deep:      #0a0a0b;
+$bg-card:      #111113;
+$bg-panel:     #16161a;
+$bg-input:     #1c1c21;
+
+$border:       #2a2a32;
+$border-hover: #ffe997;
+$border-focus: #e8c547;
+
+$accent:       #e8c547;
+$button-hover: #e8c74f;
+$button-active: #e8a84f;
+$accent-dim:   rgba(232, 197, 71, 0.12);
+$accent-glow:  rgba(232, 197, 71, 0.25);
+
+$text-primary:   #f0efe8;
+$text-secondary: #7a7a8a;
+$text-muted:     #4a4a5a;
+
+$error-bg:     rgba(220, 80, 80, 0.1);
+$error-border: rgba(220, 80, 80, 0.4);
+$error-text:   #e88080;
+
+$radius-sm: 6px;
+$radius-md: 12px;
+$transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+$font-serif: 'IBM Plex Serif', serif;
+$font-sans: 'DM Mono', monospace;

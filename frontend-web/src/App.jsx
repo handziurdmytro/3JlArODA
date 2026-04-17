@@ -1,7 +1,7 @@
 import {Auth} from './components/Auth/Auth.jsx'
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import {ProtectedRoute} from "./components/Auth/ProtectedRoute.jsx";
-import {Dashboard} from "./components/Dashboard.jsx";
+import { MainPage } from './components/MainPage/MainPage.jsx';
 
 function App() {
     return (
@@ -13,7 +13,7 @@ function App() {
                         path={'/dashboard'}
                         element={
                             <ProtectedRoute>
-                                <Dashboard/>
+                                <MainPage/>
                             </ProtectedRoute>
                         }
                     />
