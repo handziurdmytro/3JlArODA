@@ -1,25 +1,57 @@
 version: "2"
 
 sql:
-    - engine: postgresql
-      schema:
-        - "internal/database/migrations"
-      queries:
-        - "internal/product/queries.sql"
-      gen:
-          go:
-              package: "productdb"
-              out: "internal/product/sqlc"
-              sql_package: "pgx/v5"
+  - engine: "postgresql"
+    schema:
+      - "migrations"
+    queries:
+      - "internal/employee/queries.sql"
+    gen:
+      go:
+        package: "employeedb"
+        out: "internal/employee/sqlc"
+        sql_package: "pgx/v5"
 
-    - engine: postgresql
-      schema:
-        - "internal/database/migrations"
-      queries:
-        - "internal/customercard/queries.sql"
-      gen:
-        go:
-          package: "customercarddb"
-          out: "internal/customercard/sqlc"
-          sql_package: "pgx/v5"
+  - engine: "postgresql"
+    schema:
+      - "migrations"
+    queries:
+      - "internal/product/queries.sql"
+    gen:
+      go:
+        package: "productdb"
+        out: "internal/product/sqlc"
+        sql_package: "pgx/v5"
 
+  - engine: "postgresql"
+    schema:
+      - "migrations"
+    queries:
+      - "internal/customercard/queries.sql"
+    gen:
+      go:
+        package: "customercarddb"
+        out: "internal/customercard/sqlc"
+        sql_package: "pgx/v5"
+
+  - engine: "postgresql"
+    schema:
+      - "migrations"
+    queries:
+      - "internal/check/queries.sql"
+    gen:
+      go:
+        package: "checkdb"
+        out: "internal/check/sqlc"
+        sql_package: "pgx/v5"
+
+  - engine: "postgresql"
+    schema:
+      - "migrations"
+    queries:
+      - "internal/sale/queries.sql"
+    gen:
+      go:
+        package: "saledb"
+        out: "internal/sale/sqlc"
+        sql_package: "pgx/v5"
