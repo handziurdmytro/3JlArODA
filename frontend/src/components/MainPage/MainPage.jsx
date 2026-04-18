@@ -8,7 +8,7 @@ import styles from './MainPage.module.scss';
 const USER = {
     firstName: 'Дмитро',
     lastName:  'Гандзюр',
-    role:      'cashier',
+    role:      'manager',
 };
 
 const filterByRole = (items, role) =>

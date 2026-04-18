@@ -1,5 +1,6 @@
 import { SubTabs } from '../SubTabs/SubTabs';
 import { PosPanel }  from './panels/PosPanel/PosPanel';
+import { ReceiptsPanel } from './panels/ReceiptsPanel/ReceiptsPanel';
 import {TodoPanel} from "./panels/ToDoPanel";
 import styles from './Workspace.module.scss';
 
@@ -18,6 +19,7 @@ const renderPanel = (activeSection, activeSubTab) => {
     const key = activeSubTab ?? activeSection;
 
     if (key === 'pos') return <PosPanel />;
+    if (key === 'receipts') return <ReceiptsPanel />;
     return <TodoPanel title={PANEL_TITLES[key] || 'Невідома секція'} />;
 };
 

@@ -1,0 +1,524 @@
+@use '../../../../../styles/variables' as *;
+
+.receipts {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+// ── Stats ──────────────────────────────────────────────────
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+
+    @media (max-width: 700px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px 24px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    transition: border-color $transition;
+    animation: fade-up 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+    &--inactive {
+        opacity: 0.45;
+    }
+
+    &:first-child { animation-delay: 0ms; }
+    &:nth-child(2) { animation-delay: 60ms; }
+    &:nth-child(3) { animation-delay: 120ms; }
+
+    &__label {
+        font-family: $font-sans;
+        font-size: 12px;
+        text-transform: uppercase;
+        color: $text-muted;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__value {
+        font-family: $font-serif;
+        font-size: 30px;
+        font-weight: 700;
+        color: $text-primary;
+        line-height: 1;
+
+        &--accent {
+            color: $accent;
+        }
+    }
+}
+
+// ── Filters ────────────────────────────────────────────────
+.filters {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 20px 24px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid $border;
+    border-radius: $radius-md;
+
+    &__group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        flex: 1;
+        min-width: 180px;
+    }
+
+    &__label {
+        font-family: $font-sans;
+        font-size: 12px;
+        text-transform: uppercase;
+        color: $text-muted;
+    }
+
+    &__select {
+        padding: 9px 14px;
+        background: $bg-input;
+        border: 1px solid $border;
+        border-radius: $radius-sm;
+        color: $text-primary;
+        font-family: $font-sans;
+        font-size: 14px;
+        outline: none;
+        cursor: pointer;
+        transition: border-color $transition;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a4a5a' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 32px;
+
+        option {
+            background: $bg-card;
+            color: $text-primary;
+        }
+
+        &:focus {
+            border-color: $border-focus;
+            box-shadow: 0 0 0 3px $accent-dim;
+        }
+
+        &:hover {
+            border-color: $border-hover;
+            box-shadow: 0 0 0 3px $accent-dim;
+        }
+    }
+
+    &__dates {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__sep {
+        font-family: $font-sans;
+        font-size: 20px;
+        color: $text-muted;
+        flex-shrink: 0;
+    }
+
+    &__date {
+        padding: 9px 12px;
+        background: $bg-input;
+        border: 1px solid $border;
+        border-radius: $radius-sm;
+        color: $text-primary;
+        font-family: $font-sans;
+        font-size: 13px;
+        outline: none;
+        color-scheme: dark;
+        transition: border-color $transition;
+        width: 130px;
+
+        &:focus {
+            border-color: $border-focus;
+            box-shadow: 0 0 0 3px $accent-dim;
+        }
+
+        &:hover {
+            border-color: $border-hover;
+            box-shadow: 0 0 0 3px $accent-dim;
+        }
+    }
+}
+
+// ── List ───────────────────────────────────────────────────
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    &__head {
+        display: grid;
+        grid-template-columns: 80px 1fr 160px 80px 120px 72px;
+        gap: 12px;
+        padding: 8px 16px;
+        font-family: $font-sans;
+        font-size: 12px;
+        text-transform: uppercase;
+        color: $text-muted;
+    }
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 80px 1fr 160px 80px 120px 72px;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid $border;
+    border-radius: $radius-sm;
+    font-family: $font-sans;
+    font-size: 14px;
+    color: $text-secondary;
+    transition: all $transition;
+    animation: fade-up 0.5s ease both;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    &__number {
+        font-family: $font-serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: $text-primary;
+        cursor: pointer;
+        transition: color $transition;
+
+        &:hover { color: $accent; }
+
+        &:active { color: $accent-dim; ;}
+    }
+
+    &__cashier {
+        color: $text-primary;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__date {
+        font-size: 12px;
+        color: $text-muted;
+    }
+
+    &__items {
+        font-size: 12px;
+        color: $text-muted;
+    }
+
+    &__total {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: $font-serif;
+        font-size: 16px;
+        font-weight: 600;
+        color: $text-primary;
+    }
+
+    &__discount {
+        font-family: $font-sans;
+        font-size: 10px;
+        padding: 2px 6px;
+        background: $accent-dim;
+        border-radius: 10px;
+        color: $accent;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+    }
+
+    &__view {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 1px solid $border;
+        border-radius: 4px;
+        color: $text-secondary;
+        cursor: pointer;
+        font-size: 20px;
+        transition: all $transition;
+
+        &:hover {
+            border-color: rgba(232, 197, 71, 0.8);
+            color: $accent;
+            transform: translateY(-2px) scale(1.05);
+        }
+        &:active {
+            border-color: $button-active;
+            border-color: $button-active;
+            transform: translateY(-2px) scale(1.05);
+        }
+    }
+
+    &__delete {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        color: $text-muted;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all $transition;
+
+        &:hover {
+            border-color: $error-border;
+            background: $error-bg;
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        &:hover > svg path {
+            fill: $error-border;
+        }
+
+        &:active {
+            background-color: $error-border;
+            transform: translateY(-2px) scale(1.05);
+        }
+    }
+}
+
+// ── Empty ──────────────────────────────────────────────────
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 80px 40px;
+    text-align: center;
+
+    &__text {
+        font-family: $font-serif;
+        font-size: 20px;
+        font-weight: 600;
+        color: $text-muted;
+    }
+
+    &__sub {
+        font-family: $font-sans;
+        font-size: 16px;
+        color: $text-secondary;
+    }
+}
+
+// ── Modal ──────────────────────────────────────────────────
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 24px;
+    animation: fade-in 0.5s ease both;
+}
+
+.modal {
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    width: 100%;
+    max-width: 620px;
+    overflow: hidden;
+    animation: modal-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+    &__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 20px 24px;
+        border-bottom: 1px solid $border;
+        background: rgba(232, 197, 71, 0.03);
+
+        &_info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        &_actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+    }
+
+    &__number {
+        font-family: $font-serif;
+        font-size: 20px;
+        font-weight: 800;
+        color: $text-primary;
+    }
+
+    &__meta {
+        font-family: $font-sans;
+        font-size: 14px;
+        color: $text-muted;
+    }
+
+    &__delete {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: transparent;
+        border: 1px solid $error-border;
+        border-radius: $radius-sm;
+        color: $error-text;
+        font-family: $font-sans;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all $transition;
+
+        &:hover {
+            background: $error-bg;
+            transform: scale(1.05) translateY(-2px);
+        }
+
+        &:active {
+            background: $error-border;
+            transform: scale(1.05) translateY(-2px);
+        }
+    }
+
+    &__close {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 1px solid $border;
+        border-radius: $radius-sm;
+        color: $text-secondary;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all $transition;
+
+        &:hover {
+            border-color: $error-border;
+            color: $error-text;
+            transform: scale(1.05) translateY(-2px);
+        }
+
+        &:active {
+            background: $error-bg;
+            transform: scale(1.05) translateY(-2px);
+        }
+    }
+
+    &__table {
+        padding: 16px 24px;
+
+        &_head {
+            display: grid;
+            grid-template-columns: 1fr 130px 60px 80px 80px;
+            gap: 8px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid $border;
+            font-family: $font-sans;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: $text-muted;
+        }
+
+        &_row {
+            display: grid;
+            grid-template-columns: 1fr 130px 60px 80px 80px;
+            gap: 8px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-family: $font-sans;
+            font-size: 14px;
+            color: $text-primary;
+        }
+    }
+
+    &__upc {
+        font-size: 12px;
+        color: $text-muted !important;
+        text-align: left !important;
+    }
+
+    &__totals {
+        padding: 16px 24px;
+        background: rgba(255, 255, 255, 0.02);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        border-top: 1px solid $border;
+    }
+
+    &__total_row {
+        display: flex;
+        justify-content: space-between;
+        font-family: $font-sans;
+        font-size: 14px;
+        color: $text-secondary;
+
+        &--discount {
+            color: $accent;
+        }
+
+        &--final {
+            display: flex;
+            justify-content: space-between;
+            font-family: $font-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: $text-primary;
+            padding-top: 10px;
+            border-top: 1px solid $border;
+        }
+    }
+}
+
+// ── Keyframes ──────────────────────────────────────────────
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes modal-in {
+    from { opacity: 0; transform: scale(0.96) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}

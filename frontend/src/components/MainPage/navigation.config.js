@@ -5,6 +5,11 @@ export const NAV = [
         roles: ['cashier'],
     },
     {
+        key:   'receipts',
+        label: 'Receipts',
+        roles: ['manager'],
+    },
+    {
         key:   'catalog',
         label: 'Catalog',
         roles: ['cashier', 'manager'],
@@ -13,11 +18,6 @@ export const NAV = [
             { key: 'store-products', label: 'In Store',    roles: ['cashier', 'manager'] },
             { key: 'categories',     label: 'Categories',     roles: ['manager'] },
         ],
-    },
-    {
-        key:   'receipts',
-        label: 'Receipts',
-        roles: ['cashier', 'manager'],
     },
     {
         key:   'people',
