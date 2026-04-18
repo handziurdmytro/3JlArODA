@@ -19,17 +19,17 @@ type CreateEmployeeRequest struct {
 }
 
 type UpdateEmployeeRequest struct {
-	Surname     *string    `json:"surname"`
-	Name        *string    `json:"name"`
-	Patronymic  *string    `json:"patronymic,omitempty"`
-	Role        *string    `json:"role"`
-	Salary      *float64   `json:"salary"`
-	DateOfBirth *time.Time `json:"date_of_birth"`
-	DateOfStart *time.Time `json:"date_of_start"`
-	PhoneNumber *string    `json:"phone_number"`
-	City        *string    `json:"city"`
-	Street      *string    `json:"street"`
-	ZipCode     *string    `json:"zip_code"`
+	Surname     string    `json:"surname" binding:"required"`
+	Name        string    `json:"name" binding:"required"`
+	Patronymic  *string   `json:"patronymic,omitempty"`
+	Role        string    `json:"role" binding:"required"`
+	Salary      float64   `json:"salary" binding:"required"`
+	DateOfBirth time.Time `json:"date_of_birth" binding:"required"`
+	DateOfStart time.Time `json:"date_of_start" binding:"required"`
+	PhoneNumber string    `json:"phone_number" binding:"required"`
+	City        string    `json:"city" binding:"required"`
+	Street      string    `json:"street" binding:"required"`
+	ZipCode     string    `json:"zip_code" binding:"required"`
 }
 
 // Category Models
@@ -38,7 +38,7 @@ type CreateCategoryRequest struct {
 }
 
 type UpdateCategoryRequest struct {
-	Name *string `json:"name"`
+	Name string `json:"name" binding:"required"`
 }
 
 // Product Models
@@ -50,10 +50,10 @@ type CreateProductRequest struct {
 }
 
 type UpdateProductRequest struct {
-	CategoryNumber  *int    `json:"category_number"`
-	Name            *string `json:"name"`
+	CategoryNumber  int     `json:"category_number" binding:"required"`
+	Name            string  `json:"name" binding:"required"`
 	Producer        *string `json:"producer,omitempty"`
-	Characteristics *string `json:"characteristics"`
+	Characteristics string  `json:"characteristics" binding:"required"`
 }
 
 // StoreProduct Models
@@ -67,11 +67,11 @@ type CreateStoreProductRequest struct {
 }
 
 type UpdateStoreProductRequest struct {
-	UPCProm            *string  `json:"upc_prom,omitempty"`
-	ProductID          *int     `json:"product_id"`
-	SellingPrice       *float64 `json:"selling_price"`
-	ProductsNumber     *int     `json:"products_number"`
-	PromotionalProduct *bool    `json:"promotional_product"`
+	UPCProm            *string `json:"upc_prom,omitempty"`
+	ProductID          int     `json:"product_id" binding:"required"`
+	SellingPrice       float64 `json:"selling_price" binding:"required"`
+	ProductsNumber     int     `json:"products_number" binding:"required"`
+	PromotionalProduct bool    `json:"promotional_product"`
 }
 
 // CustomerCard Models
@@ -88,14 +88,14 @@ type CreateCustomerCardRequest struct {
 }
 
 type UpdateCustomerCardRequest struct {
-	Surname     *string `json:"surname"`
-	Name        *string `json:"name"`
+	Surname     string  `json:"surname" binding:"required"`
+	Name        string  `json:"name" binding:"required"`
 	Patronymic  *string `json:"patronymic,omitempty"`
-	PhoneNumber *string `json:"phone_number"`
+	PhoneNumber string  `json:"phone_number" binding:"required"`
 	City        *string `json:"city,omitempty"`
 	Street      *string `json:"street,omitempty"`
 	ZipCode     *string `json:"zip_code,omitempty"`
-	Percent     *int    `json:"percent"`
+	Percent     int     `json:"percent" binding:"required"`
 }
 
 // Check Models
