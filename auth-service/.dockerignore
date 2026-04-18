@@ -1,2 +1,14 @@
 .env
 cmd/test
+
+.git
+.gitignore
+
+**/vendor/
+**/bin/
+auth-app
+
+**/target/
+
+*.log
+*.tmp
