@@ -3,8 +3,6 @@ package clients
 import (
 	"fmt"
 
-	customercardpb "github.com/handziurdmytro/3JlArODA/api-gateway/pb/business/customercard"
-	productpb "github.com/handziurdmytro/3JlArODA/api-gateway/pb/business/product"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -12,8 +10,8 @@ import (
 type Business struct {
 	conn *grpc.ClientConn
 
-	Product      productpb.ProductServiceClient
-	CustomerCard customercardpb.CustomerCardServiceClient
+	Product      *ProductClient
+	CustomerCard *CustomerCardClient
 }
 
 func NewBusinessClient(address string) (*Business, error) {
@@ -27,8 +25,8 @@ func NewBusinessClient(address string) (*Business, error) {
 
 	return &Business{
 		conn:         conn,
-		Product:      productpb.NewProductServiceClient(conn),
-		CustomerCard: customercardpb.NewCustomerCardServiceClient(conn),
+		Product:      NewProductClient(conn),
+		CustomerCard: NewCustomerCardClient(conn),
 	}, nil
 }
 
