@@ -1,0 +1,165 @@
+name: CI-pipeline
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  api-gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Golang
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: api-gateway/go.mod
+
+      - name: Update ubuntu
+        run: sudo apt-get update
+
+      - name: Install protoc
+        run: sudo apt-get -y install protobuf-compiler
+
+      - name: Install Go gen-tools
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+      - name: Generate protobuf
+        working-directory: api-gateway
+        run: make gen
+
+      - name: Test api-gateway
+        working-directory: api-gateway
+        run: go test ./...
+
+      - name: Check formatting
+        working-directory: api-gateway
+        run: test -z "$(gofmt -l .)"
+
+      - name: Vet
+        working-directory: api-gateway
+        run: go vet ./...
+
+  business-service:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Golang
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: business-service/go.mod
+
+      - name: Update ubuntu
+        run: sudo apt-get update
+
+      - name: Install protoc
+        run: sudo apt-get -y install protobuf-compiler
+
+      - name: Install Go gen-tools
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+          go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+
+      - name: Generate protobufs/sqlc
+        working-directory: business-service
+        run: make gen
+
+      - name: Test business-service
+        working-directory: business-service
+        run: go test ./...
+
+      - name: Check formatting
+        working-directory: business-service
+        run: test -z "$(gofmt -l .)"
+
+      - name: Vet
+        working-directory: business-service
+        run: go vet ./...
+
+  auth-service:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Golang
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: auth-service/go.mod
+
+      - name: Update ubuntu
+        run: sudo apt-get update
+
+      - name: Install protoc
+        run: sudo apt-get -y install protobuf-compiler
+
+      - name: Install Go protobuf generation
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+      - name: Add go bin to PATH
+        run: echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Generate protobuf
+        working-directory: auth-service
+        run: make gen
+
+      - name: Test auth-service
+        working-directory: auth-service
+        run: go test ./...
+
+      - name: Check formatting
+        working-directory: auth-service
+        run: test -z "$(gofmt -l .)"
+
+      - name: Vet
+        working-directory: auth-service
+        run: go vet ./...
+
+  crypto-service:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Update ubuntu
+        run: sudo apt-get update
+
+      - name: Install protoc
+        run: sudo apt-get -y install protobuf-compiler
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: crypto-service
+
+      - name: Check Rust formatting
+        working-directory: crypto-service
+        run: cargo fmt --check
+
+      - name: Run clippy
+        working-directory: crypto-service
+        run: cargo clippy
+
+      - name: Build rust crypto-service
+        working-directory: crypto-service
+        run: cargo build --locked
+
+      - name: Test crypto-service
+        working-directory: crypto-service
+        run: cargo test --locked
