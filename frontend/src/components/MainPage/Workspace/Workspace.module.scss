@@ -1,0 +1,119 @@
+@use '../../../styles/variables' as *;
+
+.workspace {
+    flex: 1;
+    padding: 28px 32px;
+    overflow-y: auto;
+
+    // ── workspace__card ────────────────────────────────────
+    &__card {
+        background: rgba(17, 17, 19, 0.75);
+        border: 1px solid $border;
+        border-radius: $radius-md;
+        padding: 32px;
+        min-height: calc(100vh - 64px - 56px);
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        animation: card-in 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+        // Акцентна лінія зверху
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100px;
+            height: 1px;
+            background: linear-gradient(90deg, $accent, transparent);
+        }
+
+        // Ambient glow
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(232, 197, 71, 0.035) 0%, transparent 70%);
+            pointer-events: none;
+        }
+    }
+
+    // ── workspace__header ──────────────────────────────────
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid $border;
+    }
+
+    // ── workspace__title ───────────────────────────────────
+    &__title {
+        font-family: 'Syne', sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: $text-primary;
+        margin: 0;
+        letter-spacing: -0.3px;
+    }
+
+    // ── workspace__badge ───────────────────────────────────
+    &__badge {
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        font-weight: 500;
+        background: $accent-dim;
+        color: $accent;
+        border: 1px solid rgba(232, 197, 71, 0.18);
+    }
+
+    // ── workspace__body ────────────────────────────────────
+    &__body {
+        position: relative;
+        z-index: 1;
+    }
+
+    // ── workspace__todo ────────────────────────────────────
+    &__todo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 360px;
+        gap: 12px;
+        text-align: center;
+    }
+
+    &__todo-icon {
+        font-size: 48px;
+        color: $border;
+        line-height: 1;
+        margin-bottom: 8px;
+    }
+
+    &__todo-text {
+        font-family: 'Syne', sans-serif;
+        font-size: 18px;
+        font-weight: 600;
+        color: $text-muted;
+        margin: 0;
+    }
+
+    &__todo-sub {
+        font-size: 12px;
+        color: $text-secondary;
+        letter-spacing: 0.03em;
+    }
+}
+
+@keyframes card-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

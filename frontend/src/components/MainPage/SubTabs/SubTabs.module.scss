@@ -1,0 +1,47 @@
+@use '../../../styles/variables' as *;
+
+.subtabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 0 24px 0;
+    border-bottom: 1px solid $border;
+    margin-bottom: 28px;
+
+    // ── subtabs__item ──────────────────────────────────────
+    &__item {
+        padding: 6px 18px;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 20px;
+        color: $text-secondary;
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.03em;
+        cursor: pointer;
+        transition: all $transition;
+        animation: subtab-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+        &:hover {
+            color: $text-primary;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        // ── subtabs__item--active ──────────────────────────
+        &--active {
+            color: $bg-deep;
+            background: $accent;
+            border-color: $accent;
+            font-weight: 500;
+
+            &:hover {
+                background: lighten(#e8c547, 5%);
+            }
+        }
+    }
+}
+
+@keyframes subtab-in {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
