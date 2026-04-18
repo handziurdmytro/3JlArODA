@@ -6,7 +6,13 @@ import (
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/middleware"
 )
 
-func SetupRoutes(router *gin.Engine, authHandler *handlers.AuthHandler, authValidator middleware.AuthValidator) {
+func SetupRoutes(
+	router *gin.Engine,
+	authHandler *handlers.AuthHandler,
+	authValidator middleware.AuthValidator,
+	productHandler *handlers.ProductHandler,
+	customerCardHandler *handlers.CustomerCardHandler,
+) {
 	api := router.Group("/api/v1")
 	{
 		auth := api.Group("/auth")
@@ -38,11 +44,11 @@ func SetupRoutes(router *gin.Engine, authHandler *handlers.AuthHandler, authVali
 
 		product := protected.Group("/product")
 		{
-			product.GET("/", handlers.ListProducts)
-			product.GET("/:id", handlers.GetProductByID)
-			product.POST("/", handlers.CreateProduct)
-			product.PUT("/:id", handlers.UpdateProduct)
-			product.DELETE("/:id", handlers.DeleteProduct)
+			product.GET("/", productHandler.List)
+			product.GET("/:id", productHandler.GetByID)
+			product.POST("/", productHandler.Create)
+			product.PUT("/:id", productHandler.Update)
+			product.DELETE("/:id", productHandler.Delete)
 		}
 
 		storeProduct := protected.Group("/store-product")
@@ -56,11 +62,11 @@ func SetupRoutes(router *gin.Engine, authHandler *handlers.AuthHandler, authVali
 
 		customerCard := protected.Group("/customer-card")
 		{
-			customerCard.GET("/", handlers.ListCustomerCards)
-			customerCard.GET("/:number", handlers.GetCustomerCardByNumber)
-			customerCard.POST("/", handlers.CreateCustomerCard)
-			customerCard.PUT("/:number", handlers.UpdateCustomerCard)
-			customerCard.DELETE("/:number", handlers.DeleteCustomerCard)
+			customerCard.GET("/", customerCardHandler.List)
+			customerCard.GET("/:number", customerCardHandler.GetByNumber)
+			customerCard.POST("/", customerCardHandler.Create)
+			customerCard.PUT("/:number", customerCardHandler.Update)
+			customerCard.DELETE("/:number", customerCardHandler.Delete)
 		}
 
 		check := protected.Group("/check")

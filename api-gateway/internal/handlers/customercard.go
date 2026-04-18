@@ -1,44 +1,75 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/common"
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/models"
+	customercardpb "github.com/handziurdmytro/3JlArODA/api-gateway/pb/business/customercard"
 )
 
-func CreateCustomerCard(c *gin.Context) {
+type CustomerCardClient interface {
+	Create(ctx context.Context, req models.CreateCustomerCardRequest) (*customercardpb.CustomerCard, error)
+	GetByNumber(ctx context.Context, cardNumber string) (*customercardpb.CustomerCard, error)
+	GetAll(ctx context.Context) ([]*customercardpb.CustomerCard, error)
+	Update(ctx context.Context, cardNumber string, req models.UpdateCustomerCardRequest) (*customercardpb.CustomerCard, error)
+	Delete(ctx context.Context, cardNumber string) error
+}
+
+type CustomerCardHandler struct {
+	customerCardClient CustomerCardClient
+}
+
+func NewCustomerCardHandler(customerCardClient CustomerCardClient) *CustomerCardHandler {
+	return &CustomerCardHandler{customerCardClient: customerCardClient}
+}
+
+func (h *CustomerCardHandler) Create(c *gin.Context) {
 	var req models.CreateCustomerCardRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, common.ErrorResponse{Error: "Invalid request: " + err.Error()})
 		return
 	}
 
-	// TODO: Pass to the business service via gRPC
-	c.JSON(http.StatusCreated, req)
-}
-
-func GetCustomerCardByNumber(c *gin.Context) {
-	number := c.Param("number")
-	if number == "" {
-		c.JSON(http.StatusBadRequest, common.ErrorResponse{Error: "Card number is required"})
+	card, err := h.customerCardClient.Create(c.Request.Context(), req)
+	if err != nil {
+		respondGRPCError(c, err)
 		return
 	}
 
-	// TODO: Fetch from the business service via gRPC
-	c.JSON(http.StatusOK, gin.H{"card_number": number, "status": "found"})
+	c.JSON(http.StatusCreated, card)
 }
 
-func ListCustomerCards(c *gin.Context) {
-	// TODO: Fetch collection from the business service via gRPC
-	c.JSON(http.StatusOK, []string{})
+func (h *CustomerCardHandler) GetByNumber(c *gin.Context) {
+	number, ok := stringParam(c, "number", "Card number is required")
+	if !ok {
+		return
+	}
+
+	card, err := h.customerCardClient.GetByNumber(c.Request.Context(), number)
+	if err != nil {
+		respondGRPCError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, card)
 }
 
-func UpdateCustomerCard(c *gin.Context) {
-	number := c.Param("number")
-	if number == "" {
-		c.JSON(http.StatusBadRequest, common.ErrorResponse{Error: "Card number is required"})
+func (h *CustomerCardHandler) List(c *gin.Context) {
+	cards, err := h.customerCardClient.GetAll(c.Request.Context())
+	if err != nil {
+		respondGRPCError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, cards)
+}
+
+func (h *CustomerCardHandler) Update(c *gin.Context) {
+	number, ok := stringParam(c, "number", "Card number is required")
+	if !ok {
 		return
 	}
 
@@ -48,17 +79,35 @@ func UpdateCustomerCard(c *gin.Context) {
 		return
 	}
 
-	// TODO: Send update to the business service via gRPC
-	c.JSON(http.StatusOK, gin.H{"card_number": number, "status": "updated"})
-}
-
-func DeleteCustomerCard(c *gin.Context) {
-	number := c.Param("number")
-	if number == "" {
-		c.JSON(http.StatusBadRequest, common.ErrorResponse{Error: "Card number is required"})
+	card, err := h.customerCardClient.Update(c.Request.Context(), number, req)
+	if err != nil {
+		respondGRPCError(c, err)
 		return
 	}
 
-	// TODO: Send delete to the business service via gRPC
+	c.JSON(http.StatusOK, card)
+}
+
+func (h *CustomerCardHandler) Delete(c *gin.Context) {
+	number, ok := stringParam(c, "number", "Card number is required")
+	if !ok {
+		return
+	}
+
+	if err := h.customerCardClient.Delete(c.Request.Context(), number); err != nil {
+		respondGRPCError(c, err)
+		return
+	}
+
 	c.Status(http.StatusNoContent)
+}
+
+func stringParam(c *gin.Context, name, errorMessage string) (string, bool) {
+	value := c.Param(name)
+	if value == "" {
+		c.JSON(http.StatusBadRequest, common.ErrorResponse{Error: errorMessage})
+		return "", false
+	}
+
+	return value, true
 }
