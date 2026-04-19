@@ -148,6 +148,35 @@
             border-color: $button-active;
             color: $button-active;
         }
+
+        &--person {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            background: transparent;
+            border: 1px solid $border;
+            border-radius: $radius-sm;
+            color: $text-secondary;
+            cursor: pointer;
+            transition: all $transition;
+            flex-shrink: 0;
+
+            &:hover {
+                border-color: rgba(232, 197, 71, 0.3);
+                > svg {
+                    fill: $accent;
+                }
+            }
+
+            &:active {
+                border-color: $button-active;
+                > svg {
+                    fill: $button-active;
+                }
+            }
+        }
     }
 
     // ── topbar__logout ─────────────────────────────────────
@@ -183,4 +212,168 @@
 @keyframes topbar-in {
     from { opacity: 0; transform: translateY(-8px); }
     to   { opacity: 1; transform: translateY(0); }
+}
+
+.topbar__icon--person {
+    // існуючі стилі...
+
+    &--active {
+        border-color: rgba(232, 197, 71, 0.4);
+        color: $accent;
+        background: $accent-dim;
+    }
+}
+
+// ── Profile modal ──────────────────────────────────────────
+.profile {
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    width: 100%;
+    max-width: 500px;
+    animation: modal-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+    &__overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 24px;
+        animation: fade-in 0.5s ease both;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px;
+        border-bottom: 1px solid $border;
+        background: rgba(232, 197, 71, 0.03);
+    }
+
+    &__title {
+        font-family: $font-serif;
+        font-size: 24px;
+        font-weight: 700;
+        color: $text-primary;
+    }
+
+    &__close {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 1px solid $border;
+        border-radius: $radius-sm;
+        color: $text-secondary;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all $transition;
+
+        &:hover {
+            border-color: $error-border;
+            color: $error-text;
+            transform: scale(1.05) translateY(-2px);
+        }
+
+        &:active {
+            background: $error-bg;
+            transform: scale(1.05) translateY(-2px);
+        }
+    }
+
+    &__body {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    &__avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 64px;
+        height: 64px;
+        background: $accent-dim;
+        border: 1px solid rgba(232, 197, 71, 0.25);
+        border-radius: 50%;
+        color: $accent;
+        align-self: center;
+    }
+
+    &__fields {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    &__field {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+
+        &:last-child { border-bottom: none; }
+
+        &_label {
+            font-family: $font-sans;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: $text-muted;
+            flex-shrink: 0;
+        }
+
+        &_val {
+            font-family: $font-sans;
+            font-size: 14px;
+            color: $text-primary;
+            text-align: right;
+
+            &--accent {
+                font-family: $font-serif;
+                font-size: 18px;
+                font-weight: 700;
+                color: $accent;
+            }
+        }
+
+        &_badge {
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-family: $font-sans;
+            font-size: 12px;
+            font-weight: 500;
+
+            &--manager {
+                background: $accent-dim;
+                border: 1px solid rgba(232, 197, 71, 0.25);
+                color: $accent;
+            }
+
+            &--cashier {
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid $border;
+                color: $text-secondary;
+            }
+        }
+    }
+}
+
+@keyframes modal-in {
+    from { opacity: 0; transform: scale(0.96) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }

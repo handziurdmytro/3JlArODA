@@ -6,9 +6,17 @@ import { Workspace } from './Workspace/Workspace';
 import styles from './MainPage.module.scss';
 
 const USER = {
-    firstName: 'Дмитро',
-    lastName:  'Гандзюр',
+    id:        'E-001',
+    firstName: 'Ivan',
+    lastName:  'Kovalenko',
+    patronym:  'Mykhailovych',
+    position:  'Manager',
     role:      'manager',
+    phone:     '+380671112233',
+    address:   'Kyiv, Lesi Ukrainky blvd. 5, 81054',
+    salary:    28000,
+    startDate: '2021-03-15',
+    birthDate: '1990-01-01',
 };
 
 const filterByRole = (items, role) =>
