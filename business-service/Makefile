@@ -1,7 +1,10 @@
 GOPATH_BIN := $(shell go env GOPATH)/bin
 PROTO_FILES := \
 	../proto/business/product.proto \
-	../proto/business/customercard.proto
+	../proto/business/customercard.proto \
+	../proto/business/employee.proto \
+	../proto/business/check.proto \
+	../proto/business/sale.proto
 
 .PHONY: gen gen-proto gen-sqlc test
 gen: gen-proto gen-sqlc

@@ -18,12 +18,21 @@ gen-business:
 		--go_opt=module=$(MODULE) \
 		--go_opt=Mbusiness/product.proto=$(MODULE)/pb/business/product \
 		--go_opt=Mbusiness/customercard.proto=$(MODULE)/pb/business/customercard \
+		--go_opt=Mbusiness/employee.proto=$(MODULE)/pb/business/employee \
+		--go_opt=Mbusiness/check.proto=$(MODULE)/pb/business/check \
+		--go_opt=Mbusiness/sale.proto=$(MODULE)/pb/business/sale \
 		--go-grpc_out=. \
 		--go-grpc_opt=module=$(MODULE) \
 		--go-grpc_opt=Mbusiness/product.proto=$(MODULE)/pb/business/product \
 		--go-grpc_opt=Mbusiness/customercard.proto=$(MODULE)/pb/business/customercard \
+		--go-grpc_opt=Mbusiness/employee.proto=$(MODULE)/pb/business/employee \
+		--go-grpc_opt=Mbusiness/check.proto=$(MODULE)/pb/business/check \
+		--go-grpc_opt=Mbusiness/sale.proto=$(MODULE)/pb/business/sale \
 		../proto/business/product.proto \
-		../proto/business/customercard.proto
+		../proto/business/customercard.proto \
+		../proto/business/employee.proto \
+		../proto/business/check.proto \
+		../proto/business/sale.proto
 
 test:
 	go test ./...
