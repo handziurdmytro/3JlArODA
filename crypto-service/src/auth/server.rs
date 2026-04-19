@@ -36,8 +36,8 @@ impl AuthSecretService for AuthSecretServiceImpl {
             .engine
             .hash_password(&req.plain_password)
             .map_err(|e| {
-                error!(error = %e, "Failed to hash password");
-                Status::internal(e)
+                error!(error = ?e, "Failed to hash password");
+                Status::internal("Internal hashing error")
             })?;
 
         Ok(Response::new(HashResponse { hash_string }))

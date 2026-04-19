@@ -1,3 +1,4 @@
+use crate::receipt::errors::ReceiptError;
 use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
 
 #[derive(Clone, Debug)]
@@ -6,12 +7,12 @@ pub struct ReceiptEngine {
 }
 
 impl ReceiptEngine {
-    pub fn new(hex: &str) -> Result<Self, String> {
-        let bytes = hex::decode(hex).map_err(|e| format!("Invalid SIGNING_KEY hex: {}", e))?;
+    pub fn new(hex: &str) -> Result<Self, ReceiptError> {
+        let bytes = hex::decode(hex)?;
 
         let key_bytes: [u8; 32] = bytes
             .try_into()
-            .map_err(|_| "PRIVATE_KEY must be exactly 32 bytes (64 hex chars)".to_string())?;
+            .map_err(|_| ReceiptError::InvalidKeyLength)?;
 
         let signing_key = SigningKey::from_bytes(&key_bytes);
         Ok(Self { signing_key })

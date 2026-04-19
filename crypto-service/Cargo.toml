@@ -17,6 +17,7 @@ dotenvy = "0.15"
 argon2 = { version = "0.5", features = ["std"] }
 jsonwebtoken = "9.3"
 serde = { version = "1", features = ["derive"] }
+thiserror = "2.0"
 
 [build-dependencies]
 tonic-prost-build = "0.14"

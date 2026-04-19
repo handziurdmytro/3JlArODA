@@ -1,3 +1,4 @@
+use crate::auth::errors::AuthError;
 use argon2::{
     Argon2,
     password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
@@ -29,7 +30,7 @@ impl AuthSecretEngine {
         }
     }
 
-    pub fn hash_password(&self, plain_password: &str) -> Result<String, String> {
+    pub fn hash_password(&self, plain_password: &str) -> Result<String, AuthError> {
         let mut peppered_password = String::with_capacity(plain_password.len() + self.pepper.len());
         peppered_password.push_str(plain_password);
         peppered_password.push_str(&self.pepper);
@@ -39,7 +40,7 @@ impl AuthSecretEngine {
 
         let password_hash = argon2
             .hash_password(peppered_password.as_bytes(), &salt)
-            .map_err(|e| format!("Hashing error: {}", e))?;
+            .map_err(|e| AuthError::Hashing(e.to_string()))?;
 
         Ok(password_hash.to_string())
     }
@@ -59,11 +60,8 @@ impl AuthSecretEngine {
             .is_ok()
     }
 
-    pub fn sign_jwt(&self, user_id: &str, username: &str) -> Result<String, String> {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map_err(|e| format!("Time error: {}", e))?
-            .as_secs();
+    pub fn sign_jwt(&self, user_id: &str, username: &str) -> Result<String, AuthError> {
+        let now = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
 
         let claims = Claims {
             sub: user_id.to_string(),
@@ -77,7 +75,7 @@ impl AuthSecretEngine {
             &claims,
             &EncodingKey::from_secret(self.jwt_secret.as_bytes()),
         )
-        .map_err(|e| format!("JWT sign error: {}", e))
+        .map_err(|e| AuthError::JwtSign(e.to_string()))
     }
 
     pub fn validate_jwt(&self, token: &str) -> Option<(String, String)> {

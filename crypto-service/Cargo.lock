@@ -196,6 +196,7 @@ dependencies = [
  "prost",
  "rand_core",
  "serde",
+ "thiserror",
  "tokio",
  "tonic",
  "tonic-prost",
