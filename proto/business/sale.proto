@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package business.sale;
+
+option go_package = "github.com/handziurdmytro/3JlArODA/business-service/pb/business/sale;salepb";
+
+service SaleService {
+  rpc CreateSale(CreateSaleRequest) returns (CreateSaleResponse);
+  rpc GetProductSoldQuantity(GetProductSoldQuantityRequest) returns (GetProductSoldQuantityResponse);
+}
+
+message Sale {
+  string upc = 1;
+  string check_number = 2;
+  int32 product_number = 3;
+  double selling_price = 4;
+}
+
+message CreateSaleRequest {
+  string upc = 1;
+  string check_number = 2;
+  int32 product_number = 3;
+  double selling_price = 4;
+}
+
+message CreateSaleResponse {
+  bool success = 1;
+}
+
+message GetProductSoldQuantityRequest {
+  int32 product_id = 1;
+  string from = 2;
+  string to = 3;
+}
+
+message GetProductSoldQuantityResponse {
+  int64 total_quantity = 1;
+}

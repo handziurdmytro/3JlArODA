@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package business.check;
+
+option go_package = "github.com/handziurdmytro/3JlArODA/business-service/pb/business/check;checkpb";
+
+service CheckService {
+  rpc CreateCheck(CreateCheckRequest) returns (CreateCheckResponse);
+  rpc DeleteCheck(DeleteCheckRequest) returns (DeleteCheckResponse);
+  rpc GetAllChecks(GetAllChecksRequest) returns (GetChecksResponse);
+  rpc GetChecksOfTheDayByCashier(GetChecksOfTheDayByCashierRequest) returns (GetChecksResponse);
+  rpc GetChecksOfThePeriodByCashier(GetChecksOfThePeriodByCashierRequest) returns (GetChecksResponse);
+  rpc GetFullCheckData(GetFullCheckDataRequest) returns (GetFullCheckDataResponse);
+  rpc GetCheckDetailsOfThePeriodByCashier(GetCheckDetailsOfThePeriodByCashierRequest) returns (GetCheckDetailsResponse);
+  rpc GetCheckDetailsOfThePeriod(GetCheckDetailsOfThePeriodRequest) returns (GetCheckDetailsResponse);
+  rpc GetSumOfAllChecksOfThePeriodByCashier(GetSumOfAllChecksOfThePeriodByCashierRequest) returns (CheckTotalSumResponse);
+  rpc GetSumOfAllChecksOfThePeriod(GetSumOfAllChecksOfThePeriodRequest) returns (CheckTotalSumResponse);
+}
+
+message Check {
+  string number = 1;
+  string employee_id = 2;
+  optional string card_number = 3;
+  string print_date = 4;
+  double sum_total = 5;
+  double vat = 6;
+}
+
+message FullCheckItem {
+  string check_number = 1;
+  string print_date = 2;
+  double sum_total = 3;
+  double vat = 4;
+  string upc = 5;
+  int32 quantity = 6;
+  double selling_price = 7;
+  string product_name = 8;
+  string employee_surname = 9;
+  string employee_name = 10;
+  optional string employee_patronymic = 11;
+}
+
+message CheckDetail {
+  string check_number = 1;
+  string print_date = 2;
+  double sum_total = 3;
+  string product_name = 4;
+  string upc = 5;
+  int32 quantity = 6;
+  double selling_price = 7;
+}
+
+message CreateCheckRequest {
+  string number = 1;
+  string employee_id = 2;
+  optional string card_number = 3;
+  string print_date = 4;
+  double sum_total = 5;
+  double vat = 6;
+}
+
+message CreateCheckResponse {
+  bool success = 1;
+}
+
+message DeleteCheckRequest {
+  string number = 1;
+}
+
+message DeleteCheckResponse {
+  bool success = 1;
+}
+
+message GetAllChecksRequest {}
+
+message GetChecksOfTheDayByCashierRequest {
+  string employee_id = 1;
+  string date = 2;
+}
+
+message GetChecksOfThePeriodByCashierRequest {
+  string employee_id = 1;
+  string from = 2;
+  string to = 3;
+}
+
+message GetFullCheckDataRequest {
+  string number = 1;
+}
+
+message GetCheckDetailsOfThePeriodByCashierRequest {
+  string employee_id = 1;
+  string from = 2;
+  string to = 3;
+}
+
+message GetCheckDetailsOfThePeriodRequest {
+  string from = 1;
+  string to = 2;
+}
+
+message GetSumOfAllChecksOfThePeriodByCashierRequest {
+  string employee_id = 1;
+  string from = 2;
+  string to = 3;
+}
+
+message GetSumOfAllChecksOfThePeriodRequest {
+  string from = 1;
+  string to = 2;
+}
+
+message GetChecksResponse {
+  repeated Check checks = 1;
+}
+
+message GetFullCheckDataResponse {
+  repeated FullCheckItem items = 1;
+}
+
+message GetCheckDetailsResponse {
+  repeated CheckDetail details = 1;
+}
+
+message CheckTotalSumResponse {
+  double total_sum = 1;
+}
