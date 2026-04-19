@@ -38,7 +38,11 @@ export const ProductSearch = ({ products, bill, onAdd }) => {
 
             <div className={styles.search__results}>
                 {filtered.length === 0 ? (
-                    <div className={styles.search__empty}>Product not found</div>
+                    <div className={styles.bill__empty}>
+                        <img src='empty.png' alt="" />
+                        <p>No receipts found</p>
+                        <span className={styles.empty__sub}>Try adjusting the search or filter</span>
+                    </div>  
                 ) : (
                     filtered.map(product => {
                         const inBill = getQtyInBill(product.upc);
@@ -56,7 +60,7 @@ export const ProductSearch = ({ products, bill, onAdd }) => {
                                 </div>
                                 <div className={styles.product__right}>
                                     <span className={styles.product__stock}>
-                                        {product.inStock} ps
+                                        {product.inStock} pcs
                                     </span>
                                     <span className={styles.product__price}>
                                         {product.price.toFixed(2)} ₴

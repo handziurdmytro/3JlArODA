@@ -92,8 +92,9 @@ export const ReceiptsView = ({ receipts }) => {
             <div className={styles.receipts__list}>
                 {filtered.length === 0 ? (
                     <div className={styles.receipts__empty}>
-                        <span>◻</span>
+                        <img src='empty.png' alt="" />
                         <p>No receipts found</p>
+                        <span className={styles.empty__sub}>Try adjusting the search or filter</span>
                     </div>
                 ) : (
                     filtered.map((receipt, i) => (

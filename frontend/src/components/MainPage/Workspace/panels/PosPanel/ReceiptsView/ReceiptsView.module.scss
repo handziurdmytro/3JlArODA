@@ -3,7 +3,7 @@
 .receipts {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
     position: relative;
 
     // ── filters ────────────────────────────────────────────
@@ -54,7 +54,7 @@
 
         &_sep {
             color: $text-muted;
-            font-size: 12px;
+            font-size: 14px;
         }
     }
 
@@ -65,7 +65,7 @@
         border-radius: $radius-sm;
         color: $text-primary;
         font-family: $font-sans;
-        font-size: 12px;
+        font-size: 14px;
         outline: none;
         transition: border-color $transition;
         color-scheme: dark;
@@ -87,9 +87,9 @@
         border-radius: $radius-sm;
         color: $text-primary;
         font-family: $font-sans;
-        font-size: 11px;
+        font-size: 14px;
         outline: none;
-        width: 200px;
+        width: 300px;
         transition: border-color $transition;
 
         &::placeholder { color: $text-muted; }
@@ -114,7 +114,7 @@
 
         &-sum {
             font-family: $font-serif;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             color: $accent;
         }
@@ -133,10 +133,19 @@
         align-items: center;
         gap: 8px;
         padding: 60px;
-        color: $text-muted;
 
-        span { font-size: 36px; opacity: 0.3; }
-        p    { margin: 0; font-size: 13px; }
+        p    { 
+            font-size: 20px;
+            font-family: $font-serif;
+            font-weight: 600;
+            color: $text-muted;
+        }
+
+        span {
+        font-family: $font-sans;
+        font-size: 16px;
+        color: $text-secondary;
+    }
     }
 }
 
@@ -172,9 +181,9 @@
     }
 
     &__meta {
-        font-size: 12px;
+        font-size: 14px;
+        font-family: $font-sans;
         color: $text-muted;
-        letter-spacing: 0.03em;
     }
 
     &__right {
@@ -184,13 +193,13 @@
     }
 
     &__items {
-        font-size: 12px;
+        font-size: 14px;
         color: $text-muted;
     }
 
     &__total {
         font-family: $font-serif;
-        font-size: 16px;
+        font-size: 20px;
         font-weight: 700;
         color: $text-primary;
     }
@@ -198,7 +207,7 @@
     &__arrow {
         color: $text-muted;
         transition: all $transition;
-        font-size: 16px;
+        font-size: 20px;
 
         .receipt:hover & {
             color: $accent;
@@ -234,7 +243,7 @@
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
-        padding: 20px 20px;
+        padding: 24px;
         border-bottom: 1px solid $border;
         background: rgba(232, 197, 71, 0.04);
     }
@@ -262,7 +271,7 @@
         width: 32px;
         height: 32px;
         cursor: pointer;
-        font-size: 24px;
+        font-size: 16px;
         transition: all $transition;
         display: flex;
         align-items: center;
@@ -271,16 +280,19 @@
         &:hover {
             border-color: $error-border;
             color: $error-text;
+            transform: scale(1.05) translateY(-2px);
         }
 
         &:active {
-            transform: scale(0.9);
+            background: $error-bg;
+            transform: scale(1.05) translateY(-2px);
         }
     }
 
     &__client {
         padding: 12px 24px;
-        font-size: 13px;
+        font-size: 14px;
+        font-family: $font-sans;
         color: $text-secondary;
         border-bottom: 1px solid $border;
         display: flex;
@@ -294,11 +306,12 @@
         background: $accent-dim;
         border-radius: 20px;
         color: $accent;
-        font-size: 11px;
+        font-size: 12px;
     }
 
     &__table {
-        padding: 12px 24px;
+        padding: 24px;
+        font-family: $font-sans;
 
         &_head {
             display: grid;
@@ -306,9 +319,8 @@
             gap: 8px;
             padding: 6px 0;
             border-bottom: 1px solid $border;
-            font-size: 10px;
+            font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
             color: $text-muted;
             margin-bottom: 4px;
         }
@@ -319,17 +331,18 @@
             gap: 8px;
             padding: 10px 0;
             border-bottom: 1px solid rgba(255,255,255,0.04);
-            font-size: 13px;
+            font-size: 14px;
             color: $text-primary;
         }
     }
 
     &__totals {
-        padding: 16px 24px;
+        padding: 24px;
         background: rgba(255, 255, 255, 0.02);
         display: flex;
         flex-direction: column;
         gap: 8px;
+        border-top: 1px solid $border;
     }
 
     &__total_row {
@@ -341,11 +354,10 @@
             display: flex;
             justify-content: space-between;
             font-family: $font-serif;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
             color: $text-primary;
             padding-top: 8px;
-            border-top: 2px solid $border;
         }
     }
 }

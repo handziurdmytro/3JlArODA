@@ -48,7 +48,7 @@
         outline: none;
         color: $text-primary;
         font-family: 'DM Mono', monospace;
-        font-size: 13px;
+        font-size: 14px;
 
         &::placeholder { color: $text-muted; }
     }
@@ -82,7 +82,7 @@
         text-align: center;
         padding: 40px;
         color: $text-muted;
-        font-size: 14px;
+        font-size: 16px;
     }
 }
 
@@ -117,7 +117,7 @@
     }
 
     &__name {
-        font-size: 14px;
+        font-size: 16px;
         color: $text-primary;
         white-space: nowrap;
         overflow: hidden;
@@ -125,7 +125,7 @@
     }
 
     &__upc {
-        font-size: 12px;
+        font-size: 14px;
         color: $text-muted;
         letter-spacing: 0.05em;
     }
@@ -210,7 +210,7 @@
     }
 
     &__count {
-        font-size: 12px;
+        font-size: 14px;
         color: $text-muted;
     }
 
@@ -229,13 +229,28 @@
 
     &__empty {
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 12px;
         height: 100%;
         color: $text-muted;
         font-size: 14px;
         text-align: center;
         padding: 20px;
+
+        p {
+            font-size: 20px;
+            font-family: $font-serif;
+            font-weight: 600;
+            color: $text-muted;
+        }
+
+        span {
+            font-family: $font-sans;
+            font-size: 16px;
+            color: $text-secondary;
+        }
     }
 
     &__item {
@@ -321,7 +336,7 @@
             border-radius: $radius-sm;
             color: $text-primary;
             font-family: 'DM Mono', monospace;
-            font-size: 14cpx;
+            font-size: 14px;
             outline: none;
             transition: border-color $transition;
 
@@ -340,7 +355,7 @@
     }
 
     &__discount {
-        font-size: 11px;
+        font-size: 12px;
         color: $accent;
         animation: row-in 0.5s ease both;
     }

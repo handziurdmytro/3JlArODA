@@ -8,7 +8,7 @@ export const BillSidebar = ({
         <div className={styles.bill__header}>
             <span className={styles.bill__title}>Current receipt</span>
             <span className={styles.bill__count}>
-                {bill.length} ps
+                {bill.length} pcs
             </span>
         </div>
 

@@ -47,7 +47,7 @@ export const ReceiptModal = ({ receipt, onClose }) => {
                     {receipt.items.map((item, i) => (
                         <div key={i} className={styles.modal__table_row}>
                             <span>{item.name}</span>
-                            <span>{item.qty} ps</span>
+                            <span>{item.qty} pcs</span>
                             <span>{item.price.toFixed(2)} ₴</span>
                             <span>{(item.price * item.qty).toFixed(2)} ₴</span>
                         </div>

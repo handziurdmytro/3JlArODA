@@ -37,6 +37,10 @@
             font-weight: 500;
         }
 
+        &--active > svg {
+            fill: $bg-deep;
+        }
+
         &:not(&--active):hover {
             color: $text-primary;
             background: rgba(255, 255, 255, 0.05);
