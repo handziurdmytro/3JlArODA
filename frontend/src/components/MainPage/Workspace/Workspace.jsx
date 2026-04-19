@@ -1,12 +1,12 @@
 import { SubTabs } from '../SubTabs/SubTabs';
-import { PosPanel }  from './panels/PosPanel/PosPanel';
-import { ReceiptsPanel } from './panels/ReceiptsPanel/ReceiptsPanel';
+import { PosPanel }  from './panels/checkout/PosPanel';
+import { ReceiptsPanel } from './panels/receipts/ReceiptsPanel';
 import { ClientsPanel } from './panels/clients/ClientsPanel';
 import { EmployeesPanel } from './panels/employees/EmployeesPanel';
 import { CategoriesPanel } from './panels/catalog/categories/CategoriesPanel';
 import { StoreProductsPanel } from './panels/catalog/store-products/StoreProductsPanel';
 import { ProductsPanel } from './panels/catalog/products/ProductsPanel';
-import {TodoPanel} from "./panels/ToDoPanel";
+import { ReportsPanel } from './panels/reports/ReportsPanel';
 import styles from './Workspace.module.scss';
 
 const PANEL_TITLES = {
@@ -30,7 +30,7 @@ const renderPanel = (activeSection, activeSubTab, userRole) => {
     if (key === 'categories') return <CategoriesPanel userRole={userRole} />;
     if (key === 'store-products') return <StoreProductsPanel userRole={userRole} />;
     if (key === 'products') return <ProductsPanel userRole={userRole} />;
-    return <TodoPanel title={PANEL_TITLES[key] || 'Невідома секція'} />;
+    if (key === 'reports') return <ReportsPanel />;
 };
 
 export const Workspace = ({ activeSection, activeSubTab, subTabs, onSubTabChange, userRole }) => (
