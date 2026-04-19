@@ -10,29 +10,19 @@ const sortByName = (arr) => [...arr].sort((a, b) => a.name.localeCompare(b.name)
 let nextNum = 11;
 const genId = () => `P-${String(nextNum++).padStart(3, '0')}`;
 
-// Derive promo status from store products
-const getPromoStatus = (productId, storeProducts) => {
-    const entries = storeProducts.filter(sp => sp.productId === productId);
-    return entries.some(sp => sp.isPromo);
-};
-
 export const ProductsPanel = ({ userRole }) => {
-    const [products, setProducts]         = useState(sortByName(MOCK_PRODUCTS));
-    const [storeProducts]                 = useState(MOCK_STORE_PRODUCTS);
-    const [search, setSearch]             = useState('');
-    const [promoFilter, setPromoFilter]   = useState('all'); // all | promo | regular
-    const [sortBy, setSortBy]             = useState('name');
-    const [modal, setModal]               = useState(null);
+    const [products, setProducts]             = useState(sortByName(MOCK_PRODUCTS));
+    const [storeProducts]                     = useState(MOCK_STORE_PRODUCTS);
+    const [search, setSearch]                 = useState('');
+    const [categoryFilter, setCategoryFilter] = useState('all');
+    const [sortBy, setSortBy]                 = useState('name');
+    const [modal, setModal]                   = useState(null);
 
     const filtered = useMemo(() => {
         let result = products.filter(p => {
-            const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
-            const isPromo = getPromoStatus(p.id, storeProducts);
-            const matchPromo =
-                promoFilter === 'all'    ? true :
-                promoFilter === 'promo'  ? isPromo :
-                !isPromo;
-            return matchSearch && matchPromo;
+            const matchSearch   = p.name.toLowerCase().includes(search.toLowerCase());
+            const matchCategory = categoryFilter === 'all' || p.categoryId === categoryFilter;
+            return matchSearch && matchCategory;
         });
 
         if (sortBy === 'qty') {
@@ -46,7 +36,7 @@ export const ProductsPanel = ({ userRole }) => {
         }
 
         return result;
-    }, [products, storeProducts, search, promoFilter, sortBy]);
+    }, [products, storeProducts, search, categoryFilter, sortBy]);
 
     const handleSave = (data) => {
         if (modal.mode === 'add') {
@@ -64,11 +54,12 @@ export const ProductsPanel = ({ userRole }) => {
         <div className={styles.products}>
             <ProductsToolbar
                 search={search}
-                promoFilter={promoFilter}
+                categoryFilter={categoryFilter}
                 sortBy={sortBy}
                 userRole={userRole}
+                categories={MOCK_CATEGORIES}
                 onSearch={setSearch}
-                onPromoFilter={setPromoFilter}
+                onCategoryFilter={setCategoryFilter}
                 onSortBy={setSortBy}
                 onAdd={() => setModal({ mode: 'add' })}
             />

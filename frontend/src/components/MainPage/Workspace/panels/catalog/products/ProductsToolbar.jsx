@@ -1,8 +1,8 @@
 import styles from './ProductsPanel.module.scss';
 
 export const ProductsToolbar = ({
-    search, promoFilter, sortBy, userRole,
-    onSearch, onPromoFilter, onSortBy, onAdd,
+    search, categoryFilter, sortBy, userRole, categories,
+    onSearch, onCategoryFilter, onSortBy, onAdd,
 }) => (
     <div className={styles.toolbar}>
         <div className={styles.toolbar__search}>
@@ -23,12 +23,13 @@ export const ProductsToolbar = ({
 
         <select
             className={styles.toolbar__select}
-            value={promoFilter}
-            onChange={e => onPromoFilter(e.target.value)}
+            value={categoryFilter}
+            onChange={e => onCategoryFilter(e.target.value)}
         >
-            <option value="all">All products</option>
-            <option value="promo">Promotional only</option>
-            <option value="regular">Regular only</option>
+            <option value="all">All categories</option>
+            {categories.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
         </select>
 
         <select
