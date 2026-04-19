@@ -3,13 +3,16 @@ import { PosPanel }  from './panels/PosPanel/PosPanel';
 import { ReceiptsPanel } from './panels/ReceiptsPanel/ReceiptsPanel';
 import { ClientsPanel } from './panels/clients/ClientsPanel';
 import { EmployeesPanel } from './panels/employees/EmployeesPanel';
+import { CategoriesPanel } from './panels/catalog/categories/CategoriesPanel';
+import { StoreProductsPanel } from './panels/catalog/store-products/StoreProductsPanel';
+import { ProductsPanel } from './panels/catalog/products/ProductsPanel';
 import {TodoPanel} from "./panels/ToDoPanel";
 import styles from './Workspace.module.scss';
 
 const PANEL_TITLES = {
     pos:             'Каса',
     products:        'Товари',
-    'store-products':'Товари у магазині',
+    'store-products' :'Товари у магазині',
     categories:      'Категорії',
     receipts:        'Чеки',
     clients:         'Клієнти',
@@ -24,6 +27,9 @@ const renderPanel = (activeSection, activeSubTab, userRole) => {
     if (key === 'receipts') return <ReceiptsPanel />;
     if (key === 'clients') return <ClientsPanel userRole={userRole} />;
     if (key === 'employees') return <EmployeesPanel />;
+    if (key === 'categories') return <CategoriesPanel userRole={userRole} />;
+    if (key === 'store-products') return <StoreProductsPanel userRole={userRole} />;
+    if (key === 'products') return <ProductsPanel userRole={userRole} />;
     return <TodoPanel title={PANEL_TITLES[key] || 'Невідома секція'} />;
 };
 
