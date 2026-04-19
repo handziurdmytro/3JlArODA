@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import {createPortal} from 'react-dom';
 import styles from './ReceiptsView.module.scss';
 
 export const ReceiptModal = ({ receipt, onClose }) => {
@@ -10,7 +11,7 @@ export const ReceiptModal = ({ receipt, onClose }) => {
 
     const subtotal = receipt.items.reduce((s, i) => s + i.price * i.qty, 0);
 
-    return (
+    return createPortal(
         <div className={styles.modal__overlay} onClick={onClose}>
             <div className={styles.modal} onClick={e => e.stopPropagation()}>
 
@@ -73,6 +74,6 @@ export const ReceiptModal = ({ receipt, onClose }) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div>, document.body
     );
 };

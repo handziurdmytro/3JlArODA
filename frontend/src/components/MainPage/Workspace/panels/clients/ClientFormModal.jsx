@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import {createPortal} from 'react-dom';
 import { DISCOUNT_OPTIONS } from './clients.mock.js';
 import styles from './ClientsPanel.module.scss';
 
@@ -24,7 +25,7 @@ export const ClientFormModal = ({ mode, initial, onSave, onClose }) => {
         onSave({ ...form, discount: Number(form.discount) });
     };
 
-    return (
+    return createPortal(
         <div className={styles.overlay} onClick={onClose}>
             <div className={styles.modal} onClick={e => e.stopPropagation()}>
                 <div className={styles.modal__header}>
@@ -89,6 +90,6 @@ export const ClientFormModal = ({ mode, initial, onSave, onClose }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>, document.body
     );
 };

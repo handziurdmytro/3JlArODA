@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import {createPortal} from 'react-dom';
 import { POSITIONS } from './employees.mock.js';
 import styles from './EmployeesPanel.module.scss';
 
@@ -25,7 +26,7 @@ export const EmployeeFormModal = ({ mode, initial, onSave, onClose }) => {
         onSave({ ...form, salary: Number(form.salary) });
     };
 
-    return (
+    return createPortal(
         <div className={styles.overlay} onClick={onClose}>
             <div className={styles.modal} onClick={e => e.stopPropagation()}>
                 <div className={styles.modal__header}>
@@ -114,6 +115,6 @@ export const EmployeeFormModal = ({ mode, initial, onSave, onClose }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>, document.body
     );
 };
