@@ -15,16 +15,15 @@
         border: 1px solid transparent;
         border-radius: 20px;
         color: $text-secondary;
-        font-family: 'DM Mono', monospace;
-        font-size: 12px;
-        letter-spacing: 0.03em;
+        font-family: $font-sans;
+        font-size: 14px;
         cursor: pointer;
         transition: all $transition;
-        animation: subtab-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+        animation: subtab-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 
         &:hover {
             color: $text-primary;
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         // ── subtabs__item--active ──────────────────────────

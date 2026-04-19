@@ -1,0 +1,500 @@
+@use '../../../../../styles/variables' as *;
+
+.employees {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+// Toolbar — ідентичний ClientsPanel, винести в shared якщо буде більше панелей
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    &__search {
+        flex: 1;
+        min-width: 220px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 14px;
+        background: $bg-input;
+        border: 1px solid $border;
+        border-radius: $radius-sm;
+        transition: border-color $transition;
+
+        &:focus-within {
+            border-color: $border-focus;
+            box-shadow: 0 0 0 3px $accent-dim;
+        }
+
+        &:hover {
+            border-color: $border-hover;
+            box-shadow: 0 0 0 3px $accent-dim;
+        }
+
+        &_input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: $text-primary;
+            font-family: $font-sans;
+            font-size: 14px;
+            &::placeholder { color: $text-muted; }
+        }
+    }
+
+    &__clear {
+        background: transparent;
+        border: none;
+        color: $text-muted;
+        cursor: pointer;
+        font-size: 16px;
+        transition: color $transition;
+        &:hover { color: $text-primary; }
+    }
+
+    &__select {
+        padding: 9px 32px 9px 14px;
+        background: $bg-input;
+        border: 1px solid $border;
+        border-radius: $radius-sm;
+        color: $text-primary;
+        font-family: $font-sans;
+        font-size: 14px;
+        outline: none;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a4a5a' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        transition: border-color $transition;
+        option { background: $bg-card; }
+
+        &:focus {
+            border-color: $border-focus;
+            box-shadow: 0 0 0 3px $accent-dim;
+        }
+
+        &:hover {
+            border-color: $border-hover;
+            box-shadow: 0 0 0 3px $accent-dim;
+        }
+    }
+
+    &__add {
+        padding: 9px 20px;
+        background: $accent;
+        border: none;
+        border-radius: $radius-sm;
+        color: $bg-deep;
+        font-family: $font-serif;
+        font-size: 14px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all $transition;
+
+        &:hover {
+            background-color: $button-hover;
+            box-shadow: 0 4px 16px $accent-glow;
+            transform: translateY(-2px) scale(1.01);
+        }
+        
+        &:active {
+            background-color: $button-active;
+            box-shadow: none;
+            transform: translateY(0) scale(0.99);
+        }
+    }
+}
+
+// ── List ───────────────────────────────────────────────────
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    &__head {
+        display: grid;
+        grid-template-columns: 70px 1fr 80px 110px 1fr 80px 80px 64px;
+        gap: 12px;
+        padding: 8px 16px;
+        font-family: $font-sans;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: $text-muted;
+    }
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 70px 1fr 80px 110px 1fr 80px 80px 64px;
+    gap: 12px;
+    align-items: center;
+    padding: 13px 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid $border;
+    border-radius: $radius-sm;
+    font-family: $font-sans;
+    font-size: 13px;
+    color: $text-secondary;
+    transition: all $transition;
+    animation: fade-up 0.5s ease both;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    &__id {
+        font-size: 12px;
+        color: $text-muted;
+    }
+
+    &__name {
+        color: $text-primary;
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    // position badges
+    &__badge {
+        &--manager {
+            display: inline-flex;
+            padding: 3px 10px;
+            background: rgba(232, 197, 71, 0.12);
+            border: 1px solid rgba(232, 197, 71, 0.25);
+            border-radius: 20px;
+            color: $accent;
+            font-size: 12px;
+            font-weight: 500;
+            width: fit-content;
+        }
+
+        &--cashier {
+            display: inline-flex;
+            padding: 3px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid $border;
+            border-radius: 20px;
+            color: $text-secondary;
+            font-size: 12px;
+            width: fit-content;
+        }
+    }
+
+    &__phone { font-size: 14px; color: $text-secondary; }
+
+    &__address {
+        font-size: 14px;
+        color: $text-muted;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__date { font-size: 12px; color: $text-muted; }
+
+    &__actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+    &__edit {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 1px solid $border;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all $transition;
+
+        &:hover {
+            border-color: rgba(232, 197, 71, 0.8);
+            color: $accent;
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        &:hover > svg path {
+            fill: rgba(232, 197, 71, 0.8);
+        }
+
+        &:active {
+            border-color: $button-active;
+            border-color: $button-active;
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        &:hover > svg path {
+            fill: $button-active;
+        }
+    }
+
+    &__delete {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all $transition;
+
+        &:hover {
+            border-color: $error-border;
+            background: $error-bg;
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        &:hover > svg path {
+            fill: $error-border;
+        }
+
+        &:active {
+            background-color: $error-border;
+            transform: translateY(-2px) scale(1.05);
+        }
+    }
+}
+
+// ── Empty ──────────────────────────────────────────────────
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 80px 40px;
+    text-align: center;
+
+    &__text {
+        font-family: $font-serif;
+        font-size: 20px;
+        font-weight: 600;
+        color: $text-muted;
+    }
+
+    &__sub {
+        font-family: $font-sans;
+        font-size: 16px;
+        color: $text-secondary;
+    }
+}
+
+// ── Modal / Form ───────────────────────────────────────────
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 24px;
+    animation: fade-in 0.5s ease both;
+}
+
+.modal {
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    width: 100%;
+    max-width: 650px;
+    animation: modal-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px;
+        border-bottom: 1px solid $border;
+        background: rgba(232, 197, 71, 0.03);
+    }
+
+    &__title {
+        font-family: $font-serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: $text-primary;
+    }
+
+    &__close {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 1px solid $border;
+        border-radius: $radius-sm;
+        color: $text-secondary;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all $transition;
+
+        &:hover {
+            border-color: $error-border;
+            color: $error-text;
+            transform: scale(1.05) translateY(-2px);
+        }
+
+        &:active {
+            background: $error-bg;
+            transform: scale(1.05) translateY(-2px);
+        }
+    }
+
+    &__body {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    &__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 16px 24px;
+        border-top: 1px solid $border;
+    }
+
+    &__cancel {
+        padding: 9px 20px;
+        background: transparent;
+        border: 1px solid $border;
+        border-radius: $radius-sm;
+        color: $text-secondary;
+        font-family: $font-sans;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all $transition;
+
+        &:hover { border-color: rgba(255,255,255,0.5); color: $text-primary; }
+    }
+
+    &__submit {
+        padding: 9px 24px;
+        background: $accent;
+        border: none;
+        border-radius: $radius-sm;
+        color: $bg-deep;
+        font-family: $font-serif;
+        font-size: 17px;
+        cursor: pointer;
+        transition: all $transition;
+
+        &:hover {
+            background-color: $button-hover;
+            box-shadow: 0 4px 16px $accent-glow;
+            transform: translateY(-2px) scale(1.01);
+        }
+        
+        &:active {
+            background-color: $button-active;
+            box-shadow: none;
+            transform: translateY(0) scale(0.99);
+        }
+    }
+}
+
+// ── Form fields ────────────────────────────────────────────
+.form {
+    &__row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+
+        &:has(.form__field:only-child),
+        &:has(.form__field:nth-child(2):last-child) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    &__label {
+        font-family: $font-sans;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: $text-muted;
+    }
+
+    &__input {
+        padding: 10px 14px;
+        background: $bg-input;
+        border: 1px solid $border;
+        border-radius: $radius-sm;
+        color: $text-primary;
+        font-family: $font-sans;
+        font-size: 13px;
+        outline: none;
+        transition: border-color $transition;
+
+        &::placeholder { color: $text-muted; }
+        &:focus {
+            border-color: $border-focus;
+            box-shadow: 0 0 0 3px $accent-dim;
+        }
+
+         &:hover {
+            border-color: $border-hover;
+            box-shadow: 0 0 0 3px $accent-dim;
+        }
+    }
+
+    &__select {
+        padding: 10px 32px 10px 14px;
+        background: $bg-input;
+        border: 1px solid $border;
+        border-radius: $radius-sm;
+        color: $text-primary;
+        font-family: $font-sans;
+        font-size: 13px;
+        outline: none;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a4a5a' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        transition: border-color $transition;
+        option { background: $bg-card; }
+
+        &:focus {
+            border-color: $border-focus;
+            box-shadow: 0 0 0 3px $accent-dim;
+        }
+
+         &:hover {
+            border-color: $border-hover;
+            box-shadow: 0 0 0 3px $accent-dim;
+        }
+    }
+}
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@keyframes modal-in {
+    from { opacity: 0; transform: scale(0.96) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}

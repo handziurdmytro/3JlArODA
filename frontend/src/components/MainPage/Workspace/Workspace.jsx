@@ -1,6 +1,8 @@
 import { SubTabs } from '../SubTabs/SubTabs';
 import { PosPanel }  from './panels/PosPanel/PosPanel';
 import { ReceiptsPanel } from './panels/ReceiptsPanel/ReceiptsPanel';
+import { ClientsPanel } from './panels/clients/ClientsPanel';
+import { EmployeesPanel } from './panels/employees/EmployeesPanel';
 import {TodoPanel} from "./panels/ToDoPanel";
 import styles from './Workspace.module.scss';
 
@@ -15,15 +17,17 @@ const PANEL_TITLES = {
     reports:         'Звіти',
 };
 
-const renderPanel = (activeSection, activeSubTab) => {
+const renderPanel = (activeSection, activeSubTab, userRole) => {
     const key = activeSubTab ?? activeSection;
 
     if (key === 'pos') return <PosPanel />;
     if (key === 'receipts') return <ReceiptsPanel />;
+    if (key === 'clients') return <ClientsPanel userRole={userRole} />;
+    if (key === 'employees') return <EmployeesPanel />;
     return <TodoPanel title={PANEL_TITLES[key] || 'Невідома секція'} />;
 };
 
-export const Workspace = ({ activeSection, activeSubTab, subTabs, onSubTabChange }) => (
+export const Workspace = ({ activeSection, activeSubTab, subTabs, onSubTabChange, userRole }) => (
     <main className={styles.workspace}>
         <div className={styles.workspace__card} key={activeSubTab ?? activeSection}>
             {subTabs.length > 0 && (
@@ -33,7 +37,7 @@ export const Workspace = ({ activeSection, activeSubTab, subTabs, onSubTabChange
                     onTabChange={onSubTabChange}
                 />
             )}
-            {renderPanel(activeSection, activeSubTab)}
+            {renderPanel(activeSection, activeSubTab, userRole)}
         </div>
     </main>
 );
