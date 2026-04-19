@@ -2,12 +2,15 @@ package employee
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/handziurdmytro/3JlArODA/business-service/internal/common"
+	employeedb "github.com/handziurdmytro/3JlArODA/business-service/internal/employee/sqlc"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Repository struct {
-	pool *pgxpool.Pool
+	queries *employeedb.Queries
 }
 
 type ContactData struct {
@@ -18,37 +21,182 @@ type ContactData struct {
 }
 
 func NewEmployeeRepository(pool *pgxpool.Pool) *Repository {
-	return &Repository{pool: pool}
+	return &Repository{queries: employeedb.New(pool)}
 }
 
 func (r *Repository) CreateEmployee(ctx context.Context, req CreateRequest) error {
-	panic("not implemented")
+	salary, err := common.NumericFromFloat64(req.Salary)
+	if err != nil {
+		return fmt.Errorf("create employee %q: %w", req.ID, err)
+	}
+
+	err = r.queries.CreateEmployee(ctx, employeedb.CreateEmployeeParams{
+		IDEmployee:     req.ID,
+		EmplSurname:    req.Surname,
+		EmplName:       req.Name,
+		EmplPatronymic: common.TextFromPtr(req.Patronymic),
+		EmplRole:       req.Role,
+		Salary:         salary,
+		DateOfBirth:    common.DateFromTime(req.DateOfBirth),
+		DateOfStart:    common.DateFromTime(req.DateOfStart),
+		PhoneNumber:    req.PhoneNumber,
+		City:           req.City,
+		Street:         req.Street,
+		ZipCode:        req.ZipCode,
+	})
+	if err != nil {
+		return common.MapRepositoryError(fmt.Sprintf("create employee %q", req.ID), err)
+	}
+
+	return nil
 }
 
 func (r *Repository) UpdateEmployeeByID(ctx context.Context, employee Employee) error {
-	panic("not implemented")
+	if _, err := r.GetEmployeeByID(ctx, employee.ID); err != nil {
+		return err
+	}
+
+	salary, err := common.NumericFromFloat64(employee.Salary)
+	if err != nil {
+		return fmt.Errorf("update employee %q: %w", employee.ID, err)
+	}
+
+	err = r.queries.UpdateEmployeeByID(ctx, employeedb.UpdateEmployeeByIDParams{
+		IDEmployee:     employee.ID,
+		EmplSurname:    employee.Surname,
+		EmplName:       employee.Name,
+		EmplPatronymic: common.TextFromPtr(employee.Patronymic),
+		EmplRole:       employee.Role,
+		Salary:         salary,
+		DateOfBirth:    common.DateFromTime(employee.DateOfBirth),
+		DateOfStart:    common.DateFromTime(employee.DateOfStart),
+		PhoneNumber:    employee.PhoneNumber,
+		City:           employee.City,
+		Street:         employee.Street,
+		ZipCode:        employee.ZipCode,
+	})
+	if err != nil {
+		return common.MapRepositoryError(fmt.Sprintf("update employee %q", employee.ID), err)
+	}
+
+	return nil
 }
 
 func (r *Repository) DeleteEmployeeByID(ctx context.Context, id string) error {
-	panic("not implemented")
+	if _, err := r.GetEmployeeByID(ctx, id); err != nil {
+		return err
+	}
+
+	if err := r.queries.DeleteEmployeeByID(ctx, id); err != nil {
+		return common.MapRepositoryError(fmt.Sprintf("delete employee %q", id), err)
+	}
+
+	return nil
 }
 
 func (r *Repository) GetAllEmployees(ctx context.Context) ([]Employee, error) {
-	panic("not implemented")
+	rows, err := r.queries.GetAllEmployees(ctx)
+	if err != nil {
+		return nil, common.MapRepositoryError("get all employees", err)
+	}
+
+	return mapEmployees(rows)
 }
 
 func (r *Repository) GetEmployeeByID(ctx context.Context, id string) (*Employee, error) {
-	panic("not implemented")
+	row, err := r.queries.GetEmployeeByID(ctx, id)
+	if err != nil {
+		return nil, common.MapRepositoryError(fmt.Sprintf("get employee by id %q", id), err)
+	}
+
+	return mapEmployee(row)
 }
 
 func (r *Repository) GetEmployeesByRole(ctx context.Context, role string) ([]Employee, error) {
-	panic("not implemented")
+	rows, err := r.queries.GetEmployeesByRole(ctx, role)
+	if err != nil {
+		return nil, common.MapRepositoryError(fmt.Sprintf("get employees by role %q", role), err)
+	}
+
+	return mapEmployees(rows)
 }
 
 func (r *Repository) GetEmployeeDataBySurname(ctx context.Context, surname string) ([]ContactData, error) {
-	panic("not implemented")
+	rows, err := r.queries.GetEmployeeDataBySurname(ctx, surname)
+	if err != nil {
+		return nil, common.MapRepositoryError(fmt.Sprintf("get employee contact data by surname %q", surname), err)
+	}
+
+	contacts := make([]ContactData, 0, len(rows))
+	for _, row := range rows {
+		contacts = append(contacts, ContactData{
+			PhoneNumber: row.PhoneNumber,
+			City:        row.City,
+			Street:      row.Street,
+			ZipCode:     row.ZipCode,
+		})
+	}
+
+	return contacts, nil
 }
 
 func (r *Repository) GetEmployeeDataByFullName(ctx context.Context, surname, name, patronymic string) ([]ContactData, error) {
-	panic("not implemented")
+	rows, err := r.queries.GetEmployeeDataByFullName(ctx, employeedb.GetEmployeeDataByFullNameParams{
+		EmplSurname:    surname,
+		EmplName:       name,
+		EmplPatronymic: common.TextFromString(patronymic),
+	})
+	if err != nil {
+		return nil, common.MapRepositoryError(
+			fmt.Sprintf("get employee contact data by full name %q %q %q", surname, name, patronymic),
+			err,
+		)
+	}
+
+	contacts := make([]ContactData, 0, len(rows))
+	for _, row := range rows {
+		contacts = append(contacts, ContactData{
+			PhoneNumber: row.PhoneNumber,
+			City:        row.City,
+			Street:      row.Street,
+			ZipCode:     row.ZipCode,
+		})
+	}
+
+	return contacts, nil
+}
+
+func mapEmployees(rows []employeedb.Employee) ([]Employee, error) {
+	employees := make([]Employee, 0, len(rows))
+	for _, row := range rows {
+		employee, err := mapEmployee(row)
+		if err != nil {
+			return nil, err
+		}
+		employees = append(employees, *employee)
+	}
+
+	return employees, nil
+}
+
+func mapEmployee(row employeedb.Employee) (*Employee, error) {
+	salary, err := common.Float64FromNumeric(row.Salary)
+	if err != nil {
+		return nil, fmt.Errorf("map employee salary: %w", err)
+	}
+
+	return &Employee{
+		ID:          row.IDEmployee,
+		Surname:     row.EmplSurname,
+		Name:        row.EmplName,
+		Patronymic:  common.PtrFromText(row.EmplPatronymic),
+		Role:        row.EmplRole,
+		Salary:      salary,
+		DateOfBirth: common.TimeFromDate(row.DateOfBirth),
+		DateOfStart: common.TimeFromDate(row.DateOfStart),
+		PhoneNumber: row.PhoneNumber,
+		City:        row.City,
+		Street:      row.Street,
+		ZipCode:     row.ZipCode,
+	}, nil
 }

@@ -66,6 +66,20 @@ WHERE
 DELETE FROM checks
 WHERE check_number = $1;
 
+-- name: GetCheckByNumber :one
+-- task: За номером чеку вивести базову інформацію про чек (Cashier #11)
+SELECT
+    check_number,
+    id_employee,
+    card_number,
+    print_date,
+    sum_total,
+    vat
+FROM
+    checks
+WHERE
+    check_number = $1;
+
 -- name: GetAllChecks :many
 -- task: Видруковувати звіти з інформацією про усі чеки (Manager #4)
 SELECT
@@ -139,4 +153,3 @@ FROM
     checks
 WHERE
     print_date BETWEEN $1 AND $2;
-
