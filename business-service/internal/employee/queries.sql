@@ -121,3 +121,59 @@ WHERE
     AND empl_name = $2
     AND empl_patronymic = $3;
 
+-- name: GetCashierPerformance :many
+-- task: Знайти статистику продажів для касирів за період, де загальна сума продажів більша за $3
+-- (індивідуальний запит Гандзюра Дмитра Васильовича)
+SELECT
+    e.id_employee,
+    e.empl_name,
+    e.empl_surname,
+    e.empl_patronymic,
+    COUNT(DISTINCT c.check_number) AS total_checks,
+    SUM(s.product_number) AS total_items_sold,
+    SUM(s.selling_price * s.product_number) AS total_revenue
+FROM
+    employees e
+    INNER JOIN checks c ON c.id_employee = e.id_employee
+    INNER JOIN sales s ON s.check_number = c.check_number
+WHERE
+    e.empl_role = 'Cashier'
+    AND c.print_date BETWEEN $1 AND $2
+GROUP BY
+    e.id_employee,
+    e.empl_name,
+    e.empl_surname,
+    e.empl_patronymic
+HAVING
+    SUM(s.selling_price * s.product_number) > $3
+ORDER BY
+    total_revenue DESC;
+
+-- name: GetBestCashiersByPromo :many
+-- task: Знайти касирів, які продали кожен акційний товар, наявний у магазині
+-- (індивідуальний запит Гандзюра Дмитра Васильовича)
+SELECT
+    e.id_employee,
+    e.empl_name,
+    e.empl_surname
+FROM
+    employees e
+WHERE
+    e.empl_role = 'Cashier'
+    AND NOT EXISTS (
+        SELECT
+            sp.upc
+        FROM
+            store_products sp
+        WHERE
+            sp.promotional_product = TRUE
+            AND NOT EXISTS (
+                SELECT
+                    1
+                FROM
+                    sales s
+                    INNER JOIN checks c ON s.check_number = c.check_number
+                WHERE
+                    s.upc = sp.upc
+                    AND c.id_employee = e.id_employee));
+
