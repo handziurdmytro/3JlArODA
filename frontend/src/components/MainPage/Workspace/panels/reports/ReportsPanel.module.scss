@@ -10,17 +10,15 @@
 
     &__title {
         font-family: $font-serif;
-        font-size: 22px;
+        font-size: 28px;
         font-weight: 700;
         color: $text-primary;
-        margin: 0;
     }
 
     &__subtitle {
         font-family: $font-sans;
-        font-size: 13px;
+        font-size: 14px;
         color: $text-muted;
-        margin: 0;
     }
 
     // ── grid ───────────────────────────────────────────────
@@ -41,32 +39,31 @@
     border: 1px solid $border;
     border-radius: $radius-md;
     transition: border-color $transition;
-    animation: fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 
-    &:hover { border-color: rgba(232, 197, 71, 0.2); }
+    &:hover { 
+        border-color: rgba(232, 197, 71, 0.2);
+        background-color: rgba(232, 197, 71, 0.05);
+     }
 
     &__icon {
-        font-size: 28px;
-        color: $accent;
-        line-height: 1;
+        width: 32px;
+        height: 32px;
     }
 
     &__body { display: flex; flex-direction: column; gap: 8px; flex: 1; }
 
     &__title {
         font-family: $font-serif;
-        font-size: 16px;
+        font-size: 20px;
         font-weight: 700;
         color: $text-primary;
-        margin: 0;
     }
 
     &__desc {
         font-family: $font-sans;
-        font-size: 12px;
+        font-size: 14px;
         color: $text-muted;
-        margin: 0;
-        line-height: 1.6;
     }
 
     &__footer {
@@ -79,7 +76,7 @@
 
     &__count {
         font-family: $font-sans;
-        font-size: 11px;
+        font-size: 12px;
         color: $text-muted;
     }
 
@@ -93,7 +90,7 @@
         border-radius: $radius-sm;
         color: $accent;
         font-family: $font-serif;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 700;
         cursor: pointer;
         transition: all $transition;
@@ -102,6 +99,12 @@
             background: $accent;
             color: $bg-deep;
             border-color: $accent;
+        }
+
+        &:active {
+            background: $button-active;
+            color: $bg-deep;
+            border-color: $button-active;
         }
     }
 }
@@ -115,9 +118,9 @@
     border-radius: $radius-md;
     width: 95vw;
     max-width: 1100px;
-    height: 88vh;
+    height: 80vh;
     overflow: hidden;
-    animation: modal-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: modal-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 
     &__overlay {
         position: fixed;
@@ -129,7 +132,7 @@
         justify-content: center;
         z-index: 1000;
         padding: 24px;
-        animation: fade-in 0.2s ease both;
+        animation: fade-in 0.5s ease both;
     }
 
     &__header {
@@ -146,14 +149,14 @@
 
         &_title {
             font-family: $font-serif;
-            font-size: 16px;
+            font-size: 20px;
             font-weight: 700;
             color: $text-primary;
         }
 
         &_meta {
             font-family: $font-sans;
-            font-size: 11px;
+            font-size: 14px;
             color: $text-muted;
         }
 
@@ -170,7 +173,7 @@
         border-radius: $radius-sm;
         color: $bg-deep;
         font-family: $font-serif;
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 700;
         cursor: pointer;
         transition: all $transition;
@@ -192,10 +195,19 @@
         border-radius: $radius-sm;
         color: $text-secondary;
         cursor: pointer;
-        font-size: 12px;
+        font-size: 16px;
         transition: all $transition;
 
-        &:hover { border-color: $error-border; color: $error-text; }
+        &:hover {
+            border-color: $error-border;
+            color: $error-text;
+            transform: scale(1.05) translateY(-2px);
+        }
+
+        &:active {
+            background: $error-bg;
+            transform: scale(1.05) translateY(-2px);
+        }
     }
 
     &__body {
@@ -209,6 +221,7 @@
         width: 100%;
         height: 100%;
         border: none;
+        padding: 24px;
         border-radius: 4px;
         background: #fff;
         box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);

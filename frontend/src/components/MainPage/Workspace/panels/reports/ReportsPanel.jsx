@@ -12,7 +12,7 @@ const REPORT_TYPES = [
         key:         'employees',
         title:       'Employees Report',
         description: 'Full list of all employees with contact details, positions and salary information.',
-        icon:        '◈',
+        icon:        'employee.png',
         columns:     ['ID', 'Full Name', 'Position', 'Phone', 'Address', 'Start Date', 'Salary (₴)'],
         getRows:     (data) => data.employees.map(e => [
             e.id,
@@ -28,7 +28,7 @@ const REPORT_TYPES = [
         key:         'clients',
         title:       'Clients Report',
         description: 'Full list of all loyalty card holders with contact details and discount information.',
-        icon:        '◉',
+        icon:        'clients.png',
         columns:     ['Card #', 'Full Name', 'Phone', 'Address', 'Discount'],
         getRows:     (data) => data.clients.map(c => [
             c.cardId,
@@ -42,7 +42,7 @@ const REPORT_TYPES = [
         key:         'categories',
         title:       'Categories Report',
         description: 'Full list of all product categories with the number of products in each.',
-        icon:        '◫',
+        icon:        'category.png',
         columns:     ['Category ID', 'Category Name', 'Products Count'],
         getRows:     (data) => data.categories.map(c => {
             const count = data.products.filter(p => p.categoryId === c.id).length;
@@ -53,7 +53,7 @@ const REPORT_TYPES = [
         key:         'products',
         title:       'Products Report',
         description: 'Full list of all products with manufacturer, category and characteristics.',
-        icon:        '◈',
+        icon:        'products.png',
         columns:     ['ID', 'Name', 'Manufacturer', 'Category', 'Description'],
         getRows:     (data) => data.products.map(p => {
             const category = data.categories.find(c => c.id === p.categoryId)?.name ?? '—';
@@ -64,7 +64,7 @@ const REPORT_TYPES = [
         key:         'store-products',
         title:       'Store Products Report',
         description: 'All store entries with UPC, sale price (incl. VAT), quantity and promo status.',
-        icon:        '⊡',
+        icon:        'shop.png',
         columns:     ['UPC', 'Product', 'Category', 'Sale Price (₴)', 'VAT 20% (₴)', 'Quantity', 'Type'],
         getRows:     (data) => data.storeProducts.map(sp => {
             const product  = data.products.find(p => p.id === sp.productId);
@@ -85,7 +85,7 @@ const REPORT_TYPES = [
         key:         'receipts',
         title:       'Receipts Report',
         description: 'Full list of all receipts with cashier, date, items count, discount and total.',
-        icon:        '◻',
+        icon:        'receipt.png',
         columns:     ['Receipt #', 'Cashier', 'Date', 'Time', 'Items', 'Discount', 'Total (₴)'],
         getRows:     (data) => data.receipts.map(r => [
             `#${r.number}`,

@@ -5,7 +5,7 @@ export const ReportCard = ({ report, rowCount, index, onPreview }) => (
         className={styles.card}
         style={{ animationDelay: `${index * 80}ms` }}
     >
-        <div className={styles.card__icon}>{report.icon}</div>
+        <img src={report.icon} alt="" className={styles.card__icon}/>
 
         <div className={styles.card__body}>
             <h3 className={styles.card__title}>{report.title}</h3>
