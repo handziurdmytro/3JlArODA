@@ -2,12 +2,9 @@ package customercard
 
 import (
 	"context"
-	"errors"
 
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/common"
 	customercardpb "github.com/handziurdmytro/3JlArODA/business-service/pb/business/customercard"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type GRPCHandler struct {
@@ -33,7 +30,7 @@ func (h *GRPCHandler) CreateCustomerCard(ctx context.Context, req *customercardp
 		Percent:     int(req.GetPercent()),
 	})
 	if err != nil {
-		return nil, toStatusError(err)
+		return nil, common.ToStatusError(err)
 	}
 
 	return &customercardpb.CustomerCardResponse{CustomerCard: toProtoCustomerCard(card)}, nil
@@ -52,7 +49,7 @@ func (h *GRPCHandler) UpdateCustomerCard(ctx context.Context, req *customercardp
 		Percent:     int(req.GetPercent()),
 	})
 	if err != nil {
-		return nil, toStatusError(err)
+		return nil, common.ToStatusError(err)
 	}
 
 	return &customercardpb.CustomerCardResponse{CustomerCard: toProtoCustomerCard(card)}, nil
@@ -60,7 +57,7 @@ func (h *GRPCHandler) UpdateCustomerCard(ctx context.Context, req *customercardp
 
 func (h *GRPCHandler) DeleteCustomerCard(ctx context.Context, req *customercardpb.DeleteCustomerCardRequest) (*customercardpb.DeleteCustomerCardResponse, error) {
 	if err := h.service.Delete(ctx, req.GetCardNumber()); err != nil {
-		return nil, toStatusError(err)
+		return nil, common.ToStatusError(err)
 	}
 
 	return &customercardpb.DeleteCustomerCardResponse{Success: true}, nil
@@ -69,7 +66,7 @@ func (h *GRPCHandler) DeleteCustomerCard(ctx context.Context, req *customercardp
 func (h *GRPCHandler) GetCustomerCard(ctx context.Context, req *customercardpb.GetCustomerCardRequest) (*customercardpb.CustomerCardResponse, error) {
 	card, err := h.service.GetByNumber(ctx, req.GetCardNumber())
 	if err != nil {
-		return nil, toStatusError(err)
+		return nil, common.ToStatusError(err)
 	}
 
 	return &customercardpb.CustomerCardResponse{CustomerCard: toProtoCustomerCard(card)}, nil
@@ -78,7 +75,7 @@ func (h *GRPCHandler) GetCustomerCard(ctx context.Context, req *customercardpb.G
 func (h *GRPCHandler) GetAllCustomerCards(ctx context.Context, _ *customercardpb.GetAllCustomerCardsRequest) (*customercardpb.GetCustomerCardsResponse, error) {
 	cards, err := h.service.GetAll(ctx)
 	if err != nil {
-		return nil, toStatusError(err)
+		return nil, common.ToStatusError(err)
 	}
 
 	return &customercardpb.GetCustomerCardsResponse{CustomerCards: toProtoCustomerCards(cards)}, nil
@@ -87,7 +84,7 @@ func (h *GRPCHandler) GetAllCustomerCards(ctx context.Context, _ *customercardpb
 func (h *GRPCHandler) GetCustomerCardsByPercent(ctx context.Context, req *customercardpb.GetCustomerCardsByPercentRequest) (*customercardpb.GetCustomerCardsResponse, error) {
 	cards, err := h.service.GetByPercent(ctx, int(req.GetPercent()))
 	if err != nil {
-		return nil, toStatusError(err)
+		return nil, common.ToStatusError(err)
 	}
 
 	return &customercardpb.GetCustomerCardsResponse{CustomerCards: toProtoCustomerCards(cards)}, nil
@@ -96,7 +93,7 @@ func (h *GRPCHandler) GetCustomerCardsByPercent(ctx context.Context, req *custom
 func (h *GRPCHandler) SearchCustomerCardsBySurname(ctx context.Context, req *customercardpb.SearchCustomerCardsBySurnameRequest) (*customercardpb.GetCustomerCardsResponse, error) {
 	cards, err := h.service.SearchBySurname(ctx, req.GetSurname())
 	if err != nil {
-		return nil, toStatusError(err)
+		return nil, common.ToStatusError(err)
 	}
 
 	return &customercardpb.GetCustomerCardsResponse{CustomerCards: toProtoCustomerCards(cards)}, nil
@@ -127,18 +124,5 @@ func toProtoCustomerCard(card *CustomerCard) *customercardpb.CustomerCard {
 		Street:      card.Street,
 		ZipCode:     card.ZipCode,
 		Percent:     int32(card.Percent),
-	}
-}
-
-func toStatusError(err error) error {
-	switch {
-	case errors.Is(err, common.ErrNotFound):
-		return status.Error(codes.NotFound, err.Error())
-	case errors.Is(err, common.ErrAlreadyExists):
-		return status.Error(codes.AlreadyExists, err.Error())
-	case errors.Is(err, common.ErrForeignKeyViolation), errors.Is(err, common.ErrCheckViolation):
-		return status.Error(codes.InvalidArgument, err.Error())
-	default:
-		return status.Error(codes.Internal, err.Error())
 	}
 }

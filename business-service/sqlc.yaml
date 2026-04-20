@@ -27,6 +27,28 @@ sql:
     schema:
       - "migrations"
     queries:
+      - "internal/category/queries.sql"
+    gen:
+      go:
+        package: "categorydb"
+        out: "internal/category/sqlc"
+        sql_package: "pgx/v5"
+
+  - engine: "postgresql"
+    schema:
+      - "migrations"
+    queries:
+      - "internal/storeproduct/queries.sql"
+    gen:
+      go:
+        package: "storeproductdb"
+        out: "internal/storeproduct/sqlc"
+        sql_package: "pgx/v5"
+
+  - engine: "postgresql"
+    schema:
+      - "migrations"
+    queries:
       - "internal/customercard/queries.sql"
     gen:
       go:

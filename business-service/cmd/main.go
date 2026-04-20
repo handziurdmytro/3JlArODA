@@ -6,17 +6,21 @@ import (
 	"net"
 	"os"
 
+	"github.com/handziurdmytro/3JlArODA/business-service/internal/category"
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/check"
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/customercard"
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/database/postgres"
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/employee"
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/product"
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/sale"
+	"github.com/handziurdmytro/3JlArODA/business-service/internal/storeproduct"
+	categorypb "github.com/handziurdmytro/3JlArODA/business-service/pb/business/category"
 	checkpb "github.com/handziurdmytro/3JlArODA/business-service/pb/business/check"
 	customercardpb "github.com/handziurdmytro/3JlArODA/business-service/pb/business/customercard"
 	employeepb "github.com/handziurdmytro/3JlArODA/business-service/pb/business/employee"
 	productpb "github.com/handziurdmytro/3JlArODA/business-service/pb/business/product"
 	salepb "github.com/handziurdmytro/3JlArODA/business-service/pb/business/sale"
+	storeproductpb "github.com/handziurdmytro/3JlArODA/business-service/pb/business/storeproduct"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 )
@@ -50,6 +54,14 @@ func main() {
 	productService := product.NewService(productRepo)
 	productHandler := product.NewGRPCHandler(productService)
 
+	categoryRepo := category.NewCategoryRepository(pool)
+	categoryService := category.NewService(categoryRepo)
+	categoryHandler := category.NewGRPCHandler(categoryService)
+
+	storeProductRepo := storeproduct.NewStoreProductRepository(pool)
+	storeProductService := storeproduct.NewService(storeProductRepo)
+	storeProductHandler := storeproduct.NewGRPCHandler(storeProductService)
+
 	customerCardRepo := customercard.NewCustomerCardRepository(pool)
 	customerCardService := customercard.NewService(customerCardRepo)
 	customerCardHandler := customercard.NewGRPCHandler(customerCardService)
@@ -68,6 +80,8 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	productpb.RegisterProductServiceServer(grpcServer, productHandler)
+	categorypb.RegisterCategoryServiceServer(grpcServer, categoryHandler)
+	storeproductpb.RegisterStoreProductServiceServer(grpcServer, storeProductHandler)
 	customercardpb.RegisterCustomerCardServiceServer(grpcServer, customerCardHandler)
 	employeepb.RegisterEmployeeServiceServer(grpcServer, employeeHandler)
 	checkpb.RegisterCheckServiceServer(grpcServer, checkHandler)

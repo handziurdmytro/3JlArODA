@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package business.storeproduct;
+
+option go_package = "github.com/handziurdmytro/3JlArODA/business-service/pb/business/storeproduct;storeproductpb";
+
+service StoreProductService {
+  rpc CreateStoreProduct(CreateStoreProductRequest) returns (StoreProductResponse);
+  rpc UpdateStoreProduct(UpdateStoreProductRequest) returns (StoreProductResponse);
+  rpc DeleteStoreProduct(DeleteStoreProductRequest) returns (DeleteStoreProductResponse);
+  rpc GetStoreProduct(GetStoreProductRequest) returns (DetailedStoreProductResponse);
+  rpc GetAllStoreProductsSortedByQuantity(GetAllStoreProductsSortedByQuantityRequest) returns (GetDetailedStoreProductsResponse);
+  rpc GetAllStoreProductsSortedByName(GetAllStoreProductsSortedByNameRequest) returns (GetDetailedStoreProductsResponse);
+  rpc GetPromoStoreProductsSortedByQuantity(GetPromoStoreProductsSortedByQuantityRequest) returns (GetDetailedStoreProductsResponse);
+  rpc GetPromoStoreProductsSortedByName(GetPromoStoreProductsSortedByNameRequest) returns (GetDetailedStoreProductsResponse);
+  rpc GetNonPromoStoreProductsSortedByQuantity(GetNonPromoStoreProductsSortedByQuantityRequest) returns (GetDetailedStoreProductsResponse);
+  rpc GetNonPromoStoreProductsSortedByName(GetNonPromoStoreProductsSortedByNameRequest) returns (GetDetailedStoreProductsResponse);
+  rpc GetStoreProductsByCategorySortedByName(GetStoreProductsByCategorySortedByNameRequest) returns (GetDetailedStoreProductsResponse);
+}
+
+message StoreProduct {
+  string upc = 1;
+  optional string upc_prom = 2;
+  int32 product_id = 3;
+  double selling_price = 4;
+  int32 products_number = 5;
+  bool promotional_product = 6;
+}
+
+message DetailedStoreProduct {
+  string upc = 1;
+  optional string upc_prom = 2;
+  double selling_price = 3;
+  int32 products_number = 4;
+  bool promotional_product = 5;
+  int32 product_id = 6;
+  string product_name = 7;
+  optional string producer = 8;
+  string characteristics = 9;
+  int32 category_number = 10;
+  string category_name = 11;
+}
+
+message CreateStoreProductRequest {
+  string upc = 1;
+  optional string upc_prom = 2;
+  int32 product_id = 3;
+  double selling_price = 4;
+  int32 products_number = 5;
+  bool promotional_product = 6;
+}
+
+message UpdateStoreProductRequest {
+  string upc = 1;
+  optional string upc_prom = 2;
+  int32 product_id = 3;
+  double selling_price = 4;
+  int32 products_number = 5;
+  bool promotional_product = 6;
+}
+
+message DeleteStoreProductRequest {
+  string upc = 1;
+}
+
+message DeleteStoreProductResponse {
+  bool success = 1;
+}
+
+message GetStoreProductRequest {
+  string upc = 1;
+}
+
+message GetAllStoreProductsSortedByQuantityRequest {}
+
+message GetAllStoreProductsSortedByNameRequest {}
+
+message GetPromoStoreProductsSortedByQuantityRequest {}
+
+message GetPromoStoreProductsSortedByNameRequest {}
+
+message GetNonPromoStoreProductsSortedByQuantityRequest {}
+
+message GetNonPromoStoreProductsSortedByNameRequest {}
+
+message GetStoreProductsByCategorySortedByNameRequest {
+  int32 category_number = 1;
+}
+
+message StoreProductResponse {
+  StoreProduct store_product = 1;
+}
+
+message DetailedStoreProductResponse {
+  DetailedStoreProduct store_product = 1;
+}
+
+message GetDetailedStoreProductsResponse {
+  repeated DetailedStoreProduct store_products = 1;
+}

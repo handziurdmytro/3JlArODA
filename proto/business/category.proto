@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package business.category;
+
+option go_package = "github.com/handziurdmytro/3JlArODA/business-service/pb/business/category;categorypb";
+
+service CategoryService {
+  rpc CreateCategory(CreateCategoryRequest) returns (CategoryResponse);
+  rpc UpdateCategory(UpdateCategoryRequest) returns (CategoryResponse);
+  rpc DeleteCategory(DeleteCategoryRequest) returns (DeleteCategoryResponse);
+  rpc GetCategory(GetCategoryRequest) returns (CategoryResponse);
+  rpc GetAllCategories(GetAllCategoriesRequest) returns (GetCategoriesResponse);
+}
+
+message Category {
+  int32 number = 1;
+  string name = 2;
+}
+
+message CreateCategoryRequest {
+  string name = 1;
+}
+
+message UpdateCategoryRequest {
+  int32 number = 1;
+  string name = 2;
+}
+
+message DeleteCategoryRequest {
+  int32 number = 1;
+}
+
+message DeleteCategoryResponse {
+  bool success = 1;
+}
+
+message GetCategoryRequest {
+  int32 number = 1;
+}
+
+message GetAllCategoriesRequest {}
+
+message CategoryResponse {
+  Category category = 1;
+}
+
+message GetCategoriesResponse {
+  repeated Category categories = 1;
+}
