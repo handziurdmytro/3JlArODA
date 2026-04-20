@@ -12,6 +12,9 @@ func SetupRoutes(
 	authValidator middleware.AuthValidator,
 	productHandler *handlers.ProductHandler,
 	customerCardHandler *handlers.CustomerCardHandler,
+	employeeHandler *handlers.EmployeeHandler,
+	checkHandler *handlers.CheckHandler,
+	saleHandler *handlers.SaleHandler,
 ) {
 	api := router.Group("/api/v1")
 	{
@@ -26,11 +29,11 @@ func SetupRoutes(
 
 		employee := protected.Group("/employee")
 		{
-			employee.GET("/", handlers.ListEmployees)
-			employee.GET("/:id", handlers.GetEmployeeByID)
-			employee.POST("/", handlers.CreateEmployee)
-			employee.PUT("/:id", handlers.UpdateEmployee)
-			employee.DELETE("/:id", handlers.DeleteEmployee)
+			employee.GET("/", employeeHandler.List)
+			employee.GET("/:id", employeeHandler.GetByID)
+			employee.POST("/", employeeHandler.Create)
+			employee.PUT("/:id", employeeHandler.Update)
+			employee.DELETE("/:id", employeeHandler.Delete)
 		}
 
 		category := protected.Group("/category")
@@ -71,17 +74,17 @@ func SetupRoutes(
 
 		check := protected.Group("/check")
 		{
-			check.GET("/", handlers.ListChecks)
-			check.GET("/:number", handlers.GetCheckByNumber)
-			check.POST("/", handlers.CreateCheck)
-			check.DELETE("/:number", handlers.DeleteCheck)
+			check.GET("/", checkHandler.List)
+			check.GET("/:number", checkHandler.GetByNumber)
+			check.POST("/", checkHandler.Create)
+			check.DELETE("/:number", checkHandler.Delete)
 		}
 
 		sale := protected.Group("/sale")
 		{
-			sale.GET("/", handlers.ListSales)
-			sale.GET("/item", handlers.GetSale)
-			sale.POST("/", handlers.CreateSale)
+			sale.GET("/", saleHandler.List)
+			sale.GET("/item", saleHandler.Get)
+			sale.POST("/", saleHandler.Create)
 		}
 	}
 }

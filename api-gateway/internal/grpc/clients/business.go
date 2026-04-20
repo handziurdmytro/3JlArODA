@@ -12,6 +12,9 @@ type Business struct {
 
 	Product      *ProductClient
 	CustomerCard *CustomerCardClient
+	Employee     *EmployeeClient
+	Check        *CheckClient
+	Sale         *SaleClient
 }
 
 func NewBusinessClient(address string) (*Business, error) {
@@ -27,6 +30,9 @@ func NewBusinessClient(address string) (*Business, error) {
 		conn:         conn,
 		Product:      NewProductClient(conn),
 		CustomerCard: NewCustomerCardClient(conn),
+		Employee:     NewEmployeeClient(conn),
+		Check:        NewCheckClient(conn),
+		Sale:         NewSaleClient(conn),
 	}, nil
 }
 

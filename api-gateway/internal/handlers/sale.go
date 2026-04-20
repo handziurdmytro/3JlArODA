@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,18 +9,34 @@ import (
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/models"
 )
 
-func CreateSale(c *gin.Context) {
+type SaleClient interface {
+	Create(ctx context.Context, req models.CreateSaleRequest) error
+}
+
+type SaleHandler struct {
+	saleClient SaleClient
+}
+
+func NewSaleHandler(saleClient SaleClient) *SaleHandler {
+	return &SaleHandler{saleClient: saleClient}
+}
+
+func (h *SaleHandler) Create(c *gin.Context) {
 	var req models.CreateSaleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, common.ErrorResponse{Error: "Invalid request: " + err.Error()})
 		return
 	}
 
-	// TODO: Pass to the business service via gRPC
-	c.JSON(http.StatusCreated, req)
+	if err := h.saleClient.Create(c.Request.Context(), req); err != nil {
+		respondGRPCError(c, err)
+		return
+	}
+
+	c.Status(http.StatusCreated)
 }
 
-func GetSale(c *gin.Context) {
+func (h *SaleHandler) Get(c *gin.Context) {
 	upc := c.Query("upc")
 	checkNumber := c.Query("check_number")
 
@@ -28,11 +45,9 @@ func GetSale(c *gin.Context) {
 		return
 	}
 
-	// TODO: Fetch from the business service via gRPC
-	c.JSON(http.StatusOK, gin.H{"upc": upc, "check_number": checkNumber, "status": "found"})
+	c.JSON(http.StatusNotImplemented, common.ErrorResponse{Error: "sale item lookup is not supported by business-service grpc API yet"})
 }
 
-func ListSales(c *gin.Context) {
-	// TODO: Fetch collection from the business service via gRPC
-	c.JSON(http.StatusOK, []string{})
+func (h *SaleHandler) List(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, common.ErrorResponse{Error: "sale listing is not supported by business-service grpc API yet"})
 }

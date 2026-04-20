@@ -37,11 +37,23 @@ func main() {
 	authHandler := handlers.NewAuthHandler(authClient)
 	productHandler := handlers.NewProductHandler(businessClient.Product)
 	customerCardHandler := handlers.NewCustomerCardHandler(businessClient.CustomerCard)
+	employeeHandler := handlers.NewEmployeeHandler(businessClient.Employee)
+	checkHandler := handlers.NewCheckHandler(businessClient.Check)
+	saleHandler := handlers.NewSaleHandler(businessClient.Sale)
 
 	gin.SetMode(cfg.GinMode)
 	router := gin.Default()
 
-	routes.SetupRoutes(router, authHandler, authClient, productHandler, customerCardHandler)
+	routes.SetupRoutes(
+		router,
+		authHandler,
+		authClient,
+		productHandler,
+		customerCardHandler,
+		employeeHandler,
+		checkHandler,
+		saleHandler,
+	)
 
 	addr := fmt.Sprintf(":%s", cfg.Port)
 	log.Printf(
