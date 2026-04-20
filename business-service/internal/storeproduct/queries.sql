@@ -190,3 +190,32 @@ FROM store_products sp
     INNER JOIN categories c ON p.category_number = c.category_number
 WHERE c.category_number = $1
 ORDER BY p.product_name;
+
+-- name: GetCashiersWhoSoldAllProductsFromCategory :many
+-- task: Знайти касирів, які продали кожен товар з певної категорії за період (Manager)
+-- $1 — category_number, $2 — date_from, $3 — date_to
+SELECT
+    e.id_employee,
+    e.empl_surname,
+    e.empl_name,
+    e.empl_patronymic,
+    e.phone_number
+FROM employees e
+WHERE
+    e.empl_role = 'cashier'
+    AND NOT EXISTS (
+        SELECT 1
+        FROM products p
+        WHERE p.category_number = $1
+        AND NOT EXISTS (
+            SELECT 1
+            FROM checks c
+                INNER JOIN sales s ON c.check_number = s.check_number
+                INNER JOIN store_products sp ON s.upc = sp.upc
+            WHERE
+                c.id_employee  = e.id_employee
+                AND sp.id_product = p.id_product
+                AND c.print_date BETWEEN $2 AND $3
+        )
+    )
+ORDER BY e.empl_surname, e.empl_name, e.empl_patronymic;
