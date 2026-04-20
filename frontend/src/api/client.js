@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const apiClient = axios.create({
-    baseURL: 'http://localhost:8080/api/v1',
+    baseURL: '/api/v1',
     headers: {
         'Content-Type': 'application/json',
     },
@@ -13,7 +13,7 @@ apiClient.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
-        return config; // ← було: return token (баг)
+        return config;
     },
     (error) => Promise.reject(error)
 );

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authApi } from '../../api/auth.js';
 
 export const useAuth = () => {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +16,7 @@ export const useAuth = () => {
         setIsLoading(true);
 
         try {
-            const response = await authApi.login(email, password);
+            const response = await authApi.login(username, password);
             const token = response.data.token;
 
             if (token) {
@@ -26,11 +26,11 @@ export const useAuth = () => {
                 setError('Server did not return a token');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to connect to a server');
+            setError(err.response?.data?.error || 'Failed to connect to a server');
         } finally {
             setIsLoading(false);
         }
     };
 
-    return { email, setEmail, password, setPassword, error, isLoading, handleSubmit };
+    return { username, setUsername, password, setPassword, error, isLoading, handleSubmit };
 };

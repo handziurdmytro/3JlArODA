@@ -5,7 +5,7 @@ import { AuthFormActions } from './AuthFormActions';
 import styles from './Auth.module.scss';
 
 export const Auth = () => {
-    const { email, setEmail, password, setPassword, error, isLoading, handleSubmit } = useAuth();
+    const { username, setUsername, password, setPassword, error, isLoading, handleSubmit } = useAuth();
 
     return (
         <div className={styles.auth}>
@@ -43,8 +43,8 @@ export const Auth = () => {
                 <AuthFeedback error={error} />
 
                 <form onSubmit={handleSubmit} className={styles.auth__form}>
-                    <AuthLoginField id="email" label="Email" type="email" placeholder="email"
-                     value={email} onChange={setEmail} isLoading={isLoading} />
+                    <AuthLoginField id="email" label="Email" type="text" placeholder="username"
+                     value={username} onChange={setUsername} isLoading={isLoading} />
 
                     <AuthLoginField id="password" label="Password" type="password" placeholder="password"
                      value={password} onChange={setPassword} isLoading={isLoading} />
