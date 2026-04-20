@@ -47,6 +47,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	err = repo.SeedDefaultAdmin(context.Background(), cfg.DefaultAdminUser, cfg.DefaultAdminPass, cryptoClient.HashPassword)
+	if err != nil {
+		slog.Error("failed to seed default admin", slog.String("error", err.Error()))
+	}
+
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(middleware.LoggingInterceptor),
 	)
