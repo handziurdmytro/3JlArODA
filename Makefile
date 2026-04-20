@@ -1,9 +1,9 @@
 .PHONY: gen env up down logs clean
 
 up: env gen
-	@echo "🚀 [INFO] start..."
+	@echo "[INFO] start..."
 	docker compose up --build -d
-	@echo "✅ [INFO] success!"
+	@echo "[INFO] success!"
 
 env:
 	@echo "=== Generating .env for Crypto Service ==="
@@ -28,7 +28,7 @@ env:
 		echo "BUSINESS_SERVICE=zlahoda-business:2433" >> api-gateway/.env && \
 		echo "AUTH_SERVICE=zlahoda-auth:3131" >> api-gateway/.env \
 	)
-	@echo "✅ [INFO] all .env files are ready!"
+	@echo "[INFO] all .env files are ready!"
 
 gen:
 	@echo "=== Generating Crypto Service ==="
@@ -42,7 +42,7 @@ gen:
 
 	@echo "=== Generating API Gateway ==="
 	$(MAKE) -C api-gateway gen
-	@echo "✅ All code generated successfully!"
+	@echo "All code generated successfully!"
 
 down:
 	docker compose down
@@ -51,10 +51,17 @@ logs:
 	docker compose logs -f
 
 clean: down
-	@echo "🧹 Cleaning up environments and volumes..."
+	@echo "Cleaning up environments and volumes..."
 	docker compose down -v
 	rm -f auth-service/.env
 	rm -f business-service/.env
 	rm -f api-gateway/.env
 	rm -f crypto-service/.env
-	@echo "✅ Clean up finished!"
+	@echo "Clean up finished!"
+
+front-dbg: env gen
+	@echo "Starting backend infrastructure for Frontend Debugging..."
+	docker compose -f docker/test/docker-compose.front-debug.yml up --build -d
+	@echo "Backend is ready! API Gateway is listening on http://localhost:8080"
+	@echo "Starting frontend dev server..."
+	npm --prefix frontend run dev
