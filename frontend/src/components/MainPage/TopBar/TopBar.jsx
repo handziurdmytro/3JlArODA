@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import clsx from 'clsx';
-import styles from './Topbar.module.scss';
+import styles from './TopBar.module.scss';
 
 const ProfileModal = ({ user, onClose }) => {
     const handleOverlayClick = (e) => {
