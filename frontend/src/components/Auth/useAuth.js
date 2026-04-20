@@ -15,21 +15,35 @@ export const useAuth = () => {
         setError(null);
         setIsLoading(true);
 
-        try {
-            const response = await authApi.login(username, password);
-            const token = response.data.token;
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-            if (token) {
-                localStorage.setItem('token', token);
-                navigate('/dashboard');
-            } else {
-                setError('Server did not return a token');
-            }
-        } catch (err) {
-            setError(err.response?.data?.error || 'Failed to connect to a server');
-        } finally {
-            setIsLoading(false);
-        }
+try {
+    const response = await authApi.login(username, password);
+    console.log('full response:', response);
+    await sleep(10000);
+    
+    console.log('response.data:', response.data);
+    await sleep(10000);
+    
+    const token = response.data.token;
+    console.log('token:', token);
+    await sleep(10000);
+
+    if (token) {
+        localStorage.setItem('token', token);
+        console.log('navigating to dashboard...');
+        await sleep(10000);
+        navigate('/dashboard');
+    } else {
+        console.log('no token in response!');
+        await sleep(10000);
+        setError('Server did not return a token');
+    }
+} catch (err) {
+    console.log('catch:', err.response?.status, err.response?.data);
+    await sleep(10000);
+    setError(err.response?.data?.error || 'Failed to connect to a server');
+}
     };
 
     return { username, setUsername, password, setPassword, error, isLoading, handleSubmit };
