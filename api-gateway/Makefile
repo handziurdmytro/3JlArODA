@@ -1,19 +1,29 @@
-GOPATH_BIN := $(shell go env GOPATH)/bin
+PWD := $(shell pwd)
 MODULE := github.com/handziurdmytro/3JlArODA/api-gateway
 
 .PHONY: gen gen-auth gen-business test
 gen: gen-auth gen-business
 
 gen-auth:
-	PATH="$(GOPATH_BIN):$$PATH" protoc \
-		-I ../proto \
+	@echo "Generating Auth Proto for api-gateway via Docker..."
+	docker run --rm -v $(PWD)/..:/app -w /app/api-gateway golang:1.26-alpine sh -c "\
+		apk add --no-cache protoc && \
+		go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
+		go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest && \
+		export PATH=\"/go/bin:\$$PATH\" && \
+		protoc -I ../proto \
 		--go_out=. \
 		--go-grpc_out=. \
-		../proto/auth.proto
+		../proto/auth.proto"
 
 gen-business:
-	PATH="$(GOPATH_BIN):$$PATH" protoc \
-		-I ../proto \
+	@echo "Generating Business Proto for api-gateway via Docker..."
+	docker run --rm -v $(PWD)/..:/app -w /app/api-gateway golang:1.26-alpine sh -c "\
+		apk add --no-cache protoc && \
+		go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
+		go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest && \
+		export PATH=\"/go/bin:\$$PATH\" && \
+		protoc -I ../proto \
 		--go_out=. \
 		--go_opt=module=$(MODULE) \
 		--go_opt=Mbusiness/product.proto=$(MODULE)/pb/business/product \
@@ -38,7 +48,7 @@ gen-business:
 		../proto/business/customercard.proto \
 		../proto/business/employee.proto \
 		../proto/business/check.proto \
-		../proto/business/sale.proto
+		../proto/business/sale.proto"
 
 test:
 	go test ./...

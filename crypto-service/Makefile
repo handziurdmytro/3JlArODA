@@ -1,13 +1,16 @@
-.PHONY: gen-env
+.PHONY: gen gen-env docker-build docker-run
+
+gen:
+	@echo "Crypto-service generates protos via build.rs automatically. Nothing to do."
 
 gen-env:
-	@echo	"Creating .env file..."
-	@echo	"PORT=3030" > .env
-	@echo	"JWT_EXP_SECONDS=86400" >> .env
-	@echo	"PEPPER=$$(openssl rand -hex 32)" >> .env
-	@echo	"SIGNING_KEY=$$(openssl rand -hex 32)" >> .env
-	@echo	"JWT_SECRET=$$(openssl rand -hex 32)" >> .env
-	@echo	"Successfully created"
+	@echo  "Creating .env file..."
+	@echo  "PORT=3030" > .env
+	@echo  "JWT_EXP_SECONDS=86400" >> .env
+	@echo  "PEPPER=$$(openssl rand -hex 32)" >> .env
+	@echo  "SIGNING_KEY=$$(openssl rand -hex 32)" >> .env
+	@echo  "JWT_SECRET=$$(openssl rand -hex 32)" >> .env
+	@echo  "Successfully created"
 
 docker-build:
 	cd .. && \
