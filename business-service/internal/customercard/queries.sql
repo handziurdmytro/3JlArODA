@@ -112,3 +112,45 @@ SELECT
 FROM customer_cards
 WHERE cust_surname ILIKE '%' || $1 || '%'
 ORDER BY cust_surname, cust_name, cust_patronymic;
+
+-- task: Manager can find customer cards of customers who bought every product from a selected non-empty category during a selected period.
+-- name: GetCustomerCardsWhoBoughtAllProductsFromNonEmptyCategory :many
+SELECT
+    cc.card_number,
+    cc.cust_surname,
+    cc.cust_name,
+    cc.cust_patronymic,
+    cc.phone_number,
+    cc.city,
+    cc.street,
+    cc.zip_code,
+    cc.percent
+FROM customer_cards cc
+WHERE
+    EXISTS (
+        SELECT 1
+        FROM products p
+        WHERE p.category_number = $1
+    )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM products p
+        INNER JOIN categories cat ON p.category_number = cat.category_number
+        WHERE
+            cat.category_number = $1
+            AND NOT EXISTS (
+                SELECT 1
+                FROM checks ch
+                INNER JOIN sales s ON ch.check_number = s.check_number
+                INNER JOIN store_products sp ON s.upc = sp.upc
+                WHERE
+                    ch.card_number = cc.card_number
+                    AND sp.id_product = p.id_product
+                    AND ch.print_date >= $2
+                    AND ch.print_date <= $3
+            )
+    )
+ORDER BY
+    cc.cust_surname,
+    cc.cust_name,
+    cc.cust_patronymic;

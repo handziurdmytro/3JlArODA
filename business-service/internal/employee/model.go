@@ -31,3 +31,19 @@ type CreateRequest struct {
 	Street      string    `json:"street"`
 	ZipCode     string    `json:"zip_code"`
 }
+
+type CashierPerformance struct {
+	ID             string  `json:"id"`
+	Name           string  `json:"name"`
+	Surname        string  `json:"surname"`
+	Patronymic     *string `json:"patronymic,omitempty"`
+	TotalChecks    int64   `json:"total_checks"`
+	TotalItemsSold int64   `json:"total_items_sold"`
+	TotalRevenue   float64 `json:"total_revenue"`
+}
+
+type BestCashierByPromo struct {
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Surname string `json:"surname"`
+}

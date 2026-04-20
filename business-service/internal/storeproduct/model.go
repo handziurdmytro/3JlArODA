@@ -31,3 +31,11 @@ type CreateRequest struct {
 	ProductsNumber     int     `json:"products_number"`
 	PromotionalProduct bool    `json:"promotional_product"`
 }
+
+type CashierSoldAllCategoryProducts struct {
+	ID          string  `json:"id"`
+	Surname     string  `json:"surname"`
+	Name        string  `json:"name"`
+	Patronymic  *string `json:"patronymic,omitempty"`
+	PhoneNumber string  `json:"phone_number"`
+}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/common"
@@ -23,6 +24,7 @@ type StoreProductClient interface {
 	GetNonPromoSortedByQuantity(ctx context.Context) ([]*storeproductpb.DetailedStoreProduct, error)
 	GetNonPromoSortedByName(ctx context.Context) ([]*storeproductpb.DetailedStoreProduct, error)
 	GetByCategorySortedByName(ctx context.Context, categoryNumber int) ([]*storeproductpb.DetailedStoreProduct, error)
+	GetCashiersWhoSoldAllProductsFromCategory(ctx context.Context, categoryNumber int, from, to time.Time) ([]*storeproductpb.CashierSoldAllCategoryProducts, error)
 }
 
 type StoreProductHandler struct {
@@ -116,6 +118,25 @@ func (h *StoreProductHandler) List(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, products)
+}
+
+func (h *StoreProductHandler) GetCashiersWhoSoldAllProductsFromCategory(c *gin.Context) {
+	categoryNumber, ok := parseIntQuery(c, "category_number")
+	if !ok {
+		return
+	}
+	from, to, ok := parsePeriod(c)
+	if !ok {
+		return
+	}
+
+	cashiers, err := h.storeProductClient.GetCashiersWhoSoldAllProductsFromCategory(c.Request.Context(), categoryNumber, from, to)
+	if err != nil {
+		respondGRPCError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, cashiers)
 }
 
 func (h *StoreProductHandler) Update(c *gin.Context) {

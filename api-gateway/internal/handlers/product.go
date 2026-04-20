@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/common"
@@ -17,6 +18,7 @@ type ProductClient interface {
 	GetAll(ctx context.Context) ([]*productpb.Product, error)
 	GetByCategory(ctx context.Context, categoryNumber int) ([]*productpb.Product, error)
 	SearchByName(ctx context.Context, name string) ([]*productpb.Product, error)
+	GetSalesStatsByCategoryAndPeriod(ctx context.Context, categoryNumber int, from, to time.Time) ([]*productpb.ProductSalesStats, error)
 	Update(ctx context.Context, id int, req models.UpdateProductRequest) (*productpb.Product, error)
 	Delete(ctx context.Context, id int) error
 }
@@ -98,6 +100,25 @@ func (h *ProductHandler) List(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, products)
+}
+
+func (h *ProductHandler) GetSalesStatsByCategoryAndPeriod(c *gin.Context) {
+	categoryNumber, ok := parseIntQuery(c, "category_number")
+	if !ok {
+		return
+	}
+	from, to, ok := parsePeriod(c)
+	if !ok {
+		return
+	}
+
+	stats, err := h.productClient.GetSalesStatsByCategoryAndPeriod(c.Request.Context(), categoryNumber, from, to)
+	if err != nil {
+		respondGRPCError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, stats)
 }
 
 func (h *ProductHandler) Update(c *gin.Context) {

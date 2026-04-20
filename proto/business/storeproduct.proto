@@ -16,6 +16,7 @@ service StoreProductService {
   rpc GetNonPromoStoreProductsSortedByQuantity(GetNonPromoStoreProductsSortedByQuantityRequest) returns (GetDetailedStoreProductsResponse);
   rpc GetNonPromoStoreProductsSortedByName(GetNonPromoStoreProductsSortedByNameRequest) returns (GetDetailedStoreProductsResponse);
   rpc GetStoreProductsByCategorySortedByName(GetStoreProductsByCategorySortedByNameRequest) returns (GetDetailedStoreProductsResponse);
+  rpc GetCashiersWhoSoldAllProductsFromCategory(GetCashiersWhoSoldAllProductsFromCategoryRequest) returns (GetCashiersWhoSoldAllProductsFromCategoryResponse);
 }
 
 message StoreProduct {
@@ -39,6 +40,14 @@ message DetailedStoreProduct {
   string characteristics = 9;
   int32 category_number = 10;
   string category_name = 11;
+}
+
+message CashierSoldAllCategoryProducts {
+  string id = 1;
+  string surname = 2;
+  string name = 3;
+  optional string patronymic = 4;
+  string phone_number = 5;
 }
 
 message CreateStoreProductRequest {
@@ -87,6 +96,12 @@ message GetStoreProductsByCategorySortedByNameRequest {
   int32 category_number = 1;
 }
 
+message GetCashiersWhoSoldAllProductsFromCategoryRequest {
+  int32 category_number = 1;
+  string from = 2;
+  string to = 3;
+}
+
 message StoreProductResponse {
   StoreProduct store_product = 1;
 }
@@ -97,4 +112,8 @@ message DetailedStoreProductResponse {
 
 message GetDetailedStoreProductsResponse {
   repeated DetailedStoreProduct store_products = 1;
+}
+
+message GetCashiersWhoSoldAllProductsFromCategoryResponse {
+  repeated CashierSoldAllCategoryProducts cashiers = 1;
 }

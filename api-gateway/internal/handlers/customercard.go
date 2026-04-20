@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/common"
@@ -17,6 +18,7 @@ type CustomerCardClient interface {
 	GetAll(ctx context.Context) ([]*customercardpb.CustomerCard, error)
 	GetByPercent(ctx context.Context, percent int) ([]*customercardpb.CustomerCard, error)
 	SearchBySurname(ctx context.Context, surname string) ([]*customercardpb.CustomerCard, error)
+	GetWhoBoughtAllProductsFromCategory(ctx context.Context, categoryNumber int, from, to time.Time) ([]*customercardpb.CustomerCard, error)
 	Update(ctx context.Context, cardNumber string, req models.UpdateCustomerCardRequest) (*customercardpb.CustomerCard, error)
 	Delete(ctx context.Context, cardNumber string) error
 }
@@ -92,6 +94,25 @@ func (h *CustomerCardHandler) List(c *gin.Context) {
 	}
 
 	cards, err := h.customerCardClient.GetAll(c.Request.Context())
+	if err != nil {
+		respondGRPCError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, cards)
+}
+
+func (h *CustomerCardHandler) GetWhoBoughtAllProductsFromCategory(c *gin.Context) {
+	categoryNumber, ok := parseIntQuery(c, "category_number")
+	if !ok {
+		return
+	}
+	from, to, ok := parsePeriod(c)
+	if !ok {
+		return
+	}
+
+	cards, err := h.customerCardClient.GetWhoBoughtAllProductsFromCategory(c.Request.Context(), categoryNumber, from, to)
 	if err != nil {
 		respondGRPCError(c, err)
 		return

@@ -8,6 +8,7 @@ type repository interface {
 	Delete(ctx context.Context, number int) error
 	GetAll(ctx context.Context) ([]Category, error)
 	GetByNumber(ctx context.Context, number int) (*Category, error)
+	GetStockSummary(ctx context.Context) ([]StockSummary, error)
 }
 
 type Service struct {
@@ -36,4 +37,8 @@ func (s *Service) GetAll(ctx context.Context) ([]Category, error) {
 
 func (s *Service) GetByNumber(ctx context.Context, number int) (*Category, error) {
 	return s.repo.GetByNumber(ctx, number)
+}
+
+func (s *Service) GetStockSummary(ctx context.Context) ([]StockSummary, error) {
+	return s.repo.GetStockSummary(ctx)
 }

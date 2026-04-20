@@ -130,14 +130,14 @@ SELECT
     e.empl_surname,
     e.empl_patronymic,
     COUNT(DISTINCT c.check_number) AS total_checks,
-    SUM(s.product_number) AS total_items_sold,
-    SUM(s.selling_price * s.product_number) AS total_revenue
+    SUM(s.product_number)::bigint AS total_items_sold,
+    COALESCE(SUM(s.selling_price * s.product_number), 0)::numeric(13, 4) AS total_revenue
 FROM
     employees e
     INNER JOIN checks c ON c.id_employee = e.id_employee
     INNER JOIN sales s ON s.check_number = c.check_number
 WHERE
-    e.empl_role = 'Cashier'
+    e.empl_role = 'cashier'
     AND c.print_date BETWEEN $1 AND $2
 GROUP BY
     e.id_employee,
@@ -145,7 +145,7 @@ GROUP BY
     e.empl_surname,
     e.empl_patronymic
 HAVING
-    SUM(s.selling_price * s.product_number) > $3
+    COALESCE(SUM(s.selling_price * s.product_number), 0)::numeric(13, 4) > $3
 ORDER BY
     total_revenue DESC;
 
@@ -159,7 +159,7 @@ SELECT
 FROM
     employees e
 WHERE
-    e.empl_role = 'Cashier'
+    e.empl_role = 'cashier'
     AND NOT EXISTS (
         SELECT
             sp.upc
@@ -176,4 +176,3 @@ WHERE
                 WHERE
                     s.upc = sp.upc
                     AND c.id_employee = e.id_employee));
-

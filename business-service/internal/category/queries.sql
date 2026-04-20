@@ -39,10 +39,9 @@ SELECT
     c.category_number,
     c.category_name,
     SUM(sp.products_number)                               AS total_quantity,
-    ROUND(AVG(sp.selling_price), 2)                       AS avg_price,
+    ROUND(AVG(sp.selling_price), 2)                       AS avg_price
 FROM categories c
     INNER JOIN products p ON c.category_number = p.category_number
-    INNER JOIN store_products sp ON p.id_produc = sp.id_product
-GROUP BY c.category_number
-ORDER BY c.category_name
-
+    INNER JOIN store_products sp ON p.id_product = sp.id_product
+GROUP BY c.category_number, c.category_name
+ORDER BY c.category_name;

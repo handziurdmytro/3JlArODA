@@ -64,6 +64,15 @@ func (h *GRPCHandler) GetAllCategories(ctx context.Context, _ *categorypb.GetAll
 	return &categorypb.GetCategoriesResponse{Categories: toProtoCategories(categories)}, nil
 }
 
+func (h *GRPCHandler) GetCategoryStockSummary(ctx context.Context, _ *categorypb.GetCategoryStockSummaryRequest) (*categorypb.GetCategoryStockSummaryResponse, error) {
+	summaries, err := h.service.GetStockSummary(ctx)
+	if err != nil {
+		return nil, common.ToStatusError(err)
+	}
+
+	return &categorypb.GetCategoryStockSummaryResponse{Summaries: toProtoStockSummaries(summaries)}, nil
+}
+
 func toProtoCategories(categories []Category) []*categorypb.Category {
 	result := make([]*categorypb.Category, 0, len(categories))
 	for _, category := range categories {
@@ -83,4 +92,18 @@ func toProtoCategory(category *Category) *categorypb.Category {
 		Number: int32(category.Number),
 		Name:   category.Name,
 	}
+}
+
+func toProtoStockSummaries(summaries []StockSummary) []*categorypb.CategoryStockSummary {
+	result := make([]*categorypb.CategoryStockSummary, 0, len(summaries))
+	for _, summary := range summaries {
+		result = append(result, &categorypb.CategoryStockSummary{
+			Number:        int32(summary.Number),
+			Name:          summary.Name,
+			TotalQuantity: summary.TotalQuantity,
+			AvgPrice:      summary.AvgPrice,
+		})
+	}
+
+	return result
 }

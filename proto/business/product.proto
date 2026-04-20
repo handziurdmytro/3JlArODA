@@ -12,6 +12,7 @@ service ProductService {
   rpc GetAllProducts(GetAllProductsRequest) returns (GetProductsResponse);
   rpc GetProductsByCategory(GetProductsByCategoryRequest) returns (GetProductsResponse);
   rpc SearchProductsByName(SearchProductsByNameRequest) returns (GetProductsResponse);
+  rpc GetProductSalesStatsByCategoryAndPeriod(GetProductSalesStatsByCategoryAndPeriodRequest) returns (GetProductSalesStatsByCategoryAndPeriodResponse);
 }
 
 message Product {
@@ -20,6 +21,17 @@ message Product {
   string name = 3;
   optional string producer = 4;
   string characteristics = 5;
+}
+
+message ProductSalesStats {
+  int32 id = 1;
+  string name = 2;
+  optional string producer = 3;
+  string characteristics = 4;
+  int32 category_number = 5;
+  string category_name = 6;
+  int64 total_sold_quantity = 7;
+  double total_revenue = 8;
 }
 
 message CreateProductRequest {
@@ -59,10 +71,20 @@ message SearchProductsByNameRequest {
   string name = 1;
 }
 
+message GetProductSalesStatsByCategoryAndPeriodRequest {
+  int32 category_number = 1;
+  string from = 2;
+  string to = 3;
+}
+
 message ProductResponse {
   Product product = 1;
 }
 
 message GetProductsResponse {
   repeated Product products = 1;
+}
+
+message GetProductSalesStatsByCategoryAndPeriodResponse {
+  repeated ProductSalesStats stats = 1;
 }

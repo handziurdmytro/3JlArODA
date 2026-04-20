@@ -73,6 +73,30 @@ func (r *Repository) GetByNumber(ctx context.Context, number int) (*Category, er
 	return mapCategory(row), nil
 }
 
+func (r *Repository) GetStockSummary(ctx context.Context) ([]StockSummary, error) {
+	rows, err := r.queries.GetCategoryStockSummary(ctx)
+	if err != nil {
+		return nil, common.MapRepositoryError("get category stock summary", err)
+	}
+
+	summaries := make([]StockSummary, 0, len(rows))
+	for _, row := range rows {
+		avgPrice, err := common.Float64FromNumeric(row.AvgPrice)
+		if err != nil {
+			return nil, fmt.Errorf("map category stock summary average price: %w", err)
+		}
+
+		summaries = append(summaries, StockSummary{
+			Number:        int(row.CategoryNumber),
+			Name:          row.CategoryName,
+			TotalQuantity: row.TotalQuantity,
+			AvgPrice:      avgPrice,
+		})
+	}
+
+	return summaries, nil
+}
+
 func mapCategory(row categorydb.Category) *Category {
 	return &Category{
 		Number: int(row.CategoryNumber),

@@ -2,6 +2,7 @@ package clients
 
 import (
 	"context"
+	"time"
 
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/models"
 	customercardpb "github.com/handziurdmytro/3JlArODA/api-gateway/pb/business/customercard"
@@ -71,6 +72,19 @@ func (cl *CustomerCardClient) GetByPercent(ctx context.Context, percent int) ([]
 func (cl *CustomerCardClient) SearchBySurname(ctx context.Context, surname string) ([]*customercardpb.CustomerCard, error) {
 	resp, err := cl.client.SearchCustomerCardsBySurname(ctx, &customercardpb.SearchCustomerCardsBySurnameRequest{
 		Surname: surname,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.GetCustomerCards(), nil
+}
+
+func (cl *CustomerCardClient) GetWhoBoughtAllProductsFromCategory(ctx context.Context, categoryNumber int, from, to time.Time) ([]*customercardpb.CustomerCard, error) {
+	resp, err := cl.client.GetCustomerCardsWhoBoughtAllProductsFromNonEmptyCategory(ctx, &customercardpb.GetCustomerCardsWhoBoughtAllProductsFromNonEmptyCategoryRequest{
+		CategoryNumber: int32(categoryNumber),
+		From:           from.Format(timeFormat),
+		To:             to.Format(timeFormat),
 	})
 	if err != nil {
 		return nil, err

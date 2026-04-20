@@ -3,6 +3,7 @@ package customercard
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/common"
 	customercarddb "github.com/handziurdmytro/3JlArODA/business-service/internal/customercard/sqlc"
@@ -98,6 +99,19 @@ func (r *Repository) SearchBySurname(ctx context.Context, surname string) ([]Cus
 	rows, err := r.queries.SearchCustomerCardsBySurname(ctx, common.TextFromString(surname))
 	if err != nil {
 		return nil, common.MapRepositoryError(fmt.Sprintf("search customer cards by surname %q", surname), err)
+	}
+
+	return mapCustomerCards(rows), nil
+}
+
+func (r *Repository) GetWhoBoughtAllProductsFromCategory(ctx context.Context, categoryNumber int, from, to time.Time) ([]CustomerCard, error) {
+	rows, err := r.queries.GetCustomerCardsWhoBoughtAllProductsFromNonEmptyCategory(ctx, customercarddb.GetCustomerCardsWhoBoughtAllProductsFromNonEmptyCategoryParams{
+		CategoryNumber: int32(categoryNumber),
+		PrintDate:      common.TimestampFromTime(from),
+		PrintDate_2:    common.TimestampFromTime(to),
+	})
+	if err != nil {
+		return nil, common.MapRepositoryError(fmt.Sprintf("get customer cards who bought all products from category %d", categoryNumber), err)
 	}
 
 	return mapCustomerCards(rows), nil

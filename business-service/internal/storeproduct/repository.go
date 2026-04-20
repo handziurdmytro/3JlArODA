@@ -3,6 +3,7 @@ package storeproduct
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/common"
 	storeproductdb "github.com/handziurdmytro/3JlArODA/business-service/internal/storeproduct/sqlc"
@@ -301,6 +302,30 @@ func (r *Repository) GetByCategorySortedByName(ctx context.Context, categoryNumb
 	}
 
 	return result, nil
+}
+
+func (r *Repository) GetCashiersWhoSoldAllProductsFromCategory(ctx context.Context, categoryNumber int, from, to time.Time) ([]CashierSoldAllCategoryProducts, error) {
+	rows, err := r.queries.GetCashiersWhoSoldAllProductsFromCategory(ctx, storeproductdb.GetCashiersWhoSoldAllProductsFromCategoryParams{
+		CategoryNumber: int32(categoryNumber),
+		PrintDate:      common.TimestampFromTime(from),
+		PrintDate_2:    common.TimestampFromTime(to),
+	})
+	if err != nil {
+		return nil, common.MapRepositoryError(fmt.Sprintf("get cashiers who sold all products from category %d", categoryNumber), err)
+	}
+
+	cashiers := make([]CashierSoldAllCategoryProducts, 0, len(rows))
+	for _, row := range rows {
+		cashiers = append(cashiers, CashierSoldAllCategoryProducts{
+			ID:          row.IDEmployee,
+			Surname:     row.EmplSurname,
+			Name:        row.EmplName,
+			Patronymic:  common.PtrFromText(row.EmplPatronymic),
+			PhoneNumber: row.PhoneNumber,
+		})
+	}
+
+	return cashiers, nil
 }
 
 func mapStoreProduct(row storeproductdb.StoreProduct) (*StoreProduct, error) {

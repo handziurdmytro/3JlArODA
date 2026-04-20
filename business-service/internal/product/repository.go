@@ -3,6 +3,7 @@ package product
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/common"
 	productdb "github.com/handziurdmytro/3JlArODA/business-service/internal/product/sqlc"
@@ -94,6 +95,38 @@ func (r *Repository) SearchByName(ctx context.Context, name string) ([]Product, 
 	}
 
 	return mapProducts(rows), nil
+}
+
+func (r *Repository) GetSalesStatsByCategoryAndPeriod(ctx context.Context, categoryNumber int, from, to time.Time) ([]SalesStats, error) {
+	rows, err := r.queries.GetProductSalesStatsByCategoryAndPeriod(ctx, productdb.GetProductSalesStatsByCategoryAndPeriodParams{
+		CategoryNumber: int32(categoryNumber),
+		PrintDate:      common.TimestampFromTime(from),
+		PrintDate_2:    common.TimestampFromTime(to),
+	})
+	if err != nil {
+		return nil, common.MapRepositoryError(fmt.Sprintf("get product sales stats by category %d and period", categoryNumber), err)
+	}
+
+	stats := make([]SalesStats, 0, len(rows))
+	for _, row := range rows {
+		totalRevenue, err := common.Float64FromNumeric(row.TotalRevenue)
+		if err != nil {
+			return nil, fmt.Errorf("map product sales stats total revenue: %w", err)
+		}
+
+		stats = append(stats, SalesStats{
+			ID:                int(row.IDProduct),
+			Name:              row.ProductName,
+			Producer:          common.PtrFromText(row.Producer),
+			Characteristics:   row.Characteristics,
+			CategoryNumber:    int(row.CategoryNumber),
+			CategoryName:      row.CategoryName,
+			TotalSoldQuantity: row.TotalSoldQuantity,
+			TotalRevenue:      totalRevenue,
+		})
+	}
+
+	return stats, nil
 }
 
 func mapProducts(rows []productdb.Product) []Product {

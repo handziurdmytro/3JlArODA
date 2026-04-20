@@ -129,6 +129,24 @@ func (h *GRPCHandler) GetStoreProductsByCategorySortedByName(ctx context.Context
 	return &storeproductpb.GetDetailedStoreProductsResponse{StoreProducts: toProtoDetailedStoreProducts(products)}, nil
 }
 
+func (h *GRPCHandler) GetCashiersWhoSoldAllProductsFromCategory(ctx context.Context, req *storeproductpb.GetCashiersWhoSoldAllProductsFromCategoryRequest) (*storeproductpb.GetCashiersWhoSoldAllProductsFromCategoryResponse, error) {
+	from, err := common.ParseProtoTime(req.GetFrom())
+	if err != nil {
+		return nil, err
+	}
+	to, err := common.ParseProtoTime(req.GetTo())
+	if err != nil {
+		return nil, err
+	}
+
+	cashiers, err := h.service.GetCashiersWhoSoldAllProductsFromCategory(ctx, int(req.GetCategoryNumber()), from, to)
+	if err != nil {
+		return nil, common.ToStatusError(err)
+	}
+
+	return &storeproductpb.GetCashiersWhoSoldAllProductsFromCategoryResponse{Cashiers: toProtoCashiersSoldAllCategoryProducts(cashiers)}, nil
+}
+
 func toProtoStoreProduct(product *StoreProduct) *storeproductpb.StoreProduct {
 	if product == nil {
 		return nil
@@ -172,4 +190,20 @@ func toProtoDetailedStoreProduct(product *DetailedStoreProduct) *storeproductpb.
 		CategoryNumber:     int32(product.CategoryNumber),
 		CategoryName:       product.CategoryName,
 	}
+}
+
+func toProtoCashiersSoldAllCategoryProducts(cashiers []CashierSoldAllCategoryProducts) []*storeproductpb.CashierSoldAllCategoryProducts {
+	result := make([]*storeproductpb.CashierSoldAllCategoryProducts, 0, len(cashiers))
+	for _, cashier := range cashiers {
+		cashier := cashier
+		result = append(result, &storeproductpb.CashierSoldAllCategoryProducts{
+			Id:          cashier.ID,
+			Surname:     cashier.Surname,
+			Name:        cashier.Name,
+			Patronymic:  cashier.Patronymic,
+			PhoneNumber: cashier.PhoneNumber,
+		})
+	}
+
+	return result
 }

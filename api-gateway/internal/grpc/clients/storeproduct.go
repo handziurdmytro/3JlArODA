@@ -2,6 +2,7 @@ package clients
 
 import (
 	"context"
+	"time"
 
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/models"
 	storeproductpb "github.com/handziurdmytro/3JlArODA/api-gateway/pb/business/storeproduct"
@@ -127,4 +128,17 @@ func (cl *StoreProductClient) GetByCategorySortedByName(ctx context.Context, cat
 	}
 
 	return resp.GetStoreProducts(), nil
+}
+
+func (cl *StoreProductClient) GetCashiersWhoSoldAllProductsFromCategory(ctx context.Context, categoryNumber int, from, to time.Time) ([]*storeproductpb.CashierSoldAllCategoryProducts, error) {
+	resp, err := cl.client.GetCashiersWhoSoldAllProductsFromCategory(ctx, &storeproductpb.GetCashiersWhoSoldAllProductsFromCategoryRequest{
+		CategoryNumber: int32(categoryNumber),
+		From:           from.Format(timeFormat),
+		To:             to.Format(timeFormat),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.GetCashiers(), nil
 }

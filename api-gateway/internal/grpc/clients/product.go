@@ -2,6 +2,7 @@ package clients
 
 import (
 	"context"
+	"time"
 
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/models"
 	productpb "github.com/handziurdmytro/3JlArODA/api-gateway/pb/business/product"
@@ -72,6 +73,19 @@ func (cl *ProductClient) SearchByName(ctx context.Context, name string) ([]*prod
 	}
 
 	return resp.GetProducts(), nil
+}
+
+func (cl *ProductClient) GetSalesStatsByCategoryAndPeriod(ctx context.Context, categoryNumber int, from, to time.Time) ([]*productpb.ProductSalesStats, error) {
+	resp, err := cl.client.GetProductSalesStatsByCategoryAndPeriod(ctx, &productpb.GetProductSalesStatsByCategoryAndPeriodRequest{
+		CategoryNumber: int32(categoryNumber),
+		From:           from.Format(timeFormat),
+		To:             to.Format(timeFormat),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.GetStats(), nil
 }
 
 func (cl *ProductClient) Update(ctx context.Context, id int, req models.UpdateProductRequest) (*productpb.Product, error) {

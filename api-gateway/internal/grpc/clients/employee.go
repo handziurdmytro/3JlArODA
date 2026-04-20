@@ -2,6 +2,7 @@ package clients
 
 import (
 	"context"
+	"time"
 
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/models"
 	employeepb "github.com/handziurdmytro/3JlArODA/api-gateway/pb/business/employee"
@@ -114,4 +115,26 @@ func (cl *EmployeeClient) GetContactsByFullName(ctx context.Context, surname, na
 	}
 
 	return resp.GetContacts(), nil
+}
+
+func (cl *EmployeeClient) GetCashierPerformance(ctx context.Context, from, to time.Time, minRevenue float64) ([]*employeepb.CashierPerformance, error) {
+	resp, err := cl.client.GetCashierPerformance(ctx, &employeepb.GetCashierPerformanceRequest{
+		From:       from.Format(timeFormat),
+		To:         to.Format(timeFormat),
+		MinRevenue: minRevenue,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.GetPerformance(), nil
+}
+
+func (cl *EmployeeClient) GetBestCashiersByPromo(ctx context.Context) ([]*employeepb.BestCashierByPromo, error) {
+	resp, err := cl.client.GetBestCashiersByPromo(ctx, &employeepb.GetBestCashiersByPromoRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.GetCashiers(), nil
 }

@@ -134,6 +134,33 @@ func (h *GRPCHandler) GetEmployeeContactsByFullName(ctx context.Context, req *em
 	return &employeepb.GetEmployeeContactsResponse{Contacts: toProtoContacts(contacts)}, nil
 }
 
+func (h *GRPCHandler) GetCashierPerformance(ctx context.Context, req *employeepb.GetCashierPerformanceRequest) (*employeepb.GetCashierPerformanceResponse, error) {
+	from, err := common.ParseProtoTime(req.GetFrom())
+	if err != nil {
+		return nil, err
+	}
+	to, err := common.ParseProtoTime(req.GetTo())
+	if err != nil {
+		return nil, err
+	}
+
+	performance, err := h.service.GetCashierPerformance(ctx, from, to, req.GetMinRevenue())
+	if err != nil {
+		return nil, common.ToStatusError(err)
+	}
+
+	return &employeepb.GetCashierPerformanceResponse{Performance: toProtoCashierPerformance(performance)}, nil
+}
+
+func (h *GRPCHandler) GetBestCashiersByPromo(ctx context.Context, _ *employeepb.GetBestCashiersByPromoRequest) (*employeepb.GetBestCashiersByPromoResponse, error) {
+	cashiers, err := h.service.GetBestCashiersByPromo(ctx)
+	if err != nil {
+		return nil, common.ToStatusError(err)
+	}
+
+	return &employeepb.GetBestCashiersByPromoResponse{Cashiers: toProtoBestCashiersByPromo(cashiers)}, nil
+}
+
 func toProtoEmployees(employees []Employee) []*employeepb.Employee {
 	result := make([]*employeepb.Employee, 0, len(employees))
 	for _, employee := range employees {
@@ -173,6 +200,37 @@ func toProtoContacts(contacts []ContactData) []*employeepb.EmployeeContact {
 			City:        contact.City,
 			Street:      contact.Street,
 			ZipCode:     contact.ZipCode,
+		})
+	}
+
+	return result
+}
+
+func toProtoCashierPerformance(performance []CashierPerformance) []*employeepb.CashierPerformance {
+	result := make([]*employeepb.CashierPerformance, 0, len(performance))
+	for _, item := range performance {
+		item := item
+		result = append(result, &employeepb.CashierPerformance{
+			Id:             item.ID,
+			Name:           item.Name,
+			Surname:        item.Surname,
+			Patronymic:     item.Patronymic,
+			TotalChecks:    item.TotalChecks,
+			TotalItemsSold: item.TotalItemsSold,
+			TotalRevenue:   item.TotalRevenue,
+		})
+	}
+
+	return result
+}
+
+func toProtoBestCashiersByPromo(cashiers []BestCashierByPromo) []*employeepb.BestCashierByPromo {
+	result := make([]*employeepb.BestCashierByPromo, 0, len(cashiers))
+	for _, cashier := range cashiers {
+		result = append(result, &employeepb.BestCashierByPromo{
+			Id:      cashier.ID,
+			Name:    cashier.Name,
+			Surname: cashier.Surname,
 		})
 	}
 

@@ -3,6 +3,7 @@ package employee
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/common"
 	employeedb "github.com/handziurdmytro/3JlArODA/business-service/internal/employee/sqlc"
@@ -164,6 +165,60 @@ func (r *Repository) GetEmployeeDataByFullName(ctx context.Context, surname, nam
 	}
 
 	return contacts, nil
+}
+
+func (r *Repository) GetCashierPerformance(ctx context.Context, from, to time.Time, minRevenue float64) ([]CashierPerformance, error) {
+	minRevenueValue, err := common.NumericFromFloat64(minRevenue)
+	if err != nil {
+		return nil, fmt.Errorf("get cashier performance: %w", err)
+	}
+
+	rows, err := r.queries.GetCashierPerformance(ctx, employeedb.GetCashierPerformanceParams{
+		PrintDate:    common.TimestampFromTime(from),
+		PrintDate_2:  common.TimestampFromTime(to),
+		SellingPrice: minRevenueValue,
+	})
+	if err != nil {
+		return nil, common.MapRepositoryError("get cashier performance", err)
+	}
+
+	performance := make([]CashierPerformance, 0, len(rows))
+	for _, row := range rows {
+		totalRevenue, err := common.Float64FromNumeric(row.TotalRevenue)
+		if err != nil {
+			return nil, fmt.Errorf("map cashier performance total revenue: %w", err)
+		}
+
+		performance = append(performance, CashierPerformance{
+			ID:             row.IDEmployee,
+			Name:           row.EmplName,
+			Surname:        row.EmplSurname,
+			Patronymic:     common.PtrFromText(row.EmplPatronymic),
+			TotalChecks:    row.TotalChecks,
+			TotalItemsSold: row.TotalItemsSold,
+			TotalRevenue:   totalRevenue,
+		})
+	}
+
+	return performance, nil
+}
+
+func (r *Repository) GetBestCashiersByPromo(ctx context.Context) ([]BestCashierByPromo, error) {
+	rows, err := r.queries.GetBestCashiersByPromo(ctx)
+	if err != nil {
+		return nil, common.MapRepositoryError("get best cashiers by promo", err)
+	}
+
+	cashiers := make([]BestCashierByPromo, 0, len(rows))
+	for _, row := range rows {
+		cashiers = append(cashiers, BestCashierByPromo{
+			ID:      row.IDEmployee,
+			Name:    row.EmplName,
+			Surname: row.EmplSurname,
+		})
+	}
+
+	return cashiers, nil
 }
 
 func mapEmployees(rows []employeedb.Employee) ([]Employee, error) {

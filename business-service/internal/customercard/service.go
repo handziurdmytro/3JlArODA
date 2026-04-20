@@ -1,6 +1,9 @@
 package customercard
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type repository interface {
 	Create(ctx context.Context, req CreateRequest) (*CustomerCard, error)
@@ -10,6 +13,7 @@ type repository interface {
 	GetByNumber(ctx context.Context, cardNumber string) (*CustomerCard, error)
 	GetByPercent(ctx context.Context, percent int) ([]CustomerCard, error)
 	SearchBySurname(ctx context.Context, surname string) ([]CustomerCard, error)
+	GetWhoBoughtAllProductsFromCategory(ctx context.Context, categoryNumber int, from, to time.Time) ([]CustomerCard, error)
 }
 
 type Service struct {
@@ -46,4 +50,8 @@ func (s *Service) GetByPercent(ctx context.Context, percent int) ([]CustomerCard
 
 func (s *Service) SearchBySurname(ctx context.Context, surname string) ([]CustomerCard, error) {
 	return s.repo.SearchBySurname(ctx, surname)
+}
+
+func (s *Service) GetWhoBoughtAllProductsFromCategory(ctx context.Context, categoryNumber int, from, to time.Time) ([]CustomerCard, error) {
+	return s.repo.GetWhoBoughtAllProductsFromCategory(ctx, categoryNumber, from, to)
 }

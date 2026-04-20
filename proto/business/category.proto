@@ -10,11 +10,19 @@ service CategoryService {
   rpc DeleteCategory(DeleteCategoryRequest) returns (DeleteCategoryResponse);
   rpc GetCategory(GetCategoryRequest) returns (CategoryResponse);
   rpc GetAllCategories(GetAllCategoriesRequest) returns (GetCategoriesResponse);
+  rpc GetCategoryStockSummary(GetCategoryStockSummaryRequest) returns (GetCategoryStockSummaryResponse);
 }
 
 message Category {
   int32 number = 1;
   string name = 2;
+}
+
+message CategoryStockSummary {
+  int32 number = 1;
+  string name = 2;
+  int64 total_quantity = 3;
+  double avg_price = 4;
 }
 
 message CreateCategoryRequest {
@@ -40,10 +48,16 @@ message GetCategoryRequest {
 
 message GetAllCategoriesRequest {}
 
+message GetCategoryStockSummaryRequest {}
+
 message CategoryResponse {
   Category category = 1;
 }
 
 message GetCategoriesResponse {
   repeated Category categories = 1;
+}
+
+message GetCategoryStockSummaryResponse {
+  repeated CategoryStockSummary summaries = 1;
 }

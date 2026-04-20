@@ -90,6 +90,24 @@ func (h *GRPCHandler) SearchProductsByName(ctx context.Context, req *productpb.S
 	return &productpb.GetProductsResponse{Products: toProtoProducts(products)}, nil
 }
 
+func (h *GRPCHandler) GetProductSalesStatsByCategoryAndPeriod(ctx context.Context, req *productpb.GetProductSalesStatsByCategoryAndPeriodRequest) (*productpb.GetProductSalesStatsByCategoryAndPeriodResponse, error) {
+	from, err := common.ParseProtoTime(req.GetFrom())
+	if err != nil {
+		return nil, err
+	}
+	to, err := common.ParseProtoTime(req.GetTo())
+	if err != nil {
+		return nil, err
+	}
+
+	stats, err := h.service.GetSalesStatsByCategoryAndPeriod(ctx, int(req.GetCategoryNumber()), from, to)
+	if err != nil {
+		return nil, common.ToStatusError(err)
+	}
+
+	return &productpb.GetProductSalesStatsByCategoryAndPeriodResponse{Stats: toProtoSalesStats(stats)}, nil
+}
+
 func toProtoProducts(products []Product) []*productpb.Product {
 	result := make([]*productpb.Product, 0, len(products))
 	for _, product := range products {
@@ -112,4 +130,23 @@ func toProtoProduct(product *Product) *productpb.Product {
 		Producer:        product.Producer,
 		Characteristics: product.Characteristics,
 	}
+}
+
+func toProtoSalesStats(stats []SalesStats) []*productpb.ProductSalesStats {
+	result := make([]*productpb.ProductSalesStats, 0, len(stats))
+	for _, stat := range stats {
+		stat := stat
+		result = append(result, &productpb.ProductSalesStats{
+			Id:                int32(stat.ID),
+			Name:              stat.Name,
+			Producer:          stat.Producer,
+			Characteristics:   stat.Characteristics,
+			CategoryNumber:    int32(stat.CategoryNumber),
+			CategoryName:      stat.CategoryName,
+			TotalSoldQuantity: stat.TotalSoldQuantity,
+			TotalRevenue:      stat.TotalRevenue,
+		})
+	}
+
+	return result
 }

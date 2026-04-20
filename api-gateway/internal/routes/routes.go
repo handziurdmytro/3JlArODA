@@ -91,5 +91,15 @@ func SetupRoutes(
 			reports.GET("/checks/total", checkHandler.GetTotalReport)
 			reports.GET("/products/:id/sold-quantity", saleHandler.GetProductSoldQuantity)
 		}
+
+		individualTasks := protected.Group("/individual-tasks")
+		{
+			individualTasks.GET("/products/sales-stats", productHandler.GetSalesStatsByCategoryAndPeriod)
+			individualTasks.GET("/customer-cards/bought-all-products-from-category", customerCardHandler.GetWhoBoughtAllProductsFromCategory)
+			individualTasks.GET("/categories/stock-summary", categoryHandler.GetStockSummary)
+			individualTasks.GET("/employees/cashier-performance", employeeHandler.GetCashierPerformance)
+			individualTasks.GET("/employees/best-cashiers-by-promo", employeeHandler.GetBestCashiersByPromo)
+			individualTasks.GET("/store-products/cashiers-sold-all-category-products", storeProductHandler.GetCashiersWhoSoldAllProductsFromCategory)
+		}
 	}
 }

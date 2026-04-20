@@ -64,3 +64,34 @@ SELECT
 FROM products
 WHERE product_name ILIKE '%' || $1 || '%'
 ORDER BY product_name;
+
+-- task: Manager can analyze sold quantity and revenue for products from a selected category during a selected period.
+-- name: GetProductSalesStatsByCategoryAndPeriod :many
+SELECT
+    p.id_product,
+    p.product_name,
+    p.producer,
+    p.characteristics,
+    c.category_number,
+    c.category_name,
+    COALESCE(SUM(s.product_number), 0)::bigint AS total_sold_quantity,
+    COALESCE(SUM(s.product_number * s.selling_price), 0)::numeric(13, 4) AS total_revenue
+FROM products p
+INNER JOIN categories c ON p.category_number = c.category_number
+INNER JOIN store_products sp ON p.id_product = sp.id_product
+INNER JOIN sales s ON sp.upc = s.upc
+INNER JOIN checks ch ON s.check_number = ch.check_number
+WHERE
+    c.category_number = $1
+    AND ch.print_date >= $2
+    AND ch.print_date <= $3
+GROUP BY
+    p.id_product,
+    p.product_name,
+    p.producer,
+    p.characteristics,
+    c.category_number,
+    c.category_name
+ORDER BY
+    total_sold_quantity DESC,
+    p.product_name;

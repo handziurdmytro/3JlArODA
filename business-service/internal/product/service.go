@@ -1,6 +1,9 @@
 package product
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type repository interface {
 	Create(ctx context.Context, req CreateRequest) (*Product, error)
@@ -10,6 +13,7 @@ type repository interface {
 	GetByID(ctx context.Context, id int) (*Product, error)
 	GetByCategory(ctx context.Context, categoryNumber int) ([]Product, error)
 	SearchByName(ctx context.Context, name string) ([]Product, error)
+	GetSalesStatsByCategoryAndPeriod(ctx context.Context, categoryNumber int, from, to time.Time) ([]SalesStats, error)
 }
 
 type Service struct {
@@ -46,4 +50,8 @@ func (s *Service) GetByCategory(ctx context.Context, categoryNumber int) ([]Prod
 
 func (s *Service) SearchByName(ctx context.Context, name string) ([]Product, error) {
 	return s.repo.SearchByName(ctx, name)
+}
+
+func (s *Service) GetSalesStatsByCategoryAndPeriod(ctx context.Context, categoryNumber int, from, to time.Time) ([]SalesStats, error) {
+	return s.repo.GetSalesStatsByCategoryAndPeriod(ctx, categoryNumber, from, to)
 }

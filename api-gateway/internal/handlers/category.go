@@ -16,6 +16,7 @@ type CategoryClient interface {
 	Delete(ctx context.Context, number int) error
 	GetByNumber(ctx context.Context, number int) (*categorypb.Category, error)
 	GetAll(ctx context.Context) ([]*categorypb.Category, error)
+	GetStockSummary(ctx context.Context) ([]*categorypb.CategoryStockSummary, error)
 }
 
 type CategoryHandler struct {
@@ -65,6 +66,16 @@ func (h *CategoryHandler) List(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, categories)
+}
+
+func (h *CategoryHandler) GetStockSummary(c *gin.Context) {
+	summaries, err := h.categoryClient.GetStockSummary(c.Request.Context())
+	if err != nil {
+		respondGRPCError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, summaries)
 }
 
 func (h *CategoryHandler) Update(c *gin.Context) {

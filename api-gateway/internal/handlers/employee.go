@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/common"
@@ -19,6 +20,8 @@ type EmployeeClient interface {
 	GetByRole(ctx context.Context, role string) ([]*employeepb.Employee, error)
 	GetContactsBySurname(ctx context.Context, surname string) ([]*employeepb.EmployeeContact, error)
 	GetContactsByFullName(ctx context.Context, surname, name string, patronymic *string) ([]*employeepb.EmployeeContact, error)
+	GetCashierPerformance(ctx context.Context, from, to time.Time, minRevenue float64) ([]*employeepb.CashierPerformance, error)
+	GetBestCashiersByPromo(ctx context.Context) ([]*employeepb.BestCashierByPromo, error)
 }
 
 type EmployeeHandler struct {
@@ -136,6 +139,35 @@ func (h *EmployeeHandler) GetContacts(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, contacts)
+}
+
+func (h *EmployeeHandler) GetCashierPerformance(c *gin.Context) {
+	from, to, ok := parsePeriod(c)
+	if !ok {
+		return
+	}
+	minRevenue, ok := parseFloatQuery(c, "min_revenue")
+	if !ok {
+		return
+	}
+
+	performance, err := h.employeeClient.GetCashierPerformance(c.Request.Context(), from, to, minRevenue)
+	if err != nil {
+		respondGRPCError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, performance)
+}
+
+func (h *EmployeeHandler) GetBestCashiersByPromo(c *gin.Context) {
+	cashiers, err := h.employeeClient.GetBestCashiersByPromo(c.Request.Context())
+	if err != nil {
+		respondGRPCError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, cashiers)
 }
 
 func (h *EmployeeHandler) Update(c *gin.Context) {

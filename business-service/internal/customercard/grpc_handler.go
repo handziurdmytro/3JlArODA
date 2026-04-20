@@ -99,6 +99,24 @@ func (h *GRPCHandler) SearchCustomerCardsBySurname(ctx context.Context, req *cus
 	return &customercardpb.GetCustomerCardsResponse{CustomerCards: toProtoCustomerCards(cards)}, nil
 }
 
+func (h *GRPCHandler) GetCustomerCardsWhoBoughtAllProductsFromNonEmptyCategory(ctx context.Context, req *customercardpb.GetCustomerCardsWhoBoughtAllProductsFromNonEmptyCategoryRequest) (*customercardpb.GetCustomerCardsResponse, error) {
+	from, err := common.ParseProtoTime(req.GetFrom())
+	if err != nil {
+		return nil, err
+	}
+	to, err := common.ParseProtoTime(req.GetTo())
+	if err != nil {
+		return nil, err
+	}
+
+	cards, err := h.service.GetWhoBoughtAllProductsFromCategory(ctx, int(req.GetCategoryNumber()), from, to)
+	if err != nil {
+		return nil, common.ToStatusError(err)
+	}
+
+	return &customercardpb.GetCustomerCardsResponse{CustomerCards: toProtoCustomerCards(cards)}, nil
+}
+
 func toProtoCustomerCards(cards []CustomerCard) []*customercardpb.CustomerCard {
 	result := make([]*customercardpb.CustomerCard, 0, len(cards))
 	for _, card := range cards {

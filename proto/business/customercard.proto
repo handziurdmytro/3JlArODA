@@ -12,6 +12,7 @@ service CustomerCardService {
   rpc GetAllCustomerCards(GetAllCustomerCardsRequest) returns (GetCustomerCardsResponse);
   rpc GetCustomerCardsByPercent(GetCustomerCardsByPercentRequest) returns (GetCustomerCardsResponse);
   rpc SearchCustomerCardsBySurname(SearchCustomerCardsBySurnameRequest) returns (GetCustomerCardsResponse);
+  rpc GetCustomerCardsWhoBoughtAllProductsFromNonEmptyCategory(GetCustomerCardsWhoBoughtAllProductsFromNonEmptyCategoryRequest) returns (GetCustomerCardsResponse);
 }
 
 message CustomerCard {
@@ -70,6 +71,12 @@ message GetCustomerCardsByPercentRequest {
 
 message SearchCustomerCardsBySurnameRequest {
   string surname = 1;
+}
+
+message GetCustomerCardsWhoBoughtAllProductsFromNonEmptyCategoryRequest {
+  int32 category_number = 1;
+  string from = 2;
+  string to = 3;
 }
 
 message CustomerCardResponse {

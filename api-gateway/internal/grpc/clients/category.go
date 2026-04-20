@@ -61,3 +61,12 @@ func (cl *CategoryClient) GetAll(ctx context.Context) ([]*categorypb.Category, e
 
 	return resp.GetCategories(), nil
 }
+
+func (cl *CategoryClient) GetStockSummary(ctx context.Context) ([]*categorypb.CategoryStockSummary, error) {
+	resp, err := cl.client.GetCategoryStockSummary(ctx, &categorypb.GetCategoryStockSummaryRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.GetSummaries(), nil
+}

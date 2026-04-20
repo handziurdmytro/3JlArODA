@@ -1,6 +1,9 @@
 package employee
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type repository interface {
 	CreateEmployee(ctx context.Context, req CreateRequest) error
@@ -11,6 +14,8 @@ type repository interface {
 	GetEmployeesByRole(ctx context.Context, role string) ([]Employee, error)
 	GetEmployeeDataBySurname(ctx context.Context, surname string) ([]ContactData, error)
 	GetEmployeeDataByFullName(ctx context.Context, surname, name, patronymic string) ([]ContactData, error)
+	GetCashierPerformance(ctx context.Context, from, to time.Time, minRevenue float64) ([]CashierPerformance, error)
+	GetBestCashiersByPromo(ctx context.Context) ([]BestCashierByPromo, error)
 }
 
 type Service struct {
@@ -59,4 +64,12 @@ func (s *Service) GetContactsBySurname(ctx context.Context, surname string) ([]C
 
 func (s *Service) GetContactsByFullName(ctx context.Context, surname, name, patronymic string) ([]ContactData, error) {
 	return s.repo.GetEmployeeDataByFullName(ctx, surname, name, patronymic)
+}
+
+func (s *Service) GetCashierPerformance(ctx context.Context, from, to time.Time, minRevenue float64) ([]CashierPerformance, error) {
+	return s.repo.GetCashierPerformance(ctx, from, to, minRevenue)
+}
+
+func (s *Service) GetBestCashiersByPromo(ctx context.Context) ([]BestCashierByPromo, error) {
+	return s.repo.GetBestCashiersByPromo(ctx)
 }

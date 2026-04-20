@@ -13,6 +13,8 @@ service EmployeeService {
   rpc GetEmployeesByRole(GetEmployeesByRoleRequest) returns (GetEmployeesResponse);
   rpc GetEmployeeContactsBySurname(GetEmployeeContactsBySurnameRequest) returns (GetEmployeeContactsResponse);
   rpc GetEmployeeContactsByFullName(GetEmployeeContactsByFullNameRequest) returns (GetEmployeeContactsResponse);
+  rpc GetCashierPerformance(GetCashierPerformanceRequest) returns (GetCashierPerformanceResponse);
+  rpc GetBestCashiersByPromo(GetBestCashiersByPromoRequest) returns (GetBestCashiersByPromoResponse);
 }
 
 message Employee {
@@ -35,6 +37,22 @@ message EmployeeContact {
   string city = 2;
   string street = 3;
   string zip_code = 4;
+}
+
+message CashierPerformance {
+  string id = 1;
+  string name = 2;
+  string surname = 3;
+  optional string patronymic = 4;
+  int64 total_checks = 5;
+  int64 total_items_sold = 6;
+  double total_revenue = 7;
+}
+
+message BestCashierByPromo {
+  string id = 1;
+  string name = 2;
+  string surname = 3;
 }
 
 message CreateEmployeeRequest {
@@ -95,6 +113,14 @@ message GetEmployeeContactsByFullNameRequest {
   optional string patronymic = 3;
 }
 
+message GetCashierPerformanceRequest {
+  string from = 1;
+  string to = 2;
+  double min_revenue = 3;
+}
+
+message GetBestCashiersByPromoRequest {}
+
 message EmployeeResponse {
   Employee employee = 1;
 }
@@ -105,4 +131,12 @@ message GetEmployeesResponse {
 
 message GetEmployeeContactsResponse {
   repeated EmployeeContact contacts = 1;
+}
+
+message GetCashierPerformanceResponse {
+  repeated CashierPerformance performance = 1;
+}
+
+message GetBestCashiersByPromoResponse {
+  repeated BestCashierByPromo cashiers = 1;
 }

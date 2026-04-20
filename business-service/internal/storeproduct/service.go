@@ -1,6 +1,9 @@
 package storeproduct
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type repository interface {
 	Create(ctx context.Context, req CreateRequest) (*StoreProduct, error)
@@ -14,6 +17,7 @@ type repository interface {
 	GetNonPromoSortedByQuantity(ctx context.Context) ([]DetailedStoreProduct, error)
 	GetNonPromoSortedByName(ctx context.Context) ([]DetailedStoreProduct, error)
 	GetByCategorySortedByName(ctx context.Context, categoryNumber int) ([]DetailedStoreProduct, error)
+	GetCashiersWhoSoldAllProductsFromCategory(ctx context.Context, categoryNumber int, from, to time.Time) ([]CashierSoldAllCategoryProducts, error)
 }
 
 type Service struct {
@@ -66,4 +70,8 @@ func (s *Service) GetNonPromoSortedByName(ctx context.Context) ([]DetailedStoreP
 
 func (s *Service) GetByCategorySortedByName(ctx context.Context, categoryNumber int) ([]DetailedStoreProduct, error) {
 	return s.repo.GetByCategorySortedByName(ctx, categoryNumber)
+}
+
+func (s *Service) GetCashiersWhoSoldAllProductsFromCategory(ctx context.Context, categoryNumber int, from, to time.Time) ([]CashierSoldAllCategoryProducts, error) {
+	return s.repo.GetCashiersWhoSoldAllProductsFromCategory(ctx, categoryNumber, from, to)
 }

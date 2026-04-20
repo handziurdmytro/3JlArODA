@@ -20,6 +20,7 @@ tags:
   - name: Customer Cards
   - name: Checks
   - name: Reports
+  - name: Individual Tasks
 
 paths:
   /auth/register:
@@ -828,6 +829,146 @@ paths:
         "401":
           $ref: "#/components/responses/Unauthorized"
 
+  /individual-tasks/products/sales-stats:
+    get:
+      tags: [Individual Tasks]
+      summary: Individual task - product sales stats by category and period
+      parameters:
+        - name: category_number
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - $ref: "#/components/parameters/From"
+        - $ref: "#/components/parameters/To"
+      responses:
+        "200":
+          description: Product sales stats returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductSalesStats"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /individual-tasks/customer-cards/bought-all-products-from-category:
+    get:
+      tags: [Individual Tasks]
+      summary: Individual task - customer cards whose owners bought every product from category
+      parameters:
+        - name: category_number
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - $ref: "#/components/parameters/From"
+        - $ref: "#/components/parameters/To"
+      responses:
+        "200":
+          description: Customer cards returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CustomerCard"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /individual-tasks/categories/stock-summary:
+    get:
+      tags: [Individual Tasks]
+      summary: Individual task - category stock quantity and average price summary
+      responses:
+        "200":
+          description: Category stock summaries returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryStockSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /individual-tasks/employees/cashier-performance:
+    get:
+      tags: [Individual Tasks]
+      summary: Individual task - cashier performance above minimum revenue
+      parameters:
+        - $ref: "#/components/parameters/From"
+        - $ref: "#/components/parameters/To"
+        - name: min_revenue
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+      responses:
+        "200":
+          description: Cashier performance returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CashierPerformance"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /individual-tasks/employees/best-cashiers-by-promo:
+    get:
+      tags: [Individual Tasks]
+      summary: Individual task - cashiers who sold every promotional product
+      responses:
+        "200":
+          description: Cashiers returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BestCashierByPromo"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /individual-tasks/store-products/cashiers-sold-all-category-products:
+    get:
+      tags: [Individual Tasks]
+      summary: Individual task - cashiers who sold every product from category during period
+      parameters:
+        - name: category_number
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - $ref: "#/components/parameters/From"
+        - $ref: "#/components/parameters/To"
+      responses:
+        "200":
+          description: Cashiers returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CashierSoldAllCategoryProducts"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1089,6 +1230,31 @@ components:
               format: int32
         - $ref: "#/components/schemas/ProductRequest"
 
+    ProductSalesStats:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        producer:
+          type: string
+          nullable: true
+        characteristics:
+          type: string
+        category_number:
+          type: integer
+          format: int32
+        category_name:
+          type: string
+        total_sold_quantity:
+          type: integer
+          format: int64
+        total_revenue:
+          type: number
+          format: double
+
     CreateStoreProductRequest:
       type: object
       required: [upc, product_id, selling_price, products_number]
@@ -1302,3 +1468,65 @@ components:
         sum_total:
           type: number
           format: double
+
+    CategoryStockSummary:
+      type: object
+      properties:
+        number:
+          type: integer
+          format: int32
+        name:
+          type: string
+        total_quantity:
+          type: integer
+          format: int64
+        avg_price:
+          type: number
+          format: double
+
+    CashierPerformance:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        surname:
+          type: string
+        patronymic:
+          type: string
+          nullable: true
+        total_checks:
+          type: integer
+          format: int64
+        total_items_sold:
+          type: integer
+          format: int64
+        total_revenue:
+          type: number
+          format: double
+
+    BestCashierByPromo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        surname:
+          type: string
+
+    CashierSoldAllCategoryProducts:
+      type: object
+      properties:
+        id:
+          type: string
+        surname:
+          type: string
+        name:
+          type: string
+        patronymic:
+          type: string
+          nullable: true
+        phone_number:
+          type: string
