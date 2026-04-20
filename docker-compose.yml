@@ -1,45 +1,117 @@
 version: '3.8'
 
 services:
-  api-gateway:
-    build: ./api-gateway
-    ports:
-      - "8080:8080"
-    depends_on:
-      - auth-service
-      - business-service
-
-  auth-service:
-    build: ./auth-service
-    ports:
-      - "8081:8081"
-    depends_on:
-      - crypto-service
-
-  business-service:
-    build: ./business-service
-    ports:
-      - "8082:8082"
-    depends_on:
-      - postgres
-    environment:
-      - DATABASE_URL=postgres://user:password@postgres:5432/zlagoda?sslmode=disable
-
-  crypto-service:
-    build: ./crypto-service
-    ports:
-      - "8083:8083"
-
   postgres:
-    image: postgres:15
+    image: postgres:alpine
+    container_name: zlahoda-db
     environment:
-      POSTGRES_DB: zlagoda
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: cisco
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  auth-migrations:
+    image: golang:alpine
+    container_name: zlahoda-auth-migrations
+    volumes:
+      - ./auth-service/migrations:/migrations
+    command: >
+      sh -c "go install github.com/pressly/goose/v3/cmd/goose@latest &&
+      /go/bin/goose -dir /migrations postgres 'postgres://postgres:cisco@postgres:5432/zlahoda_users?sslmode=disable' up"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  business-migrations:
+    image: migrate/migrate:latest
+    container_name: zlahoda-business-migrations
+    volumes:
+      - ./business-service/migrations:/migrations
+    command:
+      - -path=/migrations
+      - -database=postgres://postgres:cisco@postgres:5432/zlahoda_data?sslmode=disable
+      - up
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  crypto-service:
+    build:
+      context: .
+      dockerfile: ./crypto-service/Dockerfile
+    container_name: zlahoda-crypto
+    ports:
+      - "3030:3030"
+    env_file:
+      - ./crypto-service/.env
+    restart: unless-stopped
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./auth-service/Dockerfile
+    container_name: zlahoda-auth
+    ports:
+      - "3131:3131"
+    env_file:
+      - ./auth-service/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth-migrations:
+        condition: service_completed_successfully
+      crypto-service:
+        condition: service_started
+    restart: unless-stopped
+
+  business-service:
+    build:
+      context: ./business-service
+      dockerfile: Dockerfile
+    container_name: zlahoda-business
+    ports:
+      - "2433:2433"
+    env_file:
+      - ./business-service/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      business-migrations:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: zlahoda-gateway
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./api-gateway/.env
+    depends_on:
+      - auth-service
+      - business-service
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: zlahoda-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
 
 volumes:
   postgres_data:
