@@ -1,23 +1,10 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NAV } from './navigation.config';
-import { Topbar } from './TopBar/TopBar';
+import { Topbar }    from './TopBar/TopBar';
 import { Workspace } from './Workspace/Workspace';
+import { useCurrentUser } from '../../hooks/useCurrentUser.js';
 import styles from './MainPage.module.scss';
-
-const USER = {
-    id:        'E-001',
-    firstName: 'Ivan',
-    lastName:  'Kovalenko',
-    patronym:  'Mykhailovych',
-    position:  'Manager',
-    role:      'manager',
-    phone:     '+380671112233',
-    address:   'Kyiv, Lesi Ukrainky blvd. 5, 81054',
-    salary:    28000,
-    startDate: '2021-03-15',
-    birthDate: '1990-01-01',
-};
 
 const filterByRole = (items, role) =>
     items.filter(item => item.roles.includes(role));
@@ -30,19 +17,31 @@ const getFirstSubTab = (section, role) => {
 
 export const MainPage = () => {
     const navigate = useNavigate();
+    const { user, isLoading, error } = useCurrentUser();
 
-    const visibleNav = filterByRole(NAV, USER.role);
+    const visibleNav = user ? filterByRole(NAV, user.role) : [];
 
-    const [activeSection, setActiveSection] = useState(visibleNav[0].key);
-    const [activeSubTab, setActiveSubTab]   = useState(
-        () => getFirstSubTab(visibleNav[0], USER.role)
-    );
+    const [activeSection, setActiveSection] = useState(null);
+    const [activeSubTab, setActiveSubTab]   = useState(null);
+
+    // Ініціалізуємо активну вкладку після того як user завантажився
+    const initSection = useCallback((loadedUser) => {
+        const nav = filterByRole(NAV, loadedUser.role);
+        if (!nav.length) return;
+        setActiveSection(nav[0].key);
+        setActiveSubTab(getFirstSubTab(nav[0], loadedUser.role));
+    }, []);
+
+    // Викликаємо ініціалізацію тільки один раз — коли user вперше з'явився
+    if (user && activeSection === null) {
+        initSection(user);
+    }
 
     const handleSectionChange = useCallback((key) => {
         const section = visibleNav.find(n => n.key === key);
         setActiveSection(key);
-        setActiveSubTab(getFirstSubTab(section, USER.role));
-    }, [visibleNav]);
+        setActiveSubTab(getFirstSubTab(section, user.role));
+    }, [visibleNav, user]);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -51,13 +50,29 @@ export const MainPage = () => {
 
     const currentSection = visibleNav.find(n => n.key === activeSection);
     const visibleSubTabs = currentSection?.subTabs
-        ? filterByRole(currentSection.subTabs, USER.role)
+        ? filterByRole(currentSection.subTabs, user.role)
         : [];
+
+    // ── Loading ──────────────────────────────────────────
+    if (isLoading) return (
+        <div className={styles.dashboard__loading}>
+            <span className={styles['dashboard__loading-spinner']} />
+            <p>Loading...</p>
+        </div>
+    );
+
+    // ── Error ────────────────────────────────────────────
+    if (error) return (
+        <div className={styles.dashboard__error}>
+            <p>{error}</p>
+            <button onClick={handleLogout}>Back to Login</button>
+        </div>
+    );
 
     return (
         <div className={styles.dashboard}>
             <Topbar
-                user={USER}
+                user={user}
                 navItems={visibleNav}
                 activeSection={activeSection}
                 onSectionChange={handleSectionChange}
@@ -68,7 +83,7 @@ export const MainPage = () => {
                 activeSubTab={activeSubTab}
                 subTabs={visibleSubTabs}
                 onSubTabChange={setActiveSubTab}
-                userRole={USER.role}
+                userRole={user.role}
             />
         </div>
     );

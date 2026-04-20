@@ -43,7 +43,7 @@ export const Auth = () => {
                 <AuthFeedback error={error} />
 
                 <form onSubmit={handleSubmit} className={styles.auth__form}>
-                    <AuthLoginField id="email" label="Email" type="email" placeholder="username"
+                    <AuthLoginField id="email" label="Email" type="email" placeholder="email"
                      value={email} onChange={setEmail} isLoading={isLoading} />
 
                     <AuthLoginField id="password" label="Password" type="password" placeholder="password"

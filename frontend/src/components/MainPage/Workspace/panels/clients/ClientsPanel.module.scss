@@ -4,6 +4,31 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+
+    &__loading {
+        display: flex;
+        justify-content: center;
+        padding: 60px;
+    }
+
+    &__loading-spinner {
+        width: 24px;
+        height: 24px;
+        border: 2px solid $border;
+        border-top-color: $accent;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+    }
+
+    &__error {
+        padding: 12px 16px;
+        background: $error-bg;
+        border: 1px solid $error-border;
+        border-radius: $radius-sm;
+        color: $error-text;
+        font-family: $font-sans;
+        font-size: 13px;
+    }
 }
 
 // ── Toolbar ────────────────────────────────────────────────
@@ -488,4 +513,8 @@
 @keyframes modal-in {
     from { opacity: 0; transform: scale(0.96) translateY(10px); }
     to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }

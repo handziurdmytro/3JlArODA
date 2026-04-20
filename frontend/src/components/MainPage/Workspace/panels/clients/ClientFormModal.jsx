@@ -1,21 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {createPortal} from 'react-dom';
-import { DISCOUNT_OPTIONS } from './clients.mock.js';
 import styles from './ClientsPanel.module.scss';
 
 const EMPTY = {
     lastName: '', firstName: '', patronym: '',
-    phone: '', address: '', discount: 5,
+    phone: '', city: '', street: '', zipCode: '', discount: 5,
 };
 
 export const ClientFormModal = ({ mode, initial, onSave, onClose }) => {
     const [form, setForm] = useState(initial ?? EMPTY);
 
-    useEffect(() => {
-        const handler = (e) => e.key === 'Escape' && onClose();
-        document.addEventListener('keydown', handler);
-        return () => document.removeEventListener('keydown', handler);
-    }, [onClose]);
+    // ...існуючий useEffect для Escape
 
     const set = (field) => (e) =>
         setForm(prev => ({ ...prev, [field]: e.target.value }));
@@ -36,6 +31,7 @@ export const ClientFormModal = ({ mode, initial, onSave, onClose }) => {
                 </div>
 
                 <div className={styles.modal__body}>
+                    {/* Name row */}
                     <div className={styles.form__row}>
                         <div className={styles.form__field}>
                             <label className={styles.form__label}>Last Name *</label>
@@ -57,6 +53,7 @@ export const ClientFormModal = ({ mode, initial, onSave, onClose }) => {
                         </div>
                     </div>
 
+                    {/* Phone + Discount */}
                     <div className={styles.form__row}>
                         <div className={styles.form__field}>
                             <label className={styles.form__label}>Phone *</label>
@@ -68,18 +65,33 @@ export const ClientFormModal = ({ mode, initial, onSave, onClose }) => {
                             <label className={styles.form__label}>Discount</label>
                             <select className={styles.form__select}
                                 value={form.discount} onChange={set('discount')}>
-                                {DISCOUNT_OPTIONS.map(d => (
+                                {[0, 5, 10, 15, 20].map(d => (
                                     <option key={d} value={d}>{d}%</option>
                                 ))}
                             </select>
                         </div>
                     </div>
 
-                    <div className={styles.form__field}>
-                        <label className={styles.form__label}>Address</label>
-                        <input className={styles.form__input}
-                            value={form.address} onChange={set('address')}
-                            placeholder="Kyiv, Shevchenka st. 12, apt. 4" />
+                    {/* Address */}
+                    <div className={styles.form__row}>
+                        <div className={styles.form__field}>
+                            <label className={styles.form__label}>City</label>
+                            <input className={styles.form__input}
+                                value={form.city} onChange={set('city')}
+                                placeholder="Kyiv" />
+                        </div>
+                        <div className={styles.form__field}>
+                            <label className={styles.form__label}>Street</label>
+                            <input className={styles.form__input}
+                                value={form.street} onChange={set('street')}
+                                placeholder="Shevchenka st. 12, apt. 4" />
+                        </div>
+                        <div className={styles.form__field}>
+                            <label className={styles.form__label}>ZIP Code</label>
+                            <input className={styles.form__input}
+                                value={form.zipCode} onChange={set('zipCode')}
+                                placeholder="01001" />
+                        </div>
                     </div>
                 </div>
 
