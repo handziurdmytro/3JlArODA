@@ -68,7 +68,7 @@ impl AuthSecretService for AuthSecretServiceImpl {
 
         let token = self
             .engine
-            .sign_jwt(&req.user_id, &req.username)
+            .sign_jwt(&req.user_id, &req.username, &req.role)
             .map_err(|e| {
                 error!(error = %e, "Failed to sign JWT");
                 Status::internal("Internal signing error")
@@ -86,15 +86,17 @@ impl AuthSecretService for AuthSecretServiceImpl {
         info!("Received request to validate JWT");
 
         let response = match self.engine.validate_jwt(&req.token) {
-            Some((user_id, username)) => ValidateJwtResponse {
+            Some((user_id, username, role)) => ValidateJwtResponse {
                 user_id,
                 username,
                 is_valid: true,
+                role,
             },
             None => ValidateJwtResponse {
                 user_id: String::new(),
                 username: String::new(),
                 is_valid: false,
+                role: String::new(),
             },
         };
 

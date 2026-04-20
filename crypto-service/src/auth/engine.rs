@@ -11,6 +11,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 struct Claims {
     sub: String,
     username: String,
+    role: String,
     exp: u64,
     iat: u64,
 }
@@ -60,12 +61,13 @@ impl AuthSecretEngine {
             .is_ok()
     }
 
-    pub fn sign_jwt(&self, user_id: &str, username: &str) -> Result<String, AuthError> {
+    pub fn sign_jwt(&self, user_id: &str, username: &str, role: &str) -> Result<String, AuthError> {
         let now = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
 
         let claims = Claims {
             sub: user_id.to_string(),
             username: username.to_string(),
+            role: role.to_string(),
             exp: now + self.jwt_exp_seconds,
             iat: now,
         };
@@ -78,7 +80,7 @@ impl AuthSecretEngine {
         .map_err(|e| AuthError::JwtSign(e.to_string()))
     }
 
-    pub fn validate_jwt(&self, token: &str) -> Option<(String, String)> {
+    pub fn validate_jwt(&self, token: &str) -> Option<(String, String, String)> {
         let result = decode::<Claims>(
             token,
             &DecodingKey::from_secret(self.jwt_secret.as_bytes()),
@@ -86,7 +88,7 @@ impl AuthSecretEngine {
         );
 
         match result {
-            Ok(data) => Some((data.claims.sub, data.claims.username)),
+            Ok(data) => Some((data.claims.sub, data.claims.username, data.claims.role)),
             Err(_) => None,
         }
     }
