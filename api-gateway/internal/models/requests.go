@@ -111,7 +111,7 @@ type CreateCheckRequest struct {
 // Sale Models
 type CreateSaleRequest struct {
 	UPC           string  `json:"upc" binding:"required"`
-	CheckNumber   string  `json:"check_number" binding:"required"`
+	CheckNumber   string  `json:"check_number"`
 	ProductNumber int     `json:"product_number" binding:"required"`
 	SellingPrice  float64 `json:"selling_price" binding:"required"`
 }

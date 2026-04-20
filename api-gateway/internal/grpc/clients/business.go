@@ -11,6 +11,8 @@ type Business struct {
 	conn *grpc.ClientConn
 
 	Product      *ProductClient
+	Category     *CategoryClient
+	StoreProduct *StoreProductClient
 	CustomerCard *CustomerCardClient
 	Employee     *EmployeeClient
 	Check        *CheckClient
@@ -29,6 +31,8 @@ func NewBusinessClient(address string) (*Business, error) {
 	return &Business{
 		conn:         conn,
 		Product:      NewProductClient(conn),
+		Category:     NewCategoryClient(conn),
+		StoreProduct: NewStoreProductClient(conn),
 		CustomerCard: NewCustomerCardClient(conn),
 		Employee:     NewEmployeeClient(conn),
 		Check:        NewCheckClient(conn),

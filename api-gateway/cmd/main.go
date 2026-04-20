@@ -36,6 +36,8 @@ func main() {
 
 	authHandler := handlers.NewAuthHandler(authClient)
 	productHandler := handlers.NewProductHandler(businessClient.Product)
+	categoryHandler := handlers.NewCategoryHandler(businessClient.Category)
+	storeProductHandler := handlers.NewStoreProductHandler(businessClient.StoreProduct)
 	customerCardHandler := handlers.NewCustomerCardHandler(businessClient.CustomerCard)
 	employeeHandler := handlers.NewEmployeeHandler(businessClient.Employee)
 	checkHandler := handlers.NewCheckHandler(businessClient.Check)
@@ -49,6 +51,8 @@ func main() {
 		authHandler,
 		authClient,
 		productHandler,
+		categoryHandler,
+		storeProductHandler,
 		customerCardHandler,
 		employeeHandler,
 		checkHandler,

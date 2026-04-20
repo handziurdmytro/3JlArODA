@@ -15,6 +15,8 @@ type ProductClient interface {
 	Create(ctx context.Context, req models.CreateProductRequest) (*productpb.Product, error)
 	GetByID(ctx context.Context, id int) (*productpb.Product, error)
 	GetAll(ctx context.Context) ([]*productpb.Product, error)
+	GetByCategory(ctx context.Context, categoryNumber int) ([]*productpb.Product, error)
+	SearchByName(ctx context.Context, name string) ([]*productpb.Product, error)
 	Update(ctx context.Context, id int, req models.UpdateProductRequest) (*productpb.Product, error)
 	Delete(ctx context.Context, id int) error
 }
@@ -59,6 +61,36 @@ func (h *ProductHandler) GetByID(c *gin.Context) {
 }
 
 func (h *ProductHandler) List(c *gin.Context) {
+	name := c.Query("name")
+	if name != "" {
+		products, err := h.productClient.SearchByName(c.Request.Context(), name)
+		if err != nil {
+			respondGRPCError(c, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, products)
+		return
+	}
+
+	categoryNumber := c.Query("category_number")
+	if categoryNumber != "" {
+		parsed, err := strconv.Atoi(categoryNumber)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, common.ErrorResponse{Error: "invalid category_number"})
+			return
+		}
+
+		products, err := h.productClient.GetByCategory(c.Request.Context(), parsed)
+		if err != nil {
+			respondGRPCError(c, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, products)
+		return
+	}
+
 	products, err := h.productClient.GetAll(c.Request.Context())
 	if err != nil {
 		respondGRPCError(c, err)

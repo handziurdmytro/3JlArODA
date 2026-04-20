@@ -11,6 +11,8 @@ func SetupRoutes(
 	authHandler *handlers.AuthHandler,
 	authValidator middleware.AuthValidator,
 	productHandler *handlers.ProductHandler,
+	categoryHandler *handlers.CategoryHandler,
+	storeProductHandler *handlers.StoreProductHandler,
 	customerCardHandler *handlers.CustomerCardHandler,
 	employeeHandler *handlers.EmployeeHandler,
 	checkHandler *handlers.CheckHandler,
@@ -27,8 +29,10 @@ func SetupRoutes(
 		protected := api.Group("")
 		protected.Use(middleware.AuthMiddleware(authValidator))
 
-		employee := protected.Group("/employee")
+		employee := protected.Group("/employees")
 		{
+			employee.GET("/me", employeeHandler.GetMe)
+			employee.GET("/contacts", employeeHandler.GetContacts)
 			employee.GET("/", employeeHandler.List)
 			employee.GET("/:id", employeeHandler.GetByID)
 			employee.POST("/", employeeHandler.Create)
@@ -36,16 +40,16 @@ func SetupRoutes(
 			employee.DELETE("/:id", employeeHandler.Delete)
 		}
 
-		category := protected.Group("/category")
+		category := protected.Group("/categories")
 		{
-			category.GET("/", handlers.ListCategories)
-			category.GET("/:number", handlers.GetCategoryByNumber)
-			category.POST("/", handlers.CreateCategory)
-			category.PUT("/:number", handlers.UpdateCategory)
-			category.DELETE("/:number", handlers.DeleteCategory)
+			category.GET("/", categoryHandler.List)
+			category.GET("/:number", categoryHandler.GetByNumber)
+			category.POST("/", categoryHandler.Create)
+			category.PUT("/:number", categoryHandler.Update)
+			category.DELETE("/:number", categoryHandler.Delete)
 		}
 
-		product := protected.Group("/product")
+		product := protected.Group("/products")
 		{
 			product.GET("/", productHandler.List)
 			product.GET("/:id", productHandler.GetByID)
@@ -54,16 +58,16 @@ func SetupRoutes(
 			product.DELETE("/:id", productHandler.Delete)
 		}
 
-		storeProduct := protected.Group("/store-product")
+		storeProduct := protected.Group("/store-products")
 		{
-			storeProduct.GET("/", handlers.ListStoreProducts)
-			storeProduct.GET("/:upc", handlers.GetStoreProductByUPC)
-			storeProduct.POST("/", handlers.CreateStoreProduct)
-			storeProduct.PUT("/:upc", handlers.UpdateStoreProduct)
-			storeProduct.DELETE("/:upc", handlers.DeleteStoreProduct)
+			storeProduct.GET("/", storeProductHandler.List)
+			storeProduct.GET("/:upc", storeProductHandler.GetByUPC)
+			storeProduct.POST("/", storeProductHandler.Create)
+			storeProduct.PUT("/:upc", storeProductHandler.Update)
+			storeProduct.DELETE("/:upc", storeProductHandler.Delete)
 		}
 
-		customerCard := protected.Group("/customer-card")
+		customerCard := protected.Group("/customer-cards")
 		{
 			customerCard.GET("/", customerCardHandler.List)
 			customerCard.GET("/:number", customerCardHandler.GetByNumber)
@@ -72,19 +76,20 @@ func SetupRoutes(
 			customerCard.DELETE("/:number", customerCardHandler.Delete)
 		}
 
-		check := protected.Group("/check")
+		check := protected.Group("/checks")
 		{
 			check.GET("/", checkHandler.List)
 			check.GET("/:number", checkHandler.GetByNumber)
 			check.POST("/", checkHandler.Create)
+			check.POST("/:number/items", saleHandler.Create)
 			check.DELETE("/:number", checkHandler.Delete)
 		}
 
-		sale := protected.Group("/sale")
+		reports := protected.Group("/reports")
 		{
-			sale.GET("/", saleHandler.List)
-			sale.GET("/item", saleHandler.Get)
-			sale.POST("/", saleHandler.Create)
+			reports.GET("/checks/details", checkHandler.GetDetailsReport)
+			reports.GET("/checks/total", checkHandler.GetTotalReport)
+			reports.GET("/products/:id/sold-quantity", saleHandler.GetProductSoldQuantity)
 		}
 	}
 }

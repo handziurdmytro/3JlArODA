@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/common"
@@ -11,6 +12,7 @@ import (
 
 type SaleClient interface {
 	Create(ctx context.Context, req models.CreateSaleRequest) error
+	GetProductSoldQuantity(ctx context.Context, productID int, from, to time.Time) (int64, error)
 }
 
 type SaleHandler struct {
@@ -28,6 +30,14 @@ func (h *SaleHandler) Create(c *gin.Context) {
 		return
 	}
 
+	if number := c.Param("number"); number != "" {
+		req.CheckNumber = number
+	}
+	if req.CheckNumber == "" {
+		c.JSON(http.StatusBadRequest, common.ErrorResponse{Error: "check_number is required"})
+		return
+	}
+
 	if err := h.saleClient.Create(c.Request.Context(), req); err != nil {
 		respondGRPCError(c, err)
 		return
@@ -36,18 +46,22 @@ func (h *SaleHandler) Create(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
-func (h *SaleHandler) Get(c *gin.Context) {
-	upc := c.Query("upc")
-	checkNumber := c.Query("check_number")
-
-	if upc == "" || checkNumber == "" {
-		c.JSON(http.StatusBadRequest, common.ErrorResponse{Error: "UPC and check_number are required"})
+func (h *SaleHandler) GetProductSoldQuantity(c *gin.Context) {
+	productID, ok := parseIntParam(c, "id")
+	if !ok {
 		return
 	}
 
-	c.JSON(http.StatusNotImplemented, common.ErrorResponse{Error: "sale item lookup is not supported by business-service grpc API yet"})
-}
+	from, to, ok := parsePeriod(c)
+	if !ok {
+		return
+	}
 
-func (h *SaleHandler) List(c *gin.Context) {
-	c.JSON(http.StatusNotImplemented, common.ErrorResponse{Error: "sale listing is not supported by business-service grpc API yet"})
+	quantity, err := h.saleClient.GetProductSoldQuantity(c.Request.Context(), productID, from, to)
+	if err != nil {
+		respondGRPCError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"product_id": productID, "total_quantity": quantity})
 }
