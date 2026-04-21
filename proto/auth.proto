@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package auth;
 
-option go_package = "./pb";
+option go_package = "github.com/handziurdmytro/3JlArODA/auth-service/pb;pb";
 
 service AuthService {
     rpc Register (RegisterRequest) returns (RegisterResponse);
@@ -17,6 +17,7 @@ message RegisterRequest {
 
 message RegisterResponse {
     string token = 1;
+    string role  = 2;
 }
 
 message LoginRequest {
@@ -26,6 +27,7 @@ message LoginRequest {
 
 message LoginResponse {
     string token = 1;
+    string role  = 2;
 }
 
 message ValidateRequest {
@@ -35,5 +37,6 @@ message ValidateRequest {
 message ValidateResponse {
     string user_id  = 1;
     string username = 2;
-    bool   is_valid = 3;
+    string role     = 3;
+    bool   is_valid = 4;
 }

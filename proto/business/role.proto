@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package business.role;
+
+option go_package = "github.com/handziurdmytro/3JlArODA/business-service/pb/business/role;rolepb";
+
+service RoleService {
+  rpc GetEmployeeRole (GetEmployeeRoleRequest) returns (GetEmployeeRoleResponse);
+}
+
+message GetEmployeeRoleRequest {
+  string employee_id = 1;
+}
+
+message GetEmployeeRoleResponse {
+  string role = 1;
+}
