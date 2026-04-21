@@ -28,6 +28,7 @@ export const SaleView = ({ onComplete }) => {
     const [clientCard, setClientCard] = useState('');
     const [clientDiscount, setClientDiscount] = useState(0);
     const [cardStatus, setCardStatus] = useState('');
+    const [isCheckingCard, setIsCheckingCard] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState(null);
 
@@ -52,9 +53,11 @@ export const SaleView = ({ onComplete }) => {
         if (!cardNumber) {
             setClientDiscount(0);
             setCardStatus('');
+            setIsCheckingCard(false);
             return;
         }
 
+        setIsCheckingCard(true);
         const timeout = setTimeout(async () => {
             try {
                 const response = await customerCardsApi.getByNumber(cardNumber);
@@ -63,6 +66,8 @@ export const SaleView = ({ onComplete }) => {
             } catch {
                 setClientDiscount(0);
                 setCardStatus('Customer card was not found');
+            } finally {
+                setIsCheckingCard(false);
             }
         }, 300);
 
@@ -159,7 +164,7 @@ export const SaleView = ({ onComplete }) => {
                 cardStatus={cardStatus}
                 error={error}
                 isSubmitting={isSubmitting}
-                isDisabled={isUserLoading || !user?.id}
+                isDisabled={isUserLoading || !user?.id || isCheckingCard || Boolean(cardStatus)}
                 onChangeQty={handleChangeQty}
                 onClientCard={handleClientCard}
                 onComplete={handleComplete}

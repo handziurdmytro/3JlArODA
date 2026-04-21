@@ -80,7 +80,17 @@ export const ReceiptsView = ({ refreshKey }) => {
                     : {};
 
                 const response = await checksApi.getAll(filters);
-                setReceipts(response.data.map(mapCheck));
+                const baseReceipts = response.data.map(mapCheck);
+                const detailedReceipts = await Promise.all(baseReceipts.map(async (receipt) => {
+                    try {
+                        const details = await checksApi.getByNumber(receipt.number);
+                        return mapFullReceipt(receipt, details.data);
+                    } catch {
+                        return receipt;
+                    }
+                }));
+
+                setReceipts(detailedReceipts);
             } catch (err) {
                 setError(err.response?.data?.error ?? 'Failed to load receipts');
             } finally {
