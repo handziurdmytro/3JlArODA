@@ -1,10 +1,12 @@
-import { useState } from 'react';
-import { MOCK_EMPLOYEES }      from '../employees/employees.mock.js';
-import { MOCK_CLIENTS }        from '../clients/clients.mock.js';
-import { MOCK_CATEGORIES, MOCK_PRODUCTS, MOCK_STORE_PRODUCTS } from '../catalog/catalog.mock.js';
-import { MOCK_RECEIPTS }       from '../receipts/mock.js';
-import { ReportCard }          from './ReportCard';
-import { PrintPreviewModal }   from './PrintPreviewModal';
+import { useState, useEffect } from 'react';
+import { employeesApi } from '../../../../../api/employees';
+import { customerCardsApi } from '../../../../../api/customerCards';
+import { categoriesApi } from '../../../../../api/categories';
+import { productsApi } from '../../../../../api/products';
+import { storeProductsApi } from '../../../../../api/storeProducts';
+import { checksApi } from '../../../../../api/checks';
+import { ReportCard } from './ReportCard';
+import { PrintPreviewModal } from './PrintPreviewModal';
 import styles from './ReportsPanel.module.scss';
 
 const REPORT_TYPES = [
@@ -16,11 +18,11 @@ const REPORT_TYPES = [
         columns:     ['ID', 'Full Name', 'Position', 'Phone', 'Address', 'Start Date', 'Salary (₴)'],
         getRows:     (data) => data.employees.map(e => [
             e.id,
-            `${e.lastName} ${e.firstName} ${e.patronym}`,
-            e.position.charAt(0).toUpperCase() + e.position.slice(1),
-            e.phone,
-            e.address,
-            e.startDate,
+            `${e.surname} ${e.name} ${e.patronymic || ''}`.trim(),
+            e.role.charAt(0).toUpperCase() + e.role.slice(1),
+            e.phone_number,
+            `${e.city}, ${e.street}`,
+            new Date(e.date_of_start).toLocaleDateString('en-GB'),
             e.salary?.toLocaleString() ?? '—',
         ]),
     },
@@ -31,11 +33,11 @@ const REPORT_TYPES = [
         icon:        'clients.png',
         columns:     ['Card #', 'Full Name', 'Phone', 'Address', 'Discount'],
         getRows:     (data) => data.clients.map(c => [
-            c.cardId,
-            `${c.lastName} ${c.firstName} ${c.patronym}`,
-            c.phone,
-            c.address,
-            `${c.discount}%`,
+            c.card_number,
+            `${c.surname} ${c.name} ${c.patronymic || ''}`.trim(),
+            c.phone_number,
+            `${c.city || ''}, ${c.street || ''}`.replace(/^, | , $/g, '') || '—',
+            `${c.percent}%`,
         ]),
     },
     {
@@ -45,8 +47,8 @@ const REPORT_TYPES = [
         icon:        'category.png',
         columns:     ['Category ID', 'Category Name', 'Products Count'],
         getRows:     (data) => data.categories.map(c => {
-            const count = data.products.filter(p => p.categoryId === c.id).length;
-            return [c.id, c.name, count];
+            const count = data.products.filter(p => p.category_number === c.number).length;
+            return [c.number, c.name, count];
         }),
     },
     {
@@ -56,8 +58,8 @@ const REPORT_TYPES = [
         icon:        'products.png',
         columns:     ['ID', 'Name', 'Manufacturer', 'Category', 'Description'],
         getRows:     (data) => data.products.map(p => {
-            const category = data.categories.find(c => c.id === p.categoryId)?.name ?? '—';
-            return [p.id, p.name, p.manufacturer, category, p.description];
+            const category = data.categories.find(c => c.number === p.category_number)?.name ?? '—';
+            return [p.id, p.name, p.producer || '—', category, p.characteristics];
         }),
     },
     {
@@ -67,17 +69,15 @@ const REPORT_TYPES = [
         icon:        'shop.png',
         columns:     ['UPC', 'Product', 'Category', 'Sale Price (₴)', 'VAT 20% (₴)', 'Quantity', 'Type'],
         getRows:     (data) => data.storeProducts.map(sp => {
-            const product  = data.products.find(p => p.id === sp.productId);
-            const category = data.categories.find(c => c.id === product?.categoryId)?.name ?? '—';
-            const vat      = (sp.price * 0.2).toFixed(2);
+            const vat = (sp.selling_price * 0.2).toFixed(2);
             return [
                 sp.upc,
-                product?.name ?? '—',
-                category,
-                sp.price.toFixed(2),
+                sp.product_name ?? '—',
+                sp.category_name ?? '—',
+                sp.selling_price.toFixed(2),
                 vat,
-                `${sp.quantity} pcs`,
-                sp.isPromo ? 'Promotional' : 'Regular',
+                `${sp.products_number} pcs`,
+                sp.promotional_product ? 'Promotional' : 'Regular',
             ];
         }),
     },
@@ -86,30 +86,58 @@ const REPORT_TYPES = [
         title:       'Receipts Report',
         description: 'Full list of all receipts with cashier, date, items count, discount and total.',
         icon:        'receipt.png',
-        columns:     ['Receipt #', 'Cashier', 'Date', 'Time', 'Items', 'Discount', 'Total (₴)'],
-        getRows:     (data) => data.receipts.map(r => [
-            `#${r.number}`,
-            r.cashierName,
-            r.date,
-            r.time,
-            r.items.length,
-            r.discount ? `${r.discount}%` : '—',
-            r.total.toFixed(2),
-        ]),
+        columns:     ['Receipt #', 'Cashier ID', 'Date', 'Time', 'Total (₴)'],
+        getRows:     (data) => data.receipts.map(r => {
+            const dateObj = new Date(r.print_date);
+            return [
+                `#${r.number}`,
+                r.employee_id,
+                dateObj.toLocaleDateString('en-GB'),
+                dateObj.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+                r.sum_total.toFixed(2),
+            ];
+        }),
     },
 ];
 
 export const ReportsPanel = () => {
     const [preview, setPreview] = useState(null);
+    const [data, setData] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const data = {
-        employees:    [...MOCK_EMPLOYEES].sort((a, b) => a.lastName.localeCompare(b.lastName)),
-        clients:      [...MOCK_CLIENTS].sort((a, b) => a.lastName.localeCompare(b.lastName)),
-        categories:   [...MOCK_CATEGORIES].sort((a, b) => a.name.localeCompare(b.name)),
-        products:     [...MOCK_PRODUCTS].sort((a, b) => a.name.localeCompare(b.name)),
-        storeProducts: MOCK_STORE_PRODUCTS,
-        receipts:     [...MOCK_RECEIPTS].sort((a, b) => a.date.localeCompare(b.date)),
-    };
+    useEffect(() => {
+        const fetchAllData = async () => {
+            try {
+                const [emp, cli, cat, prod, sp, rec] = await Promise.all([
+                    employeesApi.getAll(),
+                    customerCardsApi.getAll(),
+                    categoriesApi.getAll(),
+                    productsApi.getAll(),
+                    storeProductsApi.getAll(),
+                    checksApi.getAll()
+                ]);
+
+                setData({
+                    employees: (emp.data || []).sort((a, b) => a.surname.localeCompare(b.surname)),
+                    clients: (cli.data || []).sort((a, b) => a.surname.localeCompare(b.surname)),
+                    categories: (cat.data || []).sort((a, b) => a.name.localeCompare(b.name)),
+                    products: (prod.data || []).sort((a, b) => a.name.localeCompare(b.name)),
+                    storeProducts: sp.data || [],
+                    receipts: (rec.data || []).sort((a, b) => new Date(a.print_date) - new Date(b.print_date)),
+                });
+            } catch (error) {
+                console.error('Failed to load report data:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchAllData();
+    }, []);
+
+    if (isLoading || !data) {
+        return <div className={styles.reports}>Loading reports data...</div>;
+    }
 
     return (
         <div className={styles.reports}>

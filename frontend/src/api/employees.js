@@ -27,4 +27,11 @@ export const employeesApi = {
     delete: async (number) => {
         return await apiClient.delete(`/employees/${number}`);
     },
+
+    getContacts: async ({ surname, name, patronymic }) => {
+        const params = { surname };
+        if (name) params.name = name;
+        if (patronymic) params.patronymic = patronymic;
+        return await apiClient.get('/employees/contacts', { params });
+    },
 };
