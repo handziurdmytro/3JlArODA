@@ -33,38 +33,38 @@ func SetupRoutes(
 		{
 			employee.GET("/me", employeeHandler.GetMe)
 			employee.GET("/contacts", employeeHandler.GetContacts)
-			employee.GET("/", employeeHandler.List)
-			employee.GET("/:id", employeeHandler.GetByID)
-			employee.POST("/", employeeHandler.Create)
-			employee.PUT("/:id", employeeHandler.Update)
-			employee.DELETE("/:id", employeeHandler.Delete)
+			employee.GET("/", middleware.RequireRole("manager"), employeeHandler.List)
+			employee.GET("/:id", middleware.RequireRole("manager"), employeeHandler.GetByID)
+			employee.POST("/", middleware.RequireRole("manager"), employeeHandler.Create)
+			employee.PUT("/:id", middleware.RequireRole("manager"), employeeHandler.Update)
+			employee.DELETE("/:id", middleware.RequireRole("manager"), employeeHandler.Delete)
 		}
 
 		category := protected.Group("/categories")
 		{
 			category.GET("/", categoryHandler.List)
 			category.GET("/:number", categoryHandler.GetByNumber)
-			category.POST("/", categoryHandler.Create)
-			category.PUT("/:number", categoryHandler.Update)
-			category.DELETE("/:number", categoryHandler.Delete)
+			category.POST("/", middleware.RequireRole("manager"), categoryHandler.Create)
+			category.PUT("/:number", middleware.RequireRole("manager"), categoryHandler.Update)
+			category.DELETE("/:number", middleware.RequireRole("manager"), categoryHandler.Delete)
 		}
 
 		product := protected.Group("/products")
 		{
 			product.GET("/", productHandler.List)
 			product.GET("/:id", productHandler.GetByID)
-			product.POST("/", productHandler.Create)
-			product.PUT("/:id", productHandler.Update)
-			product.DELETE("/:id", productHandler.Delete)
+			product.POST("/", middleware.RequireRole("manager"), productHandler.Create)
+			product.PUT("/:id", middleware.RequireRole("manager"), productHandler.Update)
+			product.DELETE("/:id", middleware.RequireRole("manager"), productHandler.Delete)
 		}
 
 		storeProduct := protected.Group("/store-products")
 		{
 			storeProduct.GET("/", storeProductHandler.List)
 			storeProduct.GET("/:upc", storeProductHandler.GetByUPC)
-			storeProduct.POST("/", storeProductHandler.Create)
-			storeProduct.PUT("/:upc", storeProductHandler.Update)
-			storeProduct.DELETE("/:upc", storeProductHandler.Delete)
+			storeProduct.POST("/", middleware.RequireRole("manager"), storeProductHandler.Create)
+			storeProduct.PUT("/:upc", middleware.RequireRole("manager"), storeProductHandler.Update)
+			storeProduct.DELETE("/:upc", middleware.RequireRole("manager"), storeProductHandler.Delete)
 		}
 
 		customerCard := protected.Group("/customer-cards")
@@ -73,7 +73,7 @@ func SetupRoutes(
 			customerCard.GET("/:number", customerCardHandler.GetByNumber)
 			customerCard.POST("/", customerCardHandler.Create)
 			customerCard.PUT("/:number", customerCardHandler.Update)
-			customerCard.DELETE("/:number", customerCardHandler.Delete)
+			customerCard.DELETE("/:number", middleware.RequireRole("manager"), customerCardHandler.Delete)
 		}
 
 		check := protected.Group("/checks")
@@ -82,17 +82,17 @@ func SetupRoutes(
 			check.GET("/:number", checkHandler.GetByNumber)
 			check.POST("/", checkHandler.Create)
 			check.POST("/:number/items", saleHandler.Create)
-			check.DELETE("/:number", checkHandler.Delete)
+			check.DELETE("/:number", middleware.RequireRole("manager"), checkHandler.Delete)
 		}
 
-		reports := protected.Group("/reports")
+		reports := protected.Group("/reports", middleware.RequireRole("manager"))
 		{
 			reports.GET("/checks/details", checkHandler.GetDetailsReport)
 			reports.GET("/checks/total", checkHandler.GetTotalReport)
 			reports.GET("/products/:id/sold-quantity", saleHandler.GetProductSoldQuantity)
 		}
 
-		individualTasks := protected.Group("/individual-tasks")
+		individualTasks := protected.Group("/individual-tasks", middleware.RequireRole("manager"))
 		{
 			individualTasks.GET("/products/sales-stats", productHandler.GetSalesStatsByCategoryAndPeriod)
 			individualTasks.GET("/customer-cards/bought-all-products-from-category", customerCardHandler.GetWhoBoughtAllProductsFromCategory)

@@ -56,6 +56,33 @@ func AuthMiddleware(validator AuthValidator) gin.HandlerFunc {
 
 		c.Set("user_id", resp.UserId)
 		c.Set("username", resp.Username)
+		c.Set("role", resp.Role)
+
 		c.Next()
+	}
+}
+
+func RequireRole(allowedRoles ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userRole, exists := c.Get("role")
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusForbidden, common.ErrorResponse{Error: "role not found"})
+			return
+		}
+
+		roleStr, ok := userRole.(string)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, common.ErrorResponse{Error: "invalid role type"})
+			return
+		}
+
+		for _, allowed := range allowedRoles {
+			if roleStr == allowed {
+				c.Next()
+				return
+			}
+		}
+
+		c.AbortWithStatusJSON(http.StatusForbidden, common.ErrorResponse{Error: "access denied: insufficient permissions"})
 	}
 }

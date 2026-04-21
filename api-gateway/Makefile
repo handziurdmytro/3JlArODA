@@ -13,7 +13,11 @@ gen-auth:
 		export PATH=\"/go/bin:\$$PATH\" && \
 		protoc -I ../proto \
 		--go_out=. \
+		--go_opt=module=$(MODULE) \
+		--go_opt=Mauth.proto=$(MODULE)/pb \
 		--go-grpc_out=. \
+		--go-grpc_opt=module=$(MODULE) \
+		--go-grpc_opt=Mauth.proto=$(MODULE)/pb \
 		../proto/auth.proto"
 
 gen-business:

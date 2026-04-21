@@ -22,8 +22,8 @@ func Load() *Config {
 	return &Config{
 		Port:            getOrDefault("PORT", "8080"),
 		GinMode:         getOrDefault("GIN_MODE", "debug"),
-		BusinessService: getOrDefault("BUSINESS_SERVICE_ADDR", "localhost:8082"),
-		AuthService:     getOrDefault("AUTH_SERVICE_ADDR", "localhost:2828"),
+		BusinessService: getOrDefault("BUSINESS_SERVICE_ADDR", "business-service:2433"),
+		AuthService:     getOrDefault("AUTH_SERVICE_ADDR", "auth-service:3131"),
 	}
 }
 
