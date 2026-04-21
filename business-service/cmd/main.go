@@ -9,6 +9,7 @@ import (
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/category"
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/check"
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/customercard"
+	"github.com/handziurdmytro/3JlArODA/business-service/internal/database"
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/database/postgres"
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/employee"
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/product"
@@ -93,6 +94,8 @@ func main() {
 	checkpb.RegisterCheckServiceServer(grpcServer, checkHandler)
 	salepb.RegisterSaleServiceServer(grpcServer, saleHandler)
 	rolepb.RegisterRoleServiceServer(grpcServer, roleHandler)
+
+	database.Seed(context.Background(), employeeRepo)
 
 	address := ":" + port
 	listener, err := net.Listen("tcp", address)
