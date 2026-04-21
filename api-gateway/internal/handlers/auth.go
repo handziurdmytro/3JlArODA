@@ -13,7 +13,7 @@ import (
 )
 
 type AuthClient interface {
-	Register(ctx context.Context, username, password string) (*pb.RegisterResponse, error)
+	Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error)
 	Login(ctx context.Context, username, password string) (*pb.LoginResponse, error)
 }
 
@@ -32,7 +32,13 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.authClient.Register(c.Request.Context(), req.Username, req.Password)
+	resp, err := h.authClient.Register(c.Request.Context(), &pb.RegisterRequest{
+		Id:       "",
+		Username: req.Username,
+		Password: req.Password,
+		Role:     "cashier",
+	})
+
 	if err != nil {
 		switch status.Code(err) {
 		case codes.AlreadyExists:

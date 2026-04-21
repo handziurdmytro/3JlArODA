@@ -2,6 +2,31 @@ package models
 
 import "time"
 
+type AuthData struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type EmployeeData struct {
+	ID          string    `json:"id" binding:"required"`
+	Surname     string    `json:"surname" binding:"required"`
+	Name        string    `json:"name" binding:"required"`
+	Patronymic  *string   `json:"patronymic"`
+	Role        string    `json:"role" binding:"required"`
+	Salary      float64   `json:"salary" binding:"required"`
+	DateOfBirth time.Time `json:"date_of_birth" binding:"required"`
+	DateOfStart time.Time `json:"date_of_start" binding:"required"`
+	PhoneNumber string    `json:"phone_number" binding:"required"`
+	City        string    `json:"city" binding:"required"`
+	Street      string    `json:"street" binding:"required"`
+	ZipCode     string    `json:"zip_code" binding:"required"`
+}
+
+type CreateFullEmployeeRequest struct {
+	EmployeeData EmployeeData `json:"employee_data" binding:"required"`
+	AuthData     AuthData     `json:"auth_data" binding:"required"`
+}
+
 // Employee Models
 type CreateEmployeeRequest struct {
 	ID          string    `json:"id" binding:"required"`

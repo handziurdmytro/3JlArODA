@@ -39,7 +39,9 @@ func main() {
 	categoryHandler := handlers.NewCategoryHandler(businessClient.Category)
 	storeProductHandler := handlers.NewStoreProductHandler(businessClient.StoreProduct)
 	customerCardHandler := handlers.NewCustomerCardHandler(businessClient.CustomerCard)
-	employeeHandler := handlers.NewEmployeeHandler(businessClient.Employee)
+
+	employeeHandler := handlers.NewEmployeeHandler(businessClient.Employee, authClient)
+
 	checkHandler := handlers.NewCheckHandler(businessClient.Check)
 	saleHandler := handlers.NewSaleHandler(businessClient.Sale)
 
@@ -58,6 +60,8 @@ func main() {
 		checkHandler,
 		saleHandler,
 	)
+
+	config.Execute(authClient, businessClient.Employee)
 
 	addr := fmt.Sprintf(":%s", cfg.Port)
 	log.Printf(

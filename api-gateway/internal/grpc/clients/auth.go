@@ -29,11 +29,8 @@ func NewAuthClient(address string) (*Auth, error) {
 	}, nil
 }
 
-func (cl *Auth) Register(ctx context.Context, username, password string) (*pb.RegisterResponse, error) {
-	return cl.grpcClient.Register(ctx, &pb.RegisterRequest{
-		Username: username,
-		Password: password,
-	})
+func (c *Auth) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+	return c.grpcClient.Register(ctx, req)
 }
 
 func (cl *Auth) Login(ctx context.Context, username, password string) (*pb.LoginResponse, error) {

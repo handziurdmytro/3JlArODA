@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/common"
 	"github.com/handziurdmytro/3JlArODA/api-gateway/internal/models"
+	authpb "github.com/handziurdmytro/3JlArODA/api-gateway/pb"
 	employeepb "github.com/handziurdmytro/3JlArODA/api-gateway/pb/business/employee"
 )
 
@@ -25,23 +26,54 @@ type EmployeeClient interface {
 }
 
 type EmployeeHandler struct {
+	authClient     AuthClient
 	employeeClient EmployeeClient
 }
 
-func NewEmployeeHandler(employeeClient EmployeeClient) *EmployeeHandler {
-	return &EmployeeHandler{employeeClient: employeeClient}
+func NewEmployeeHandler(employeeClient EmployeeClient, authClient AuthClient) *EmployeeHandler {
+	return &EmployeeHandler{
+		employeeClient: employeeClient,
+		authClient:     authClient,
+	}
 }
 
 func (h *EmployeeHandler) Create(c *gin.Context) {
-	var req models.CreateEmployeeRequest
+	var req models.CreateFullEmployeeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, common.ErrorResponse{Error: "Invalid request: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format: " + err.Error()})
 		return
 	}
 
-	employee, err := h.employeeClient.Create(c.Request.Context(), req)
+	_, err := h.authClient.Register(c.Request.Context(), &authpb.RegisterRequest{
+		Id:       req.EmployeeData.ID,
+		Username: req.AuthData.Username,
+		Password: req.AuthData.Password,
+		Role:     req.EmployeeData.Role,
+	})
+
 	if err != nil {
-		respondGRPCError(c, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create security account: " + err.Error()})
+		return
+	}
+
+	businessReq := models.CreateEmployeeRequest{
+		ID:          req.EmployeeData.ID,
+		Surname:     req.EmployeeData.Surname,
+		Name:        req.EmployeeData.Name,
+		Patronymic:  req.EmployeeData.Patronymic,
+		Role:        req.EmployeeData.Role,
+		Salary:      req.EmployeeData.Salary,
+		DateOfBirth: req.EmployeeData.DateOfBirth,
+		DateOfStart: req.EmployeeData.DateOfStart,
+		PhoneNumber: req.EmployeeData.PhoneNumber,
+		City:        req.EmployeeData.City,
+		Street:      req.EmployeeData.Street,
+		ZipCode:     req.EmployeeData.ZipCode,
+	}
+
+	employee, err := h.employeeClient.Create(c.Request.Context(), businessReq)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Account created, but business profile failed: " + err.Error()})
 		return
 	}
 
