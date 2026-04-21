@@ -2,12 +2,10 @@ package repository
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type User struct {
-	ID           uuid.UUID
+	ID           string
 	Username     string
 	PasswordHash string
 	CreatedAt    time.Time

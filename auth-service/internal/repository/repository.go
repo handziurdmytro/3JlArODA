@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -15,10 +14,10 @@ func New(db *pgxpool.Pool) *Repository {
 	return &Repository{db: db}
 }
 
-func (r *Repository) CreateUser(ctx context.Context, username, passwordHash string) (*User, error) {
+func (r *Repository) CreateUser(ctx context.Context, id, username, passwordHash string) (*User, error) {
 	user := &User{}
 
-	err := r.db.QueryRow(ctx, queryCreateUser, uuid.New(), username, passwordHash).Scan(
+	err := r.db.QueryRow(ctx, queryCreateUser, id, username, passwordHash).Scan(
 		&user.ID,
 		&user.Username,
 		&user.PasswordHash,
@@ -53,12 +52,12 @@ func (r *Repository) GetUserByUsername(ctx context.Context, username string) (*U
 	return user, nil
 }
 
-func (r *Repository) UpdatePassword(ctx context.Context, id uuid.UUID, newPasswordHash string) error {
+func (r *Repository) UpdatePassword(ctx context.Context, id string, newPasswordHash string) error {
 	_, err := r.db.Exec(ctx, queryUpdatePassword, newPasswordHash, id)
 	return err
 }
 
-func (r *Repository) DeleteUser(ctx context.Context, id uuid.UUID) error {
+func (r *Repository) DeleteUser(ctx context.Context, id string) error {
 	_, err := r.db.Exec(ctx, queryDeleteUser, id)
 	return err
 }

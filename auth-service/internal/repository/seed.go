@@ -3,8 +3,6 @@ package repository
 import (
 	"context"
 	"log/slog"
-
-	"github.com/google/uuid"
 )
 
 func (r *Repository) SeedDefaultAdmin(ctx context.Context, username, password string, hashFn func(string) (string, error)) error {
@@ -20,7 +18,7 @@ func (r *Repository) SeedDefaultAdmin(ctx context.Context, username, password st
 		return err
 	}
 
-	_, err = r.db.Exec(ctx, queryCreateUser, uuid.New(), username, hash)
+	_, err = r.db.Exec(ctx, queryCreateUser, "ADM-000000", username, hash)
 	if err != nil {
 		return err
 	}

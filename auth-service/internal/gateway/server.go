@@ -47,7 +47,7 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 		return nil, status.Error(codes.Internal, "failed to hash password")
 	}
 
-	user, err := s.repo.CreateUser(ctx, req.Username, hash)
+	user, err := s.repo.CreateUser(ctx, req.Id, req.Username, hash)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to create user")
 	}
@@ -57,13 +57,13 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 		role = "cashier"
 	}
 
-	token, err := s.cryptoClient.SignJWT(ctx, user.ID.String(), user.Username, role)
+	token, err := s.cryptoClient.SignJWT(ctx, user.ID, user.Username, role)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to sign JWT")
 	}
 
 	slog.Info("registered new user",
-		slog.String("user_id", user.ID.String()),
+		slog.String("user_id", user.ID),
 		slog.String("username", user.Username),
 		slog.String("role", role),
 	)
@@ -100,13 +100,13 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 		}
 	}
 
-	token, err := s.cryptoClient.SignJWT(ctx, user.ID.String(), user.Username, role)
+	token, err := s.cryptoClient.SignJWT(ctx, user.ID, user.Username, role)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to generate JWT")
 	}
 
 	slog.Info("user logged in successfully",
-		slog.String("user_id", user.ID.String()),
+		slog.String("user_id", user.ID),
 		slog.String("username", user.Username),
 		slog.String("role", role),
 	)
