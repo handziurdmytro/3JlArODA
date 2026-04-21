@@ -2,7 +2,6 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import { SaleView }     from './SaleView/SaleView.jsx';
 import { ReceiptsView } from './ReceiptsView/ReceiptsView.jsx';
-import { MOCK_RECEIPTS } from './mock.js';
 import styles from './PosPanel.module.scss';
 
 const VIEWS = [
@@ -12,10 +11,10 @@ const VIEWS = [
 
 export const PosPanel = () => {
     const [activeView, setActiveView]   = useState('sale');
-    const [receipts, setReceipts]       = useState(MOCK_RECEIPTS);
+    const [refreshKey, setRefreshKey]   = useState(0);
 
-    const handleSaleComplete = (receipt) => {
-        setReceipts(prev => [receipt, ...prev]);
+    const handleSaleComplete = () => {
+        setRefreshKey(prev => prev + 1);
         setActiveView('receipts');
     };
 
@@ -42,7 +41,7 @@ export const PosPanel = () => {
             <div className={styles.pos__content}>
                 {activeView === 'sale'
                     ? <SaleView onComplete={handleSaleComplete} />
-                    : <ReceiptsView receipts={receipts} />
+                    : <ReceiptsView refreshKey={refreshKey} />
                 }
             </div>
         </div>

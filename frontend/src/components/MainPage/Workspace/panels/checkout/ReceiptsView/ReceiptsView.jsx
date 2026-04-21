@@ -1,32 +1,111 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
+import { checksApi } from '../../../../../../../api/checks.js';
+import { useCurrentUser } from '../../../../../../../hooks/useCurrentUser.js';
 import { ReceiptModal } from './ReceiptsModal';
 import styles from './ReceiptsView.module.scss';
 
 const today = new Date().toISOString().split('T')[0];
 
-export const ReceiptsView = ({ receipts }) => {
+const splitDateTime = (value) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return { date: '', time: '' };
+    }
+
+    return {
+        date: date.toISOString().split('T')[0],
+        time: date.toTimeString().slice(0, 5),
+    };
+};
+
+const mapCheck = (item) => {
+    const dateTime = splitDateTime(item.print_date);
+
+    return {
+        id:         item.number,
+        number:     item.number,
+        date:       dateTime.date,
+        time:       dateTime.time,
+        total:      Number(item.sum_total),
+        discount:   0,
+        clientCard: item.card_number ?? null,
+        items:      [],
+    };
+};
+
+const mapFullReceipt = (baseReceipt, rows) => {
+    if (!rows.length) return baseReceipt;
+
+    const first = rows[0];
+    const dateTime = splitDateTime(first.print_date);
+
+    return {
+        ...baseReceipt,
+        date:  dateTime.date,
+        time:  dateTime.time,
+        total: Number(first.sum_total),
+        vat:   Number(first.vat),
+        items: rows.map(row => ({
+            name:  row.product_name,
+            qty:   Number(row.quantity),
+            price: Number(row.selling_price),
+        })),
+    };
+};
+
+export const ReceiptsView = ({ refreshKey }) => {
+    const { user, isLoading: isUserLoading, error: userError } = useCurrentUser();
+    const [receipts, setReceipts]       = useState([]);
     const [filter, setFilter]           = useState('today');
     const [dateFrom, setDateFrom]       = useState(today);
     const [dateTo, setDateTo]           = useState(today);
     const [selectedReceipt, setSelected] = useState(null);
     const [searchNumber, setSearchNumber] = useState('');
+    const [isLoading, setIsLoading]     = useState(true);
+    const [error, setError]             = useState(null);
 
-    const filtered = useMemo(() => {
-        return receipts.filter(r => {
-            const matchDate = filter === 'today'
-                ? r.date === today
-                : r.date >= dateFrom && r.date <= dateTo;
+    useEffect(() => {
+        if (isUserLoading) return;
 
-            const matchNumber = searchNumber
-                ? r.number.includes(searchNumber)
-                : true;
+        const fetchReceipts = async () => {
+            try {
+                setIsLoading(true);
+                setError(null);
 
-            return matchDate && matchNumber;
-        });
-    }, [receipts, filter, dateFrom, dateTo, searchNumber]);
+                const filters = user?.id
+                    ? filter === 'today'
+                        ? { cashier_id: user.id, date: today }
+                        : { cashier_id: user.id, from: dateFrom, to: dateTo }
+                    : {};
+
+                const response = await checksApi.getAll(filters);
+                setReceipts(response.data.map(mapCheck));
+            } catch (err) {
+                setError(err.response?.data?.error ?? 'Failed to load receipts');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchReceipts();
+    }, [user?.id, isUserLoading, filter, dateFrom, dateTo, refreshKey]);
+
+    const filtered = useMemo(() => receipts.filter(r => (
+        searchNumber ? r.number.includes(searchNumber) : true
+    )), [receipts, searchNumber]);
 
     const totalSum = filtered.reduce((s, r) => s + r.total, 0);
+
+    const handleSelectReceipt = async (receipt) => {
+        try {
+            setError(null);
+            const response = await checksApi.getByNumber(receipt.number);
+            setSelected(mapFullReceipt(receipt, response.data));
+        } catch (err) {
+            setError(err.response?.data?.error ?? 'Failed to load receipt details');
+        }
+    };
 
     return (
         <div className={styles.receipts}>
@@ -90,7 +169,15 @@ export const ReceiptsView = ({ receipts }) => {
 
             {/* List */}
             <div className={styles.receipts__list}>
-                {filtered.length === 0 ? (
+                {isLoading ? (
+                    <div className={styles.receipts__empty}>
+                        Loading receipts...
+                    </div>
+                ) : error || userError ? (
+                    <div className={styles.receipts__empty}>
+                        {error || userError}
+                    </div>
+                ) : filtered.length === 0 ? (
                     <div className={styles.receipts__empty}>
                         <img src='empty.png' alt="" />
                         <p>No receipts found</p>
@@ -101,7 +188,7 @@ export const ReceiptsView = ({ receipts }) => {
                         <div
                             key={receipt.id}
                             className={styles.receipt}
-                            onClick={() => setSelected(receipt)}
+                            onClick={() => handleSelectReceipt(receipt)}
                             style={{ animationDelay: `${i * 40}ms` }}
                         >
                             <div className={styles.receipt__left}>

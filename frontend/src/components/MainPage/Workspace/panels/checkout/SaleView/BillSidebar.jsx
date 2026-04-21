@@ -2,6 +2,7 @@ import styles from './SaleView.module.scss';
 
 export const BillSidebar = ({
     bill, clientCard, discount, total, finalTotal,
+    cardStatus, error, isSubmitting, isDisabled,
     onChangeQty, onClientCard, onComplete,
 }) => (
     <aside className={styles.bill}>
@@ -56,10 +57,20 @@ export const BillSidebar = ({
                     Discount {discount}% — −{(total * discount / 100).toFixed(2)} ₴
                 </span>
             )}
+            {cardStatus && (
+                <span className={styles.bill__discount}>
+                    {cardStatus}
+                </span>
+            )}
         </div>
 
         {/* Total */}
         <div className={styles.bill__footer}>
+            {error && (
+                <div className={styles.bill__empty}>
+                    {error}
+                </div>
+            )}
             <div className={styles.bill__total}>
                 <span>Total</span>
                 <span className={styles['bill__total-sum']}>
@@ -69,9 +80,9 @@ export const BillSidebar = ({
             <button
                 className={styles.bill__submit}
                 onClick={onComplete}
-                disabled={bill.length === 0}
+                disabled={bill.length === 0 || isSubmitting || isDisabled}
             >
-                Checkout
+                {isSubmitting ? 'Processing...' : 'Checkout'}
             </button>
         </div>
     </aside>

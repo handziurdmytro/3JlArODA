@@ -2,7 +2,7 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import styles from './SaleView.module.scss';
 
-export const ProductSearch = ({ products, bill, onAdd }) => {
+export const ProductSearch = ({ products, bill, isLoading, error, onAdd }) => {
     const [query, setQuery] = useState('');
 
     const filtered = query.length >= 1
@@ -37,10 +37,18 @@ export const ProductSearch = ({ products, bill, onAdd }) => {
             </div>
 
             <div className={styles.search__results}>
-                {filtered.length === 0 ? (
+                {isLoading ? (
+                    <div className={styles.bill__empty}>
+                        Loading products...
+                    </div>
+                ) : error ? (
+                    <div className={styles.bill__empty}>
+                        {error}
+                    </div>
+                ) : filtered.length === 0 ? (
                     <div className={styles.bill__empty}>
                         <img src='empty.png' alt="" />
-                        <p>No receipts found</p>
+                        <p>No products found</p>
                         <span className={styles.empty__sub}>Try adjusting the search or filter</span>
                     </div>  
                 ) : (
