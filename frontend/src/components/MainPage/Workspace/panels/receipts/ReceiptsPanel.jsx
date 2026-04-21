@@ -1,83 +1,130 @@
-import { useState, useMemo } from 'react';
-import { MOCK_RECEIPTS, MOCK_CASHIERS, MOCK_PRODUCTS_LIST } from './mock.js';
-import { ReceiptsStats }   from './ReceiptsStats';
+import { useState, useEffect } from 'react';
+import { useChecks }      from '../../../../../hooks/useCheck.js';
+import { useEmployees }   from '../../../../../hooks/useEmployees.js';
+import { useStoreProducts } from '../../../../../hooks/useStoreProducts.js';
 import { ReceiptsFilters } from './ReceiptsFilters';
 import { ReceiptsList }    from './ReceiptsList';
+import { ReceiptsStats }   from './ReceiptsStats';
 import { ReceiptModal }    from './ReceiptModal';
 import styles from './ReceiptsPanel.module.scss';
 
-const today = new Date().toISOString().split('T')[0];
-const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-    .toISOString().split('T')[0];
+export const ReceiptsPanel = ({ userRole }) => {
+    const {
+        checks, isLoading, error, filters, totalSum,
+        applyFilters, fetchFullCheck, deleteCheck, fetchSoldQuantity,
+    } = useChecks();
 
-export const ReceiptsPanel = () => {
-    const [receipts, setReceipts]         = useState(MOCK_RECEIPTS);
-    const [selectedReceipt, setSelected]  = useState(null);
+    const { employees }     = useEmployees();
+    const { storeProducts } = useStoreProducts();
 
-    // Filters state
-    const [cashierId, setCashierId]       = useState('all');
-    const [dateFrom, setDateFrom]         = useState(monthAgo);
-    const [dateTo, setDateTo]             = useState(today);
-    const [productUpc, setProductUpc]     = useState('');
+    const [selectedReceipt, setSelectedReceipt] = useState(null);
+    const [modalLoading, setModalLoading]        = useState(false);
+    const [opError, setOpError]                  = useState(null);
 
-    // Filtered receipts
-    const filtered = useMemo(() =>
-        receipts.filter(r => {
-            const matchCashier = cashierId === 'all' || r.cashierId === cashierId;
-            const matchDate    = r.date >= dateFrom && r.date <= dateTo;
-            return matchCashier && matchDate;
-        }),
-        [receipts, cashierId, dateFrom, dateTo]
-    );
+    // Product units analysis
+    const [selectedProductId, setSelectedProductId] = useState('');
+    const [soldQty, setSoldQty]                      = useState(null);
+    const [selectedProductName, setSelectedProductName] = useState('');
 
-    // Stats
-    const totalSum = filtered.reduce((s, r) => s + r.total, 0);
+    // Cashiers для фільтру — тільки cashier role
+    const cashiers = employees
+        .filter(e => e.position === 'cashier')
+        .map(e => ({ id: e.id, name: `${e.lastName} ${e.firstName}` }));
 
-    const productQty = useMemo(() => {
-        if (!productUpc) return null;
-        return filtered.reduce((sum, r) => {
-            const item = r.items.find(i => i.upc === productUpc);
-            return sum + (item?.qty ?? 0);
-        }, 0);
-    }, [filtered, productUpc]);
+    // Унікальні продукти зі storeProducts для випадаючого списку
+    const products = storeProducts.map(sp => ({
+        // sold-quantity API приймає product_id, не upc
+        id:   sp.productId,
+        upc:  sp.upc,
+        name: sp.productName,
+    })).filter((p, i, arr) => arr.findIndex(x => x.id === p.id) === i);
 
-    const handleDelete = (id) => {
-        setReceipts(prev => prev.filter(r => r.id !== id));
-        if (selectedReceipt?.id === id) setSelected(null);
+    // При зміні продукту або фільтрів — оновити sold quantity
+    useEffect(() => {
+        if (!selectedProductId) {
+            setSoldQty(null);
+            return;
+        }
+        fetchSoldQuantity(selectedProductId)
+            .then(setSoldQty)
+            .catch(() => setSoldQty(null));
+    }, [selectedProductId, filters]);
+
+    const handleProductChange = (productId) => {
+        setSelectedProductId(productId);
+        const found = products.find(p => String(p.id) === String(productId));
+        setSelectedProductName(found?.name ?? '');
+    };
+
+    const handleSelect = async (receipt) => {
+        setModalLoading(true);
+        try {
+            const full = await fetchFullCheck(receipt.number);
+            setSelectedReceipt(full);
+        } catch {
+            setOpError('Failed to load receipt details');
+        } finally {
+            setModalLoading(false);
+        }
+    };
+
+    const handleDelete = async (number) => {
+        setOpError(null);
+        try {
+            await deleteCheck(number);
+        } catch (err) {
+            setOpError(err.response?.data?.error ?? 'Failed to delete receipt');
+        }
     };
 
     return (
         <div className={styles.receipts}>
-            <ReceiptsStats
-                count={filtered.length}
-                totalSum={totalSum}
-                productQty={productQty}
-                productName={MOCK_PRODUCTS_LIST.find(p => p.upc === productUpc)?.name}
-            />
+            {opError && <div className={styles.receipts__error}>{opError}</div>}
 
             <ReceiptsFilters
-                cashiers={MOCK_CASHIERS}
-                cashierId={cashierId}
-                dateFrom={dateFrom}
-                dateTo={dateTo}
-                productUpc={productUpc}
-                products={MOCK_PRODUCTS_LIST}
-                onCashierChange={setCashierId}
-                onDateFromChange={setDateFrom}
-                onDateToChange={setDateTo}
-                onProductChange={setProductUpc}
+                cashiers={cashiers}
+                cashierId={filters.cashierId}
+                dateFrom={filters.from}
+                dateTo={filters.to}
+                productUpc={selectedProductId}
+                products={products}
+                onCashierChange={(cashierId) =>
+                    applyFilters({ ...filters, cashierId })
+                }
+                onDateFromChange={(from) =>
+                    applyFilters({ ...filters, from })
+                }
+                onDateToChange={(to) =>
+                    applyFilters({ ...filters, to })
+                }
+                onProductChange={handleProductChange}
             />
 
-            <ReceiptsList
-                receipts={filtered}
-                onSelect={setSelected}
-                onDelete={handleDelete}
+            <ReceiptsStats
+                count={checks.length}
+                totalSum={totalSum}
+                productQty={soldQty}
+                productName={selectedProductName}
             />
+
+            {isLoading || modalLoading ? (
+                <div className={styles.receipts__loading}>
+                    <span className={styles['receipts__loading-spinner']} />
+                </div>
+            ) : error ? (
+                <div className={styles.receipts__error}>{error}</div>
+            ) : (
+                <ReceiptsList
+                    receipts={checks}
+                    onSelect={handleSelect}
+                    onDelete={handleDelete}
+                />
+            )}
 
             {selectedReceipt && (
                 <ReceiptModal
                     receipt={selectedReceipt}
-                    onClose={() => setSelected(null)}
+                    onClose={() => setSelectedReceipt(null)}
                     onDelete={handleDelete}
                 />
             )}
