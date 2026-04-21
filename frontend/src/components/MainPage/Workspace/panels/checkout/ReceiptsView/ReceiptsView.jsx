@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
-import { checksApi } from '../../../../../../../api/checks.js';
-import { useCurrentUser } from '../../../../../../../hooks/useCurrentUser.js';
+import { checksApi } from '../../../../../../api/checks.js';
+import { useCurrentUser } from '../../../../../../hooks/useCurrentUser.js';
 import { ReceiptModal } from './ReceiptsModal';
 import styles from './ReceiptsView.module.scss';
 

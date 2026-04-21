@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { checksApi } from '../../../../../../../api/checks.js';
-import { customerCardsApi } from '../../../../../../../api/customerCards.js';
-import { storeProductsApi } from '../../../../../../../api/storeProducts.js';
-import { useCurrentUser } from '../../../../../../../hooks/useCurrentUser.js';
+import { checksApi } from '../../../../../../api/checks.js';
+import { customerCardsApi } from '../../../../../../api/customerCards.js';
+import { storeProductsApi } from '../../../../../../api/storeProducts.js';
+import { useCurrentUser } from '../../../../../../hooks/useCurrentUser.js';
 import { ProductSearch } from './ProductSearch.jsx';
 import { BillSidebar }   from './BillSidebar.jsx';
 import styles from './SaleView.module.scss';
