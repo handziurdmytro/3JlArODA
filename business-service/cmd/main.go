@@ -95,7 +95,16 @@ func main() {
 	salepb.RegisterSaleServiceServer(grpcServer, saleHandler)
 	rolepb.RegisterRoleServiceServer(grpcServer, roleHandler)
 
-	database.Seed(context.Background(), employeeRepo)
+	database.Seed(
+		context.Background(),
+		employeeRepo,
+		categoryRepo,
+		productRepo,
+		storeProductRepo,
+		customerCardRepo,
+		checkRepo,
+		saleRepo,
+	)
 
 	address := ":" + port
 	listener, err := net.Listen("tcp", address)
