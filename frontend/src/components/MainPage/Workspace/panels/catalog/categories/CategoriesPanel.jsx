@@ -1,46 +1,59 @@
-import { useState, useMemo } from 'react';
-import { MOCK_CATEGORIES, MOCK_PRODUCTS } from '../catalog.mock.js';
+import { useState } from 'react';
+import { useCategories } from '../../../../../../hooks/useCategories.js';
+import { useProducts }   from '../../../../../../hooks/useProducts.js';
 import { CategoriesList }    from './CategoriesList';
 import { CategoryFormModal } from './CategoryFormModal';
 import styles from './CategoriesPanel.module.scss';
 
-const sortByName = (arr) => [...arr].sort((a, b) => a.name.localeCompare(b.name));
-
-let nextCatNum = 6;
-const genId = () => `CAT-${String(nextCatNum++).padStart(2, '0')}`;
-
 export const CategoriesPanel = () => {
-    const [categories, setCategories] = useState(sortByName(MOCK_CATEGORIES));
-    const [products]                  = useState(MOCK_PRODUCTS);
-    const [search, setSearch]         = useState('');
-    const [modal, setModal]           = useState(null);
-    const [expandedId, setExpanded]   = useState(null);
+    const {
+        categories, isLoading, error,
+        createCategory, updateCategory, deleteCategory,
+    } = useCategories();
 
-    const filtered = useMemo(() =>
-        categories.filter(c => c.name.toLowerCase().includes(search.toLowerCase())),
-        [categories, search]
+    const { products } = useProducts();
+
+    const [search, setSearch]   = useState('');
+    const [modal, setModal]     = useState(null);
+    const [expandedId, setExpanded] = useState(null);
+    const [opError, setOpError] = useState(null);
+
+    const filtered = categories.filter(c =>
+        c.name.toLowerCase().includes(search.toLowerCase())
     );
 
     const getProducts = (categoryId) =>
-        sortByName(products.filter(p => p.categoryId === categoryId));
+        [...products.filter(p => p.categoryId === categoryId)]
+            .sort((a, b) => a.name.localeCompare(b.name));
 
-    const handleSave = (data) => {
-        if (modal.mode === 'add') {
-            setCategories(prev => sortByName([...prev, { ...data, id: genId() }]));
-        } else {
-            setCategories(prev => sortByName(prev.map(c => c.id === data.id ? data : c)));
+    const handleSave = async (data) => {
+        setOpError(null);
+        try {
+            if (modal.mode === 'add') {
+                await createCategory(data);
+            } else {
+                await updateCategory(data.id, data);
+            }
+            setModal(null);
+        } catch (err) {
+            setOpError(err.response?.data?.error ?? 'Operation failed');
         }
-        setModal(null);
     };
 
-    const handleDelete = (id) => {
-        setCategories(prev => prev.filter(c => c.id !== id));
-        if (expandedId === id) setExpanded(null);
+    const handleDelete = async (id) => {
+        setOpError(null);
+        try {
+            await deleteCategory(id);
+            if (expandedId === id) setExpanded(null);
+        } catch (err) {
+            setOpError(err.response?.data?.error ?? 'Failed to delete — category may have linked products');
+        }
     };
 
     return (
         <div className={styles.categories}>
-            {/* Toolbar */}
+            {opError && <div className={styles.categories__error}>{opError}</div>}
+
             <div className={styles.toolbar}>
                 <div className={styles.toolbar__search}>
                     <svg width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -64,14 +77,22 @@ export const CategoriesPanel = () => {
                 </button>
             </div>
 
-            <CategoriesList
-                categories={filtered}
-                expandedId={expandedId}
-                getProducts={getProducts}
-                onExpand={(id) => setExpanded(prev => prev === id ? null : id)}
-                onEdit={(c) => setModal({ mode: 'edit', data: c })}
-                onDelete={handleDelete}
-            />
+            {isLoading ? (
+                <div className={styles.categories__loading}>
+                    <span className={styles['categories__loading-spinner']} />
+                </div>
+            ) : error ? (
+                <div className={styles.categories__error}>{error}</div>
+            ) : (
+                <CategoriesList
+                    categories={filtered}
+                    expandedId={expandedId}
+                    getProducts={getProducts}
+                    onExpand={(id) => setExpanded(prev => prev === id ? null : id)}
+                    onEdit={(c) => setModal({ mode: 'edit', data: c })}
+                    onDelete={handleDelete}
+                />
+            )}
 
             {modal && (
                 <CategoryFormModal

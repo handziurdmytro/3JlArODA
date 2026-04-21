@@ -32,15 +32,6 @@ export const ProductsToolbar = ({
             ))}
         </select>
 
-        <select
-            className={styles.toolbar__select}
-            value={sortBy}
-            onChange={e => onSortBy(e.target.value)}
-        >
-            <option value="name">Sort: by name</option>
-            <option value="qty">Sort: by quantity</option>
-        </select>
-
         {userRole === 'manager' && (
             <button className={styles.toolbar__add} onClick={onAdd}>
                 Add Product

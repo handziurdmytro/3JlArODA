@@ -39,7 +39,7 @@ export const StoreToolbar = ({
         <select className={styles.toolbar__select} value={sortBy}
             onChange={e => onSortBy(e.target.value)}>
             <option value="name">Sort: by name</option>
-            <option value="qty">Sort: by quantity</option>
+            <option value="quantity">Sort: by quantity</option>
         </select>
 
         {userRole === 'manager' && (

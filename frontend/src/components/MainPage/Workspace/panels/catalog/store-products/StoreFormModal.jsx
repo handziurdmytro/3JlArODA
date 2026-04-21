@@ -1,18 +1,27 @@
 import { useState, useEffect } from 'react';
 import {createPortal} from 'react-dom';
-import { PROMO_MULTIPLIER } from '../catalog.mock.js';
 import styles from './StoreProductsPanel.module.scss';
 
-const EMPTY = { productId: '', price: '', quantity: '', isPromo: false };
+const PROMO_MULTIPLIER = 0.8;
+
+const EMPTY = { upc: '', productId: '', price: '', quantity: '', isPromo: false };
 
 export const StoreFormModal = ({
-    mode, initial, products, storeProducts,
-    canAddPromo, canAddRegular, onSave, onClose,
+    mode, initial, products, storeProducts, onSave, onClose,
 }) => {
+    const getDefaultIsPromo = (productId) => {
+        const hasRegular = storeProducts.some(sp => sp.productId === productId && !sp.isPromo);
+        return hasRegular ? 'true' : 'false';
+    };
+
     const [form, setForm] = useState(
         initial
             ? { ...initial, isPromo: String(initial.isPromo) }
-            : { ...EMPTY, productId: products[0]?.id ?? '', isPromo: 'false' }
+            : {
+                ...EMPTY,
+                productId: products[0]?.id ?? '',
+                isPromo: getDefaultIsPromo(products[0]?.id ?? ''),
+              }
     );
 
     useEffect(() => {
@@ -23,8 +32,17 @@ export const StoreFormModal = ({
 
     const set = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
 
-    // Auto-calculate promo price
+    const handleProductChange = (e) => {
+        const productId = e.target.value;
+        setForm(prev => ({
+            ...prev,
+            productId,
+            isPromo: getDefaultIsPromo(productId),
+        }));
+    };
+
     const isPromo = form.isPromo === 'true' || form.isPromo === true;
+
     const regularEntry = storeProducts.find(
         sp => sp.productId === form.productId && !sp.isPromo
     );
@@ -33,10 +51,10 @@ export const StoreFormModal = ({
         : null;
 
     const availableTypes = () => {
-        if (mode === 'edit') return null; // can't change type on edit
-        const noRegular = canAddRegular(form.productId);
-        const noPromo   = canAddPromo(form.productId);
-        return { noRegular, noPromo };
+        if (mode === 'edit') return null;
+        const hasRegular = storeProducts.some(sp => sp.productId === form.productId && !sp.isPromo);
+        const hasPromo   = storeProducts.some(sp => sp.productId === form.productId && sp.isPromo);
+        return { hasRegular, hasPromo };
     };
 
     const types = availableTypes();
@@ -59,20 +77,27 @@ export const StoreFormModal = ({
                 </div>
 
                 <div className={styles.modal__body}>
-                    {mode === 'edit' && (
-                        <div className={styles.form__field}>
-                            <label className={styles.form__label}>UPC</label>
-                            <input className={styles.form__input}
-                                value={form.upc} disabled />
+                    {mode === 'add' && (
+                        <div className={styles.form__row}>
+                            <div className={styles.form__field}>
+                                <label className={styles.form__label}>UPC *</label>
+                                <input
+                                    className={styles.form__input}
+                                    value={form.upc}
+                                    onChange={set('upc')}
+                                    placeholder="1234 5678 9012 3456"
+                                />
+                            </div>
                         </div>
                     )}
 
                     <div className={styles.form__row}>
                         <div className={`${styles.form__field} ${styles['form__field--wide']}`}>
                             <label className={styles.form__label}>Product *</label>
-                            <select className={styles.form__select}
+                            <select
+                                className={styles.form__select}
                                 value={form.productId}
-                                onChange={set('productId')}
+                                onChange={handleProductChange}
                                 disabled={mode === 'edit'}
                             >
                                 {products.map(p => (
@@ -83,15 +108,16 @@ export const StoreFormModal = ({
 
                         <div className={styles.form__field}>
                             <label className={styles.form__label}>Type *</label>
-                            <select className={styles.form__select}
+                            <select
+                                className={styles.form__select}
                                 value={String(form.isPromo)}
                                 onChange={set('isPromo')}
                                 disabled={mode === 'edit'}
                             >
-                                {(!types || !types.noRegular) && (
+                                {(!types || !types.hasRegular) && (
                                     <option value="false">Regular</option>
                                 )}
-                                {(!types || !types.noPromo) && (
+                                {(!types || !types.hasPromo) && (
                                     <option value="true">Promotional (−20%)</option>
                                 )}
                             </select>
@@ -127,10 +153,14 @@ export const StoreFormModal = ({
 
                         <div className={styles.form__field}>
                             <label className={styles.form__label}>Quantity (pcs) *</label>
-                            <input className={styles.form__input}
-                                type="number" min="0"
-                                value={form.quantity} onChange={set('quantity')}
-                                placeholder="0" />
+                            <input
+                                className={styles.form__input}
+                                type="number"
+                                min="0"
+                                value={form.quantity}
+                                onChange={set('quantity')}
+                                placeholder="0"
+                            />
                         </div>
                     </div>
 

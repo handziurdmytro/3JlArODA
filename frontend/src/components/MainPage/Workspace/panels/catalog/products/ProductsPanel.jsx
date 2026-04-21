@@ -1,83 +1,87 @@
-import { useState, useMemo } from 'react';
-import { MOCK_PRODUCTS, MOCK_CATEGORIES, MOCK_STORE_PRODUCTS } from '../catalog.mock.js';
+import { useState } from 'react';
+import { useProducts }    from '../../../../../../hooks/useProducts.js';
+import { useCategories }  from '../../../../../../hooks/useCategories.js';
+import { useStoreProducts } from '../../../../../..//hooks/useStoreProducts.js';
 import { ProductsToolbar }  from './ProductsToolbar';
 import { ProductsList }     from './ProductsList';
 import { ProductFormModal } from './ProductFormModal';
 import styles from './ProductsPanel.module.scss';
 
-const sortByName = (arr) => [...arr].sort((a, b) => a.name.localeCompare(b.name));
-
-let nextNum = 11;
-const genId = () => `P-${String(nextNum++).padStart(3, '0')}`;
-
 export const ProductsPanel = ({ userRole }) => {
-    const [products, setProducts]             = useState(sortByName(MOCK_PRODUCTS));
-    const [storeProducts]                     = useState(MOCK_STORE_PRODUCTS);
-    const [search, setSearch]                 = useState('');
-    const [categoryFilter, setCategoryFilter] = useState('all');
-    const [sortBy, setSortBy]                 = useState('name');
-    const [modal, setModal]                   = useState(null);
+    const {
+        products, isLoading, error, filters,
+        applyFilters, createProduct, updateProduct, deleteProduct,
+    } = useProducts();
 
-    const filtered = useMemo(() => {
-        let result = products.filter(p => {
-            const matchSearch   = p.name.toLowerCase().includes(search.toLowerCase());
-            const matchCategory = categoryFilter === 'all' || p.categoryId === categoryFilter;
-            return matchSearch && matchCategory;
-        });
+    const { categories }     = useCategories();
+    const { storeProducts }  = useStoreProducts();
 
-        if (sortBy === 'qty') {
-            result = result.sort((a, b) => {
-                const qtyA = storeProducts.filter(sp => sp.productId === a.id)
-                    .reduce((s, sp) => s + sp.quantity, 0);
-                const qtyB = storeProducts.filter(sp => sp.productId === b.id)
-                    .reduce((s, sp) => s + sp.quantity, 0);
-                return qtyB - qtyA;
-            });
+    const [modal, setModal]     = useState(null);
+    const [opError, setOpError] = useState(null);
+
+    const handleSave = async (data) => {
+        setOpError(null);
+        try {
+            if (modal.mode === 'add') {
+                await createProduct(data);
+            } else {
+                await updateProduct(data.id, data);
+            }
+            setModal(null);
+        } catch (err) {
+            setOpError(err.response?.data?.error ?? 'Operation failed');
         }
-
-        return result;
-    }, [products, storeProducts, search, categoryFilter, sortBy]);
-
-    const handleSave = (data) => {
-        if (modal.mode === 'add') {
-            setProducts(prev => sortByName([...prev, { ...data, id: genId() }]));
-        } else {
-            setProducts(prev => sortByName(prev.map(p => p.id === data.id ? data : p)));
-        }
-        setModal(null);
     };
 
-    const handleDelete = (id) =>
-        setProducts(prev => prev.filter(p => p.id !== id));
+    const handleDelete = async (id) => {
+        setOpError(null);
+        try {
+            await deleteProduct(id);
+        } catch (err) {
+            setOpError(err.response?.data?.error ?? 'Failed to delete');
+        }
+    };
 
     return (
         <div className={styles.products}>
+            {opError && <div className={styles.products__error}>{opError}</div>}
+
             <ProductsToolbar
-                search={search}
-                categoryFilter={categoryFilter}
-                sortBy={sortBy}
+                search={filters.name}
+                categoryFilter={filters.categoryId || 'all'}
+                sortBy="name"
                 userRole={userRole}
-                categories={MOCK_CATEGORIES}
-                onSearch={setSearch}
-                onCategoryFilter={setCategoryFilter}
-                onSortBy={setSortBy}
+                categories={categories}
+                onSearch={(name) => applyFilters({ ...filters, name })}
+                onCategoryFilter={(categoryId) =>
+                    applyFilters({ ...filters, categoryId: categoryId === 'all' ? '' : categoryId })
+                }
+                onSortBy={() => {}}
                 onAdd={() => setModal({ mode: 'add' })}
             />
 
-            <ProductsList
-                products={filtered}
-                storeProducts={storeProducts}
-                categories={MOCK_CATEGORIES}
-                userRole={userRole}
-                onEdit={(p) => setModal({ mode: 'edit', data: p })}
-                onDelete={handleDelete}
-            />
+            {isLoading ? (
+                <div className={styles.products__loading}>
+                    <span className={styles['products__loading-spinner']} />
+                </div>
+            ) : error ? (
+                <div className={styles.products__error}>{error}</div>
+            ) : (
+                <ProductsList
+                    products={products}
+                    storeProducts={storeProducts}
+                    categories={categories}
+                    userRole={userRole}
+                    onEdit={(p) => setModal({ mode: 'edit', data: p })}
+                    onDelete={handleDelete}
+                />
+            )}
 
             {modal && (
                 <ProductFormModal
                     mode={modal.mode}
                     initial={modal.data}
-                    categories={MOCK_CATEGORIES}
+                    categories={categories}
                     onSave={handleSave}
                     onClose={() => setModal(null)}
                 />
