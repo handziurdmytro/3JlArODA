@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 
+	"github.com/handziurdmytro/3JlArODA/auth-service/internal/business"
 	"github.com/handziurdmytro/3JlArODA/auth-service/internal/config"
 	"github.com/handziurdmytro/3JlArODA/auth-service/internal/crypto"
 	"github.com/handziurdmytro/3JlArODA/auth-service/internal/gateway"
@@ -39,6 +40,9 @@ func main() {
 	cryptoClient := crypto.NewClient(cfg.CryptoServiceAddr)
 	defer cryptoClient.Close()
 
+	businessClient := business.NewClient(cfg.BusinessServiceAddr)
+	defer businessClient.Close()
+
 	repo := repository.New(db)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", cfg.Port))
@@ -56,7 +60,7 @@ func main() {
 		grpc.UnaryInterceptor(middleware.LoggingInterceptor),
 	)
 
-	gatewayServer := gateway.NewServer(repo, cryptoClient)
+	gatewayServer := gateway.NewServer(repo, cryptoClient, businessClient)
 	pb.RegisterAuthServiceServer(grpcServer, gatewayServer)
 
 	slog.Info("auth-service started", slog.String("port", cfg.Port))

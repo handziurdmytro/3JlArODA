@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/handziurdmytro/3JlArODA/auth-service/internal/business"
 	"github.com/handziurdmytro/3JlArODA/auth-service/internal/crypto"
 	"github.com/handziurdmytro/3JlArODA/auth-service/internal/repository"
 	"github.com/handziurdmytro/3JlArODA/auth-service/pb"
@@ -15,17 +16,20 @@ import (
 
 type Server struct {
 	pb.UnimplementedAuthServiceServer
-	repo         *repository.Repository
-	cryptoClient *crypto.Client
+	repo           *repository.Repository
+	cryptoClient   *crypto.Client
+	businessClient *business.Client
 }
 
 func NewServer(
 	repo *repository.Repository,
 	cryptoClient *crypto.Client,
+	businessClient *business.Client,
 ) *Server {
 	return &Server{
-		repo:         repo,
-		cryptoClient: cryptoClient,
+		repo:           repo,
+		cryptoClient:   cryptoClient,
+		businessClient: businessClient,
 	}
 }
 
@@ -48,7 +52,12 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 		return nil, status.Error(codes.Internal, "failed to create user")
 	}
 
-	token, err := s.cryptoClient.SignJWT(user.ID.String(), user.Username)
+	role, err := s.businessClient.GetEmployeeRole(ctx, user.Username)
+	if err != nil {
+		role = "cashier"
+	}
+
+	token, err := s.cryptoClient.SignJWT(ctx, user.ID.String(), user.Username, role)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to sign JWT")
 	}
@@ -56,9 +65,13 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 	slog.Info("registered new user",
 		slog.String("user_id", user.ID.String()),
 		slog.String("username", user.Username),
+		slog.String("role", role),
 	)
 
-	return &pb.RegisterResponse{Token: token}, nil
+	return &pb.RegisterResponse{
+		Token: token,
+		Role:  role,
+	}, nil
 }
 
 func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
@@ -79,7 +92,15 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
 
-	token, err := s.cryptoClient.SignJWT(user.ID.String(), user.Username)
+	role, err := s.businessClient.GetEmployeeRole(ctx, user.Username)
+	if err != nil {
+		role = "cashier"
+		if user.Username == "zlahoda@ukma.edu.ua" {
+			role = "manager"
+		}
+	}
+
+	token, err := s.cryptoClient.SignJWT(ctx, user.ID.String(), user.Username, role)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to generate JWT")
 	}
@@ -87,22 +108,25 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 	slog.Info("user logged in successfully",
 		slog.String("user_id", user.ID.String()),
 		slog.String("username", user.Username),
+		slog.String("role", role),
 	)
 
 	return &pb.LoginResponse{
 		Token: token,
+		Role:  role,
 	}, nil
 }
 
 func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.ValidateResponse, error) {
-	resp, err := s.cryptoClient.ValidateJWT(req.Token)
+	resp, err := s.cryptoClient.ValidateJWT(ctx, req.Token)
 	if err != nil {
-		return nil, status.Errorf(codes.Unauthenticated, "failed to validate token: %v", err)
+		return nil, status.Errorf(codes.Unauthenticated, "failed to validate: %v", err)
 	}
 
 	return &pb.ValidateResponse{
 		UserId:   resp.UserId,
 		Username: resp.Username,
 		IsValid:  resp.IsValid,
+		Role:     resp.Role,
 	}, nil
 }

@@ -8,6 +8,8 @@ endif
 
 .PHONY: gen build run migrate-up migrate-down migrate-status
 
+MODULE := github.com/handziurdmytro/3JlArODA/auth-service
+
 gen:
 	@echo "Generating Proto for auth-service via Docker..."
 	docker run --rm -v $(PWD)/..:/app -w /app/auth-service golang:1.26-alpine sh -c "\
@@ -15,10 +17,16 @@ gen:
 		go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
 		go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest && \
 		export PATH=\"/go/bin:\$$PATH\" && \
-		protoc --go_out=. --go-grpc_out=. \
-		-I ../proto \
+		protoc -I ../proto \
+		--go_out=. \
+		--go_opt=module=$(MODULE) \
+		--go_opt=Mbusiness/role.proto=$(MODULE)/pb/business/role \
+		--go-grpc_out=. \
+		--go-grpc_opt=module=$(MODULE) \
+		--go-grpc_opt=Mbusiness/role.proto=$(MODULE)/pb/business/role \
 		../proto/auth.proto \
-		../proto/auth_secret.proto"
+		../proto/auth_secret.proto \
+		../proto/business/role.proto"
 
 build:
 	go build -o bin/server ./cmd/server

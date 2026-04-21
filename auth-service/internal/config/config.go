@@ -8,11 +8,12 @@ import (
 )
 
 type Config struct {
-	Port              string
-	CryptoServiceAddr string
-	DatabaseURL       string
-	DefaultAdminUser  string
-	DefaultAdminPass  string
+	Port                string
+	CryptoServiceAddr   string
+	BusinessServiceAddr string
+	DatabaseURL         string
+	DefaultAdminUser    string
+	DefaultAdminPass    string
 }
 
 func Load() *Config {
@@ -21,11 +22,12 @@ func Load() *Config {
 	}
 
 	return &Config{
-		Port:              getOrDefault("PORT", "2828"),
-		CryptoServiceAddr: getOrDefault("CRYPTO_SERVICE_ADDR", "0.0.0.0:2929"),
-		DatabaseURL:       getRequired("DATABASE_URL"),
-		DefaultAdminUser:  getOrDefault("DEFAULT_ADMIN_USER", "zlahoda@ukma.edu.ua"),
-		DefaultAdminPass:  getOrDefault("DEFAULT_ADMIN_PASS", "secret secret secret secret secret"),
+		Port:                getOrDefault("PORT", "3131"),
+		CryptoServiceAddr:   getOrDefault("CRYPTO_SERVICE_ADDR", "crypto-service:3030"),
+		BusinessServiceAddr: getOrDefault("BUSINESS_SERVICE_ADDR", "business-service:2433"),
+		DatabaseURL:         getRequired("DATABASE_URL"),
+		DefaultAdminUser:    getOrDefault("DEFAULT_ADMIN_USER", "zlahoda@ukma.edu.ua"),
+		DefaultAdminPass:    getOrDefault("DEFAULT_ADMIN_PASS", "secret secret"),
 	}
 }
 
