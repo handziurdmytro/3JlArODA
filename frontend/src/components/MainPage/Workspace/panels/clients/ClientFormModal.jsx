@@ -3,6 +3,7 @@ import {createPortal} from 'react-dom';
 import styles from './ClientsPanel.module.scss';
 
 const EMPTY = {
+    cardId: '',
     lastName: '', firstName: '', patronym: '',
     phone: '', city: '', street: '', zipCode: '', discount: 5,
 };
@@ -10,14 +11,12 @@ const EMPTY = {
 export const ClientFormModal = ({ mode, initial, onSave, onClose }) => {
     const [form, setForm] = useState(initial ?? EMPTY);
 
-    // ...існуючий useEffect для Escape
-
     const set = (field) => (e) =>
         setForm(prev => ({ ...prev, [field]: e.target.value }));
 
     const handleSubmit = () => {
-        if (!form.lastName || !form.firstName || !form.phone) return;
-        onSave({ ...form, discount: Number(form.discount) });
+        if (!form.cardId || !form.lastName || !form.firstName || !form.phone) return;
+        onSave({...form, discount: Number(form.discount) });
     };
 
     return createPortal(
@@ -31,6 +30,20 @@ export const ClientFormModal = ({ mode, initial, onSave, onClose }) => {
                 </div>
 
                 <div className={styles.modal__body}>
+                    {mode === 'add' && (
+                        <div className={styles.form__row}>
+                            <div className={styles.form__field}>
+                            <label className={styles.form__label}>Card ID *</label>
+                            <input 
+                                className={styles.form__input}
+                                value={form.cardId} 
+                                onChange={set('cardId')}
+                                placeholder="1234 5678 9012 3456" 
+                            />
+                         </div>
+                    </div>
+                    )}
+
                     {/* Name row */}
                     <div className={styles.form__row}>
                         <div className={styles.form__field}>

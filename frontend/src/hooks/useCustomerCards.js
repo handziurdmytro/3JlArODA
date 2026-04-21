@@ -18,7 +18,10 @@ export const useCustomerCards = () => {
                 percent: activeFilters.percent !== 'all' ? activeFilters.percent : undefined,
             });
             // API повертає вже відсортовані по surname дані
-            setClients(response.data);
+            const rawData = response.data ?? [];
+            const mappedData = rawData.map(item => mapFromApi(item));
+
+            setClients(mappedData);
         } catch (err) {
             setError(err.response?.data?.error ?? 'Failed to load clients');
         } finally {
@@ -37,11 +40,13 @@ export const useCustomerCards = () => {
 
     const createClient = useCallback(async (data) => {
         const response = await customerCardsApi.create(mapToApi(data));
+        console.log(response.data);
         setClients(prev => sortBySurname([...prev, mapFromApi(response.data)]));
     }, []);
 
     const updateClient = useCallback(async (cardNumber, data) => {
         const response = await customerCardsApi.update(cardNumber, mapToApi(data));
+        console.log(response.data);
         setClients(prev => sortBySurname(
             prev.map(c => c.cardId === cardNumber ? mapFromApi(response.data) : c)
         ));

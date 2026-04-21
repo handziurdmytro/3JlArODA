@@ -5,10 +5,10 @@ export const employeesApi = {
         return await apiClient.get('/employees/me');
     },
 
-    getAll: async ({ surname, percent } = {}) => {
+    getAll: async ({ surname, position } = {}) => {
         const params = {};
         if (surname) params.surname = surname;
-        if (percent !== undefined && percent !== 'all') params.percent = percent;
+        if (position !== undefined && position !== 'all') params.position = position;
         return await apiClient.get('/employees', { params });
     },
 

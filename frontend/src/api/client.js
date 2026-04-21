@@ -22,9 +22,7 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
-        // Робимо редірект на логін тільки якщо користувач вже залогінений
-        // (є токен) але сервер каже що він невалідний
-        if (error.response?.status === 401 && localStorage.getItem('token')) {
+        if (error.response?.status === 401) {
             localStorage.removeItem('token');
             window.location.href = '/login';
         }

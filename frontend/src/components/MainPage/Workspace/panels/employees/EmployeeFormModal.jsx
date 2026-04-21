@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import {createPortal} from 'react-dom';
-import { POSITIONS } from './employees.mock.js';
 import styles from './EmployeesPanel.module.scss';
 
 const EMPTY = {
+    id: '',
     lastName: '', firstName: '', patronym: '',
     position: 'cashier', phone: '',
-    address: '', salary: '', startDate: '', birthDate: ''
+    address: '', salary: '', startDate: '', birthDate: '', username: '', password: ''
 };
 
 export const EmployeeFormModal = ({ mode, initial, onSave, onClose }) => {
@@ -22,7 +22,7 @@ export const EmployeeFormModal = ({ mode, initial, onSave, onClose }) => {
         setForm(prev => ({ ...prev, [field]: e.target.value }));
 
     const handleSubmit = () => {
-        if (!form.lastName || !form.firstName || !form.phone || !form.startDate || !form.birthDate || !form.salary || !form.address) return;
+        if (!form.lastName || !form.firstName || !form.phone || !form.startDate || !form.birthDate || !form.salary) return;
         onSave({ ...form, salary: Number(form.salary) });
     };
 
@@ -37,6 +37,19 @@ export const EmployeeFormModal = ({ mode, initial, onSave, onClose }) => {
                 </div>
 
                 <div className={styles.modal__body}>
+                    {mode === 'add' && (
+                        <div className={styles.form__row}>
+                            <div className={styles.form__field}>
+                            <label className={styles.form__label}>Employee ID *</label>
+                            <input 
+                                className={styles.form__input}
+                                value={form.id} 
+                                onChange={set('id')}
+                                placeholder="1234 5678 9012 3456" 
+                            />
+                            </div>
+                        </div>
+                    )}
                     <div className={styles.form__row}>
                         <div className={styles.form__field}>
                             <label className={styles.form__label}>Last Name *</label>
@@ -63,8 +76,8 @@ export const EmployeeFormModal = ({ mode, initial, onSave, onClose }) => {
                             <label className={styles.form__label}>Position</label>
                             <select className={styles.form__select}
                                 value={form.position} onChange={set('position')}>
-                                {POSITIONS.map(p => (
-                                    <option key={p.value} value={p.value}>{p.label}</option>
+                                {['Manager', 'Cashier'].map(p => (
+                                    <option key={p} value={p}>{p}</option>
                                 ))}
                             </select>
                         </div>
@@ -87,25 +100,55 @@ export const EmployeeFormModal = ({ mode, initial, onSave, onClose }) => {
                         <div className={styles.form__field}>
                             <label className={styles.form__label}>Birth Date</label>
                             <input className={styles.form__input}
-                                type="date"
+                                type="text"
                                 value={form.birthDate} onChange={set('birthDate')}
                                 style={{ colorScheme: 'dark' }} />
                         </div>
                         <div className={styles.form__field}>
                             <label className={styles.form__label}>Start Date</label>
                             <input className={styles.form__input}
-                                type="date"
+                                type="text"
                                 value={form.startDate} onChange={set('startDate')}
                                 style={{ colorScheme: 'dark' }} />
                         </div>
                     </div>
 
-                    <div className={styles.form__field}>
-                        <label className={styles.form__label}>Address</label>
-                        <input className={styles.form__input}
-                            value={form.address} onChange={set('address')}
-                            placeholder="Kyiv, Lesi Ukrainky blvd. 5, apt. 12" />
+                    <div className={styles.form__row}>
+                        <div className={styles.form__field}>
+                            <label className={styles.form__label}>City</label>
+                            <input className={styles.form__input}
+                                value={form.city} onChange={set('city')}
+                                placeholder="Kyiv" />
+                        </div>
+                        <div className={styles.form__field}>
+                            <label className={styles.form__label}>Street</label>
+                            <input className={styles.form__input}
+                                value={form.street} onChange={set('street')}
+                                placeholder="Shevchenka st. 12, apt. 4" />
+                        </div>
+                        <div className={styles.form__field}>
+                            <label className={styles.form__label}>ZIP Code</label>
+                            <input className={styles.form__input}
+                                value={form.zipCode} onChange={set('zipCode')}
+                                placeholder="01001" />
+                        </div>
                     </div>
+
+                    {mode === 'add' && (
+                        <div className={styles.form__row}>
+                        <div className={styles.form__field}>
+                        <label className={styles.form__label}>Username *</label>
+                        <input className={styles.form__input}
+                            value={form.username} onChange={set('username')}
+                            placeholder="admin123" />
+                        </div>
+                        <div className={styles.form__field}>
+                            <label className={styles.form__label}>Password *</label>
+                            <input className={styles.form__input}
+                                value={form.password} onChange={set('password')}
+                                placeholder="********" type='password' />
+                        </div>
+                    </div>)}
                 </div>
 
                 <div className={styles.modal__footer}>
