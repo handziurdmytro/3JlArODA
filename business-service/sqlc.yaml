@@ -77,3 +77,14 @@ sql:
         package: "saledb"
         out: "internal/sale/sqlc"
         sql_package: "pgx/v5"
+
+  - engine: "postgresql"
+    schema:
+      - "migrations"
+    queries:
+      - "internal/role/queries.sql"
+    gen:
+      go:
+        package: "roledb"
+        out: "internal/role/sqlc"
+        sql_package: "pgx/v5"

@@ -12,6 +12,7 @@ import (
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/database/postgres"
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/employee"
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/product"
+	"github.com/handziurdmytro/3JlArODA/business-service/internal/role"
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/sale"
 	"github.com/handziurdmytro/3JlArODA/business-service/internal/storeproduct"
 	categorypb "github.com/handziurdmytro/3JlArODA/business-service/pb/business/category"
@@ -19,6 +20,7 @@ import (
 	customercardpb "github.com/handziurdmytro/3JlArODA/business-service/pb/business/customercard"
 	employeepb "github.com/handziurdmytro/3JlArODA/business-service/pb/business/employee"
 	productpb "github.com/handziurdmytro/3JlArODA/business-service/pb/business/product"
+	rolepb "github.com/handziurdmytro/3JlArODA/business-service/pb/business/role"
 	salepb "github.com/handziurdmytro/3JlArODA/business-service/pb/business/sale"
 	storeproductpb "github.com/handziurdmytro/3JlArODA/business-service/pb/business/storeproduct"
 	"github.com/joho/godotenv"
@@ -40,7 +42,7 @@ func main() {
 
 	port := os.Getenv("GRPC_PORT")
 	if port == "" {
-		port = "8082"
+		port = "2433"
 	}
 
 	pool, err := postgres.GetNewPool(context.Background(), dsn)
@@ -78,6 +80,10 @@ func main() {
 	saleService := sale.NewService(saleRepo)
 	saleHandler := sale.NewGRPCHandler(saleService)
 
+	roleRepo := role.NewRoleRepository(pool)
+	roleService := role.NewService(roleRepo)
+	roleHandler := role.NewGRPCHandler(roleService)
+
 	grpcServer := grpc.NewServer()
 	productpb.RegisterProductServiceServer(grpcServer, productHandler)
 	categorypb.RegisterCategoryServiceServer(grpcServer, categoryHandler)
@@ -86,6 +92,7 @@ func main() {
 	employeepb.RegisterEmployeeServiceServer(grpcServer, employeeHandler)
 	checkpb.RegisterCheckServiceServer(grpcServer, checkHandler)
 	salepb.RegisterSaleServiceServer(grpcServer, saleHandler)
+	rolepb.RegisterRoleServiceServer(grpcServer, roleHandler)
 
 	address := ":" + port
 	listener, err := net.Listen("tcp", address)

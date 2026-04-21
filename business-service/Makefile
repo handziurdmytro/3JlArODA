@@ -6,7 +6,8 @@ PROTO_FILES := \
     ../proto/business/customercard.proto \
     ../proto/business/employee.proto \
     ../proto/business/check.proto \
-    ../proto/business/sale.proto 
+    ../proto/business/sale.proto \
+    ../proto/business/role.proto
 
 .PHONY: gen gen-proto gen-sqlc test
 gen: gen-proto gen-sqlc
