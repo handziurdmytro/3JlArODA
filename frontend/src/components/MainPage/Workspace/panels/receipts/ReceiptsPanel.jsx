@@ -14,9 +14,6 @@ export const ReceiptsPanel = ({ userRole }) => {
         applyFilters, fetchFullCheck, deleteCheck, fetchSoldQuantity,
     } = useChecks();
 
-    console.log(totalSum)
-    console.log(checks)
-
     const { employees }     = useEmployees();
     const { storeProducts } = useStoreProducts();
 

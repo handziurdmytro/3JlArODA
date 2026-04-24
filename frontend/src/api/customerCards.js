@@ -8,6 +8,13 @@ export const customerCardsApi = {
         return await apiClient.get('/customer-cards', { params });
     },
 
+    getBoughtAllFromCategory: async ({ categoryNumber, from, to }) => {
+        return await apiClient.get(
+            '/individual-tasks/customer-cards/bought-all-products-from-category',
+            { params: { category_number: categoryNumber, from, to } }
+        );
+    },
+
     getByNumber: async (number) => {
         return await apiClient.get(`/customer-cards/${number}`);
     },

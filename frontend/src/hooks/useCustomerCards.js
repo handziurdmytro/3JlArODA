@@ -6,22 +6,37 @@ export const useCustomerCards = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError]         = useState(null);
 
-    // Активні фільтри — зберігаємо щоб рефетчити з тими самими параметрами
-    const [filters, setFilters] = useState({ surname: '', percent: 'all' });
+    const [filters, setFilters] = useState({
+        surname:        '',
+        percent:        'all',
+        categoryNumber: '',
+        from:           '',
+        to:             '',
+    });
 
     const fetchClients = useCallback(async (activeFilters = filters) => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await customerCardsApi.getAll({
-                surname: activeFilters.surname || undefined,
-                percent: activeFilters.percent !== 'all' ? activeFilters.percent : undefined,
-            });
-            // API повертає вже відсортовані по surname дані
-            const rawData = response.data ?? [];
-            const mappedData = rawData.map(item => mapFromApi(item));
+            let data;
 
-            setClients(mappedData);
+            // Якщо обрана категорія і є обидві дати — спецзапит
+            if (activeFilters.categoryNumber && activeFilters.from && activeFilters.to) {
+                const response = await customerCardsApi.getBoughtAllFromCategory({
+                    categoryNumber: activeFilters.categoryNumber,
+                    from:           activeFilters.from,
+                    to:             activeFilters.to,
+                });
+                data = (response.data ?? []).map(mapFromApi);
+            } else {
+                const response = await customerCardsApi.getAll({
+                    surname: activeFilters.surname || undefined,
+                    percent: activeFilters.percent !== 'all' ? activeFilters.percent : undefined,
+                });
+                data = (response.data ?? []).map(mapFromApi);
+            }
+
+            setClients(data);
         } catch (err) {
             setError(err.response?.data?.error ?? 'Failed to load clients');
         } finally {
@@ -40,13 +55,11 @@ export const useCustomerCards = () => {
 
     const createClient = useCallback(async (data) => {
         const response = await customerCardsApi.create(mapToApi(data));
-        console.log(response.data);
         setClients(prev => sortBySurname([...prev, mapFromApi(response.data)]));
     }, []);
 
     const updateClient = useCallback(async (cardNumber, data) => {
         const response = await customerCardsApi.update(cardNumber, mapToApi(data));
-        console.log(response.data);
         setClients(prev => sortBySurname(
             prev.map(c => c.cardId === cardNumber ? mapFromApi(response.data) : c)
         ));
@@ -75,7 +88,6 @@ export const useCustomerCards = () => {
 const sortBySurname = (arr) =>
     [...arr].sort((a, b) => a.lastName.localeCompare(b.lastName));
 
-// API → UI
 const mapFromApi = (data) => ({
     cardId:    data.card_number,
     lastName:  data.surname,
@@ -89,7 +101,6 @@ const mapFromApi = (data) => ({
     discount:  data.percent,
 });
 
-// UI → API
 const mapToApi = (data) => ({
     card_number:  data.cardId,
     surname:      data.lastName,

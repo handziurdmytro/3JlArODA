@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCustomerCards } from '../../../../../hooks/useCustomerCards';
+import { categoriesApi }   from '../../../../../api/categories.js';
 import { ClientsToolbar }  from './ClientsToolbar';
 import { ClientsList }     from './ClientsList';
 import { ClientFormModal } from './ClientFormModal';
@@ -7,26 +8,19 @@ import styles from './ClientsPanel.module.scss';
 
 export const ClientsPanel = ({ userRole }) => {
     const {
-        clients,
-        isLoading,
-        error,
-        filters,
-        applyFilters,
-        createClient,
-        updateClient,
-        deleteClient,
+        clients, isLoading, error, filters,
+        applyFilters, createClient, updateClient, deleteClient,
     } = useCustomerCards();
 
-    const [modal, setModal]   = useState(null);
-    const [opError, setOpError] = useState(null);
+    const [categories, setCategories] = useState([]);
+    const [modal, setModal]           = useState(null);
+    const [opError, setOpError]       = useState(null);
 
-    const handleSearch = (surname) => {
-        applyFilters({ ...filters, surname });
-    };
-
-    const handleDiscountFilter = (percent) => {
-        applyFilters({ ...filters, percent });
-    };
+    useEffect(() => {
+        categoriesApi.getAll()
+            .then(res => setCategories(res.data ?? []))
+            .catch(() => {}); // некритична помилка
+    }, []);
 
     const handleSave = async (data) => {
         setOpError(null);
@@ -61,8 +55,25 @@ export const ClientsPanel = ({ userRole }) => {
                 search={filters.surname}
                 discountFilter={filters.percent}
                 userRole={userRole}
-                onSearch={handleSearch}
-                onDiscountFilter={handleDiscountFilter}
+                categories={categories}
+                categoryFilter={filters.categoryNumber}
+                dateFrom={filters.from}
+                dateTo={filters.to}
+                onSearch={(surname) =>
+                    applyFilters({ ...filters, surname })
+                }
+                onDiscountFilter={(percent) =>
+                    applyFilters({ ...filters, percent })
+                }
+                onCategoryFilter={(categoryNumber) =>
+                    applyFilters({ ...filters, categoryNumber, from: '', to: '' })
+                }
+                onDateFromChange={(from) =>
+                    applyFilters({ ...filters, from })
+                }
+                onDateToChange={(to) =>
+                    applyFilters({ ...filters, to })
+                }
                 onAdd={() => setModal({ mode: 'add' })}
             />
 
