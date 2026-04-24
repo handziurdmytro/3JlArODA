@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
-import { useEmployees } from '../../../../../hooks/useEmployees';
+import { useState, useMemo, useEffect } from 'react';
+import { useEmployees }   from '../../../../../hooks/useEmployees';
+import { useCategories }  from '../../../../../hooks/useCategories.js';
 import { EmployeesToolbar }  from './EmployeesToolbar';
 import { EmployeesList }     from './EmployeesList';
 import { EmployeeFormModal } from './EmployeeFormModal';
@@ -7,36 +8,65 @@ import styles from './EmployeesPanel.module.scss';
 
 export const EmployeesPanel = () => {
     const {
-        employees, // Це ВСІ працівники з сервера
-        isLoading,
-        error,
-        createEmployee,
-        updateEmployee,
-        deleteEmployee,
+        employees, isLoading, error,
+        createEmployee, updateEmployee, deleteEmployee,
+        fetchCashiersSoldAllCategory,
     } = useEmployees();
 
-    // Локальні стейти для фільтрів (як було в моковій версії)
-    const [search, setSearch]       = useState('');
-    const [roleFilter, setRole]     = useState('all');
-    
-    const [modal, setModal]         = useState(null);
-    const [opError, setOpError]     = useState(null);
+    const { categories } = useCategories();
 
-    // Фільтруємо дані на льоту прямо в браузері
+    const [search, setSearch]           = useState('');
+    const [roleFilter, setRole]         = useState('all');
+    const [categoryFilter, setCategory] = useState('');
+    const [dateFrom, setDateFrom]       = useState('');
+    const [dateTo, setDateTo]           = useState('');
+
+    const [categoryEmployees, setCategoryEmployees] = useState(null);
+    const [categoryLoading, setCategoryLoading]     = useState(false);
+
+    const [modal, setModal]     = useState(null);
+    const [opError, setOpError] = useState(null);
+
+    // При зміні категорії або дат — запит на спецендпоінт
+    useEffect(() => {
+        if (roleFilter !== 'cashier' || !categoryFilter || !dateFrom || !dateTo) {
+            setCategoryEmployees(null);
+            return;
+        }
+        setCategoryLoading(true);
+        fetchCashiersSoldAllCategory({
+            categoryNumber: categoryFilter,
+            from: dateFrom,
+            to:   dateTo,
+        })
+            .then(data => setCategoryEmployees(data))
+            .catch(() => setCategoryEmployees([]))
+            .finally(() => setCategoryLoading(false));
+    }, [categoryFilter, dateFrom, dateTo, roleFilter]);
+
+    // Скидати категорію якщо змінили роль
+    const handleRoleFilter = (role) => {
+        setRole(role);
+        if (role !== 'cashier') {
+            setCategory('');
+            setDateFrom('');
+            setDateTo('');
+            setCategoryEmployees(null);
+        }
+    };
+
+    // Звичайна фільтрація по імені і ролі
     const filteredEmployees = useMemo(() => {
-        return employees.filter(e => {
-            // Захист від null/undefined, якщо якесь поле пусте
-            const lastName = e.lastName || '';
-            const firstName = e.firstName || '';
-            const patronym = e.patronym || '';
-            
-            const fullName = `${lastName} ${firstName} ${patronym}`.toLowerCase();
+        const source = categoryEmployees ?? employees;
+        return source.filter(e => {
+            const fullName = `${e.lastName ?? ''} ${e.firstName ?? ''} ${e.patronym ?? ''}`.toLowerCase();
             const matchSearch = fullName.includes(search.toLowerCase());
-            const matchRole   = roleFilter === 'all' || e.position === roleFilter;
-            
+            const matchRole   = categoryEmployees
+                ? true  // в режимі категорії роль вже cashier
+                : roleFilter === 'all' || e.position === roleFilter;
             return matchSearch && matchRole;
         });
-    }, [employees, search, roleFilter]);
+    }, [employees, categoryEmployees, search, roleFilter]);
 
     const handleSave = async (data) => {
         setOpError(null);
@@ -53,7 +83,7 @@ export const EmployeesPanel = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this employee?")) return;
+        if (!window.confirm('Are you sure you want to delete this employee?')) return;
         setOpError(null);
         try {
             await deleteEmployee(id);
@@ -61,6 +91,8 @@ export const EmployeesPanel = () => {
             setOpError(err.response?.data?.error ?? 'Failed to delete employee');
         }
     };
+
+    const loading = isLoading || categoryLoading;
 
     return (
         <div className={styles.employees}>
@@ -71,12 +103,19 @@ export const EmployeesPanel = () => {
             <EmployeesToolbar
                 search={search}
                 roleFilter={roleFilter}
+                categories={categories}
+                categoryFilter={categoryFilter}
+                dateFrom={dateFrom}
+                dateTo={dateTo}
                 onSearch={setSearch}
-                onRoleFilter={setRole}
+                onRoleFilter={handleRoleFilter}
+                onCategoryFilter={setCategory}
+                onDateFromChange={setDateFrom}
+                onDateToChange={setDateTo}
                 onAdd={() => setModal({ mode: 'add' })}
             />
 
-            {isLoading ? (
+            {loading ? (
                 <div className={styles.employees__loading}>
                     <span className={styles['employees__loading-spinner']} />
                 </div>
@@ -84,7 +123,7 @@ export const EmployeesPanel = () => {
                 <div className={styles.employees__error}>{error}</div>
             ) : (
                 <EmployeesList
-                    employees={filteredEmployees} // Передаємо відфільтрований масив!
+                    employees={filteredEmployees}
                     onEdit={(e) => setModal({ mode: 'edit', data: e })}
                     onDelete={handleDelete}
                 />

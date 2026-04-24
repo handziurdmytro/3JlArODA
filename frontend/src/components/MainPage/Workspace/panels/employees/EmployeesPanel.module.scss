@@ -134,6 +134,37 @@
             transform: translateY(0) scale(0.99);
         }
     }
+
+    &__sep {
+        font-family: $font-sans;
+        font-size: 20px;
+        color: $text-muted;
+        flex-shrink: 0;
+    }
+
+    &__date {
+        padding: 9px 12px;
+        background: $bg-input;
+        border: 1px solid $border;
+        border-radius: $radius-sm;
+        color: $text-primary;
+        font-family: $font-sans;
+        font-size: 13px;
+        outline: none;
+        color-scheme: dark;
+        transition: border-color $transition;
+        width: 130px;
+
+        &:focus {
+            border-color: $border-focus;
+            box-shadow: 0 0 0 3px $accent-dim;
+        }
+
+        &:hover {
+            border-color: $border-hover;
+            box-shadow: 0 0 0 3px $accent-dim;
+        }
+    }
 }
 
 // ── List ───────────────────────────────────────────────────

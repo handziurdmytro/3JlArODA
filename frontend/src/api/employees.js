@@ -5,10 +5,9 @@ export const employeesApi = {
         return await apiClient.get('/employees/me');
     },
 
-    getAll: async ({ surname, position } = {}) => {
+    getAll: async ({ role } = {}) => {
         const params = {};
-        if (surname) params.surname = surname;
-        if (position !== undefined && position !== 'all') params.position = position;
+        if (role && role !== 'all') params.role = role;
         return await apiClient.get('/employees', { params });
     },
 
@@ -33,5 +32,12 @@ export const employeesApi = {
         if (name) params.name = name;
         if (patronymic) params.patronymic = patronymic;
         return await apiClient.get('/employees/contacts', { params });
+    },
+
+    getCashiersSoldAllCategoryProducts: async ({ categoryNumber, from, to }) => {
+        return await apiClient.get(
+            '/individual-tasks/store-products/cashiers-sold-all-category-products',
+            { params: { category_number: categoryNumber, from, to } }
+        );
     },
 };

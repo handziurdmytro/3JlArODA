@@ -10,13 +10,8 @@ export const useEmployees = () => {
         setIsLoading(true);
         setError(null);
         try {
-            // Просто завантажуємо всіх працівників
             const response = await employeesApi.getAll();
-            
-            const rawData = response.data ?? [];
-            const mappedData = rawData.map(item => mapFromApi(item));
-            
-            setEmployees(sortBySurname(mappedData)); 
+            setEmployees(sortBySurname((response.data ?? []).map(mapFromApi)));
         } catch (err) {
             setError(err.response?.data?.error ?? 'Failed to load employees');
         } finally {
@@ -27,6 +22,13 @@ export const useEmployees = () => {
     useEffect(() => {
         fetchEmployees();
     }, [fetchEmployees]);
+
+    const fetchCashiersSoldAllCategory = useCallback(async ({ categoryNumber, from, to }) => {
+        const response = await employeesApi.getCashiersSoldAllCategoryProducts({
+            categoryNumber, from, to,
+        });
+        return (response.data ?? []).map(mapCashierFromApi);
+    }, []);
 
     const createEmployee = useCallback(async (data) => {
         await employeesApi.create(mapToApiCreate(data));
@@ -50,6 +52,7 @@ export const useEmployees = () => {
         createEmployee,
         updateEmployee,
         deleteEmployee,
+        fetchCashiersSoldAllCategory,
         refetch: fetchEmployees,
     };
 };
@@ -65,14 +68,31 @@ const mapFromApi = (data) => ({
     firstName: data.name,
     patronym:  data.patronymic ?? '',
     position:  data.role,
-    birthDate:  data.date_of_birth,
-    startDate:  data.date_of_start,
+    birthDate: data.date_of_birth,
+    startDate: data.date_of_start,
     phone:     data.phone_number,
     salary:    data.salary,
     address:   [data.city, data.street, data.zip_code].filter(Boolean).join(', '),
     city:      data.city ?? '',
     street:    data.street ?? '',
     zipCode:   data.zip_code ?? '',
+});
+
+// Відповідь cashiers-sold-all має менше полів
+const mapCashierFromApi = (data) => ({
+    id:        data.id,
+    lastName:  data.surname,
+    firstName: data.name,
+    patronym:  data.patronymic ?? '',
+    position:  'cashier',
+    phone:     data.phone_number,
+    salary:    null,
+    address:   '',
+    city:      '',
+    street:    '',
+    zipCode:   '',
+    birthDate: '',
+    startDate: '',
 });
 
 const mapToApiCreate = (data) => ({
@@ -105,7 +125,7 @@ const mapToApi = (data) => ({
     date_of_birth: data.birthDate,
     date_of_start: data.startDate,
     phone_number:  data.phone,
-    city:          data.city   || null,
-    street:        data.street || null,
+    city:          data.city    || null,
+    street:        data.street  || null,
     zip_code:      data.zipCode || null,
 });
