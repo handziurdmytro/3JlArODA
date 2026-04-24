@@ -40,4 +40,8 @@ export const employeesApi = {
             { params: { category_number: categoryNumber, from, to } }
         );
     },
+
+    getBestCashiersByPromo: async () => {
+        return await apiClient.get('/individual-tasks/employees/best-cashiers-by-promo');
+    },
 };

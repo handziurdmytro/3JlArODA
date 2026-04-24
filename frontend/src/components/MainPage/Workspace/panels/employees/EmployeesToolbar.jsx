@@ -3,8 +3,10 @@ import styles from './EmployeesPanel.module.scss';
 export const EmployeesToolbar = ({
     search, roleFilter, categories,
     categoryFilter, dateFrom, dateTo,
+    promoFilter,
     onSearch, onRoleFilter, onAdd,
     onCategoryFilter, onDateFromChange, onDateToChange,
+    onPromoFilter,
 }) => {
     const isCashierMode    = roleFilter === 'cashier';
     const isCategoryActive = isCashierMode && !!categoryFilter;
@@ -21,9 +23,9 @@ export const EmployeesToolbar = ({
                     placeholder="Search by surname..."
                     value={search}
                     onChange={e => onSearch(e.target.value)}
-                    disabled={isCategoryActive}
+                    disabled={isCategoryActive || promoFilter === 'promo'}
                 />
-                {search && !isCategoryActive && (
+                {search && !isCategoryActive && promoFilter !== 'promo' && (
                     <button className={styles.toolbar__clear} onClick={() => onSearch('')}>✕</button>
                 )}
             </div>
@@ -36,6 +38,18 @@ export const EmployeesToolbar = ({
                 <option value="all">All positions</option>
                 <option value="manager">Manager</option>
                 <option value="cashier">Cashier</option>
+            </select>
+
+            {/* Promo filter — тільки для cashier */}
+            <select
+                className={styles.toolbar__select}
+                value={promoFilter}
+                onChange={e => onPromoFilter(e.target.value)}
+                disabled={!isCashierMode}
+                title={!isCashierMode ? 'Select "Cashier" role first' : ''}
+            >
+                <option value="all">All cashiers</option>
+                <option value="promo">Sold all promo products</option>
             </select>
 
             {/* Категорія — активна тільки для cashier */}
@@ -52,7 +66,6 @@ export const EmployeesToolbar = ({
                 ))}
             </select>
 
-            {/* Дати — активні тільки якщо обрана категорія */}
             <input
                 className={styles.toolbar__date}
                 type="date"

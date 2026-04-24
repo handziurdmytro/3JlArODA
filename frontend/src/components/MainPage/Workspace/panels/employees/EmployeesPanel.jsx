@@ -11,6 +11,7 @@ export const EmployeesPanel = () => {
         employees, isLoading, error,
         createEmployee, updateEmployee, deleteEmployee,
         fetchCashiersSoldAllCategory,
+        fetchBestCashiersByPromo,
     } = useEmployees();
 
     const { categories } = useCategories();
@@ -20,34 +21,57 @@ export const EmployeesPanel = () => {
     const [categoryFilter, setCategory] = useState('');
     const [dateFrom, setDateFrom]       = useState('');
     const [dateTo, setDateTo]           = useState('');
+    const [promoFilter, setPromoFilter] = useState('all');
 
     const [categoryEmployees, setCategoryEmployees] = useState(null);
-    const [categoryLoading, setCategoryLoading]     = useState(false);
+    const [promoEmployees, setPromoEmployees]       = useState(null);
+    const [specialLoading, setSpecialLoading]       = useState(false);
 
     const [modal, setModal]     = useState(null);
     const [opError, setOpError] = useState(null);
 
-    // При зміні категорії або дат — запит на спецендпоінт
+    // Запит cashiers-sold-all-category при зміні категорії/дат
     useEffect(() => {
         if (roleFilter !== 'cashier' || !categoryFilter || !dateFrom || !dateTo) {
             setCategoryEmployees(null);
             return;
         }
-        setCategoryLoading(true);
-        fetchCashiersSoldAllCategory({
-            categoryNumber: categoryFilter,
-            from: dateFrom,
-            to:   dateTo,
-        })
+        setSpecialLoading(true);
+        fetchCashiersSoldAllCategory({ categoryNumber: categoryFilter, from: dateFrom, to: dateTo })
             .then(data => setCategoryEmployees(data))
             .catch(() => setCategoryEmployees([]))
-            .finally(() => setCategoryLoading(false));
+            .finally(() => setSpecialLoading(false));
     }, [categoryFilter, dateFrom, dateTo, roleFilter]);
 
-    // Скидати категорію якщо змінили роль
+    // Запит best-cashiers-by-promo при виборі відповідної опції
+    useEffect(() => {
+        if (promoFilter !== 'promo' || roleFilter !== 'cashier') {
+            setPromoEmployees(null);
+            return;
+        }
+        setSpecialLoading(true);
+        fetchBestCashiersByPromo()
+            .then(data => setPromoEmployees(data))
+            .catch(() => setPromoEmployees([]))
+            .finally(() => setSpecialLoading(false));
+    }, [promoFilter, roleFilter]);
+
     const handleRoleFilter = (role) => {
         setRole(role);
         if (role !== 'cashier') {
+            setCategory('');
+            setDateFrom('');
+            setDateTo('');
+            setPromoFilter('all');
+            setCategoryEmployees(null);
+            setPromoEmployees(null);
+        }
+    };
+
+    const handlePromoFilter = (val) => {
+        setPromoFilter(val);
+        // Скидаємо категорійний фільтр якщо вмикаємо промо і навпаки
+        if (val === 'promo') {
             setCategory('');
             setDateFrom('');
             setDateTo('');
@@ -55,18 +79,27 @@ export const EmployeesPanel = () => {
         }
     };
 
-    // Звичайна фільтрація по імені і ролі
+    const handleCategoryFilter = (cat) => {
+        setCategory(cat);
+        // Скидаємо промо якщо вибираємо категорію
+        if (cat) {
+            setPromoFilter('all');
+            setPromoEmployees(null);
+        }
+    };
+
+    // Пріоритет: promoEmployees > categoryEmployees > employees
     const filteredEmployees = useMemo(() => {
-        const source = categoryEmployees ?? employees;
+        const source = promoEmployees ?? categoryEmployees ?? employees;
         return source.filter(e => {
             const fullName = `${e.lastName ?? ''} ${e.firstName ?? ''} ${e.patronym ?? ''}`.toLowerCase();
             const matchSearch = fullName.includes(search.toLowerCase());
-            const matchRole   = categoryEmployees
-                ? true  // в режимі категорії роль вже cashier
+            const matchRole = (promoEmployees || categoryEmployees)
+                ? true
                 : roleFilter === 'all' || e.position === roleFilter;
             return matchSearch && matchRole;
         });
-    }, [employees, categoryEmployees, search, roleFilter]);
+    }, [employees, categoryEmployees, promoEmployees, search, roleFilter]);
 
     const handleSave = async (data) => {
         setOpError(null);
@@ -92,7 +125,7 @@ export const EmployeesPanel = () => {
         }
     };
 
-    const loading = isLoading || categoryLoading;
+    const loading = isLoading || specialLoading;
 
     return (
         <div className={styles.employees}>
@@ -107,11 +140,13 @@ export const EmployeesPanel = () => {
                 categoryFilter={categoryFilter}
                 dateFrom={dateFrom}
                 dateTo={dateTo}
+                promoFilter={promoFilter}
                 onSearch={setSearch}
                 onRoleFilter={handleRoleFilter}
-                onCategoryFilter={setCategory}
+                onCategoryFilter={handleCategoryFilter}
                 onDateFromChange={setDateFrom}
                 onDateToChange={setDateTo}
+                onPromoFilter={handlePromoFilter}
                 onAdd={() => setModal({ mode: 'add' })}
             />
 

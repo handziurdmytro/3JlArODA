@@ -45,6 +45,25 @@ export const useEmployees = () => {
         setEmployees(prev => prev.filter(e => e.id !== id));
     }, []);
 
+    const fetchBestCashiersByPromo = useCallback(async () => {
+    const response = await employeesApi.getBestCashiersByPromo();
+    return (response.data ?? []).map(data => ({
+        id:        data.id,
+        lastName:  data.surname,
+        firstName: data.name,
+        patronym:  '',
+        position:  'cashier',
+        phone:     '',
+        salary:    null,
+        address:   '',
+        city:      '',
+        street:    '',
+        zipCode:   '',
+        birthDate: '',
+        startDate: '',
+    }));
+}, []);
+
     return {
         employees,
         isLoading,
@@ -53,6 +72,7 @@ export const useEmployees = () => {
         updateEmployee,
         deleteEmployee,
         fetchCashiersSoldAllCategory,
+        fetchBestCashiersByPromo,
         refetch: fetchEmployees,
     };
 };
