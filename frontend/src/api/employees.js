@@ -44,4 +44,10 @@ export const employeesApi = {
     getBestCashiersByPromo: async () => {
         return await apiClient.get('/individual-tasks/employees/best-cashiers-by-promo');
     },
+
+    getCashierPerformance: async ({ from, to, minRevenue }) => {
+    return await apiClient.get('/individual-tasks/employees/cashier-performance', {
+        params: { from, to, min_revenue: minRevenue },
+    });
+},
 };

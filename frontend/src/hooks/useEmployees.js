@@ -64,6 +64,29 @@ export const useEmployees = () => {
     }));
 }, []);
 
+const fetchCashierPerformance = useCallback(async ({ from, to, minRevenue }) => {
+    const response = await employeesApi.getCashierPerformance({ from, to, minRevenue });
+    return (response.data ?? []).map(data => ({
+        id:             data.id,
+        lastName:       data.surname,
+        firstName:      data.name,
+        patronym:       data.patronymic ?? '',
+        position:       'cashier',
+        phone:          '',
+        salary:         null,
+        address:        '',
+        city:           '',
+        street:         '',
+        zipCode:        '',
+        birthDate:      '',
+        startDate:      '',
+        // Додаткові поля специфічні для цього звіту
+        totalChecks:    data.total_checks,
+        totalItemsSold: data.total_items_sold,
+        totalRevenue:   data.total_revenue,
+    }));
+}, []);
+
     return {
         employees,
         isLoading,
@@ -73,6 +96,7 @@ export const useEmployees = () => {
         deleteEmployee,
         fetchCashiersSoldAllCategory,
         fetchBestCashiersByPromo,
+        fetchCashierPerformance,
         refetch: fetchEmployees,
     };
 };

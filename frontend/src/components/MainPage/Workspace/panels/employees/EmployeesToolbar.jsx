@@ -4,12 +4,17 @@ export const EmployeesToolbar = ({
     search, roleFilter, categories,
     categoryFilter, dateFrom, dateTo,
     promoFilter,
+    perfMinRevenue, perfDateFrom, perfDateTo,
     onSearch, onRoleFilter, onAdd,
     onCategoryFilter, onDateFromChange, onDateToChange,
     onPromoFilter,
+    onPerfMinRevenueChange, onPerfDateFromChange, onPerfDateToChange,
 }) => {
     const isCashierMode    = roleFilter === 'cashier';
     const isCategoryActive = isCashierMode && !!categoryFilter;
+    const isPromoActive    = promoFilter === 'promo';
+    const isPerfActive     = isCashierMode && (!!perfMinRevenue || !!perfDateFrom || !!perfDateTo);
+    const isSearchDisabled = isCategoryActive || isPromoActive || isPerfActive;
 
     return (
         <div className={styles.toolbar}>
@@ -23,9 +28,9 @@ export const EmployeesToolbar = ({
                     placeholder="Search by surname..."
                     value={search}
                     onChange={e => onSearch(e.target.value)}
-                    disabled={isCategoryActive || promoFilter === 'promo'}
+                    disabled={isSearchDisabled}
                 />
-                {search && !isCategoryActive && promoFilter !== 'promo' && (
+                {search && !isSearchDisabled && (
                     <button className={styles.toolbar__clear} onClick={() => onSearch('')}>✕</button>
                 )}
             </div>
@@ -40,7 +45,7 @@ export const EmployeesToolbar = ({
                 <option value="cashier">Cashier</option>
             </select>
 
-            {/* Promo filter — тільки для cashier */}
+            {/* Promo filter */}
             <select
                 className={styles.toolbar__select}
                 value={promoFilter}
@@ -52,7 +57,7 @@ export const EmployeesToolbar = ({
                 <option value="promo">Sold all promo products</option>
             </select>
 
-            {/* Категорія — активна тільки для cashier */}
+            {/* Категорія */}
             <select
                 className={styles.toolbar__select}
                 value={categoryFilter}
@@ -81,6 +86,39 @@ export const EmployeesToolbar = ({
                 value={dateTo}
                 onChange={e => onDateToChange(e.target.value)}
                 disabled={!isCategoryActive}
+                style={{ colorScheme: 'dark' }}
+            />
+
+            {/* Divider */}
+            <div className={styles.toolbar__divider} />
+
+            {/* Performance filter */}
+            <input
+                className={styles.toolbar__number}
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Min revenue ₴"
+                value={perfMinRevenue}
+                onChange={e => onPerfMinRevenueChange(e.target.value)}
+                disabled={!isCashierMode}
+                title={!isCashierMode ? 'Select "Cashier" role first' : ''}
+            />
+            <input
+                className={styles.toolbar__date}
+                type="date"
+                value={perfDateFrom}
+                onChange={e => onPerfDateFromChange(e.target.value)}
+                disabled={!isCashierMode || !perfMinRevenue}
+                style={{ colorScheme: 'dark' }}
+            />
+            <span className={styles.toolbar__sep}>—</span>
+            <input
+                className={styles.toolbar__date}
+                type="date"
+                value={perfDateTo}
+                onChange={e => onPerfDateToChange(e.target.value)}
+                disabled={!isCashierMode || !perfMinRevenue}
                 style={{ colorScheme: 'dark' }}
             />
 
