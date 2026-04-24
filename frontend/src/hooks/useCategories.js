@@ -11,16 +11,31 @@ const mapToApi = (data) => ({
 });
 
 export const useCategories = () => {
-    const [categories, setCategories] = useState([]);
-    const [isLoading, setIsLoading]   = useState(true);
-    const [error, setError]           = useState(null);
+    const [categories, setCategories]     = useState([]);
+    const [stockSummary, setStockSummary] = useState({}); // { [categoryNumber]: { total_quantity, avg_price } }
+    const [isLoading, setIsLoading]       = useState(true);
+    const [error, setError]               = useState(null);
 
     const fetchCategories = useCallback(async () => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await categoriesApi.getAll();
-            setCategories((response.data ?? []).map(mapFromApi));
+            const [categoriesRes, summaryRes] = await Promise.all([
+                categoriesApi.getAll(),
+                categoriesApi.getStockSummary(),
+            ]);
+
+            setCategories((categoriesRes.data ?? []).map(mapFromApi));
+
+            // Перетворюємо масив на map по number для швидкого lookup
+            const summaryMap = {};
+            for (const item of (summaryRes.data ?? [])) {
+                summaryMap[item.number] = {
+                    totalQuantity: item.total_quantity,
+                    avgPrice:      item.avg_price,
+                };
+            }
+            setStockSummary(summaryMap);
         } catch (err) {
             setError(err.response?.data?.error ?? 'Failed to load categories');
         } finally {
@@ -49,6 +64,7 @@ export const useCategories = () => {
 
     return {
         categories,
+        stockSummary,
         isLoading,
         error,
         createCategory,

@@ -7,7 +7,7 @@ import styles from './CategoriesPanel.module.scss';
 
 export const CategoriesPanel = () => {
     const {
-        categories, isLoading, error,
+        categories, stockSummary, isLoading, error,
         createCategory, updateCategory, deleteCategory,
     } = useCategories();
 
@@ -86,6 +86,7 @@ export const CategoriesPanel = () => {
             ) : (
                 <CategoriesList
                     categories={filtered}
+                    stockSummary={stockSummary}
                     expandedId={expandedId}
                     getProducts={getProducts}
                     onExpand={(id) => setExpanded(prev => prev === id ? null : id)}

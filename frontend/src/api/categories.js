@@ -5,6 +5,10 @@ export const categoriesApi = {
         return await apiClient.get('/categories');
     },
 
+    getStockSummary: async () => {
+        return await apiClient.get('/individual-tasks/categories/stock-summary');
+    },
+
     getByNumber: async (number) => {
         return await apiClient.get(`/categories/${number}`);
     },

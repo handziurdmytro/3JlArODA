@@ -40,11 +40,8 @@ export const ClientsToolbar = ({
                 ))}
             </select>
 
-            {/* Розділювач */}
-            <div className={styles.toolbar__divider} />
-
-            {/* Категорія */}
-            <select
+            {userRole === 'manager' && (
+                <select
                 className={styles.toolbar__select}
                 value={categoryFilter}
                 onChange={e => onCategoryFilter(e.target.value)}
@@ -54,8 +51,9 @@ export const ClientsToolbar = ({
                     <option key={c.number} value={c.number}>{c.name}</option>
                 ))}
             </select>
+            )}
 
-            {/* Дати — активні тільки якщо обрана категорія */}
+            {userRole === 'manager' && (
             <div className={styles.filters__group}>
                 <div className={styles.filters__dates}>
                     <input
@@ -77,6 +75,7 @@ export const ClientsToolbar = ({
                     />
                 </div>
             </div>
+            )}
 
             {userRole === 'manager' && (
                 <button className={styles.toolbar__add} onClick={onAdd}>
