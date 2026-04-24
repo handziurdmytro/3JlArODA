@@ -1,24 +1,32 @@
 import { apiClient } from './client.js';
 
 export const checksApi = {
-    getAll: async ({ cashier_id, date, from, to } = {}) => {
+    getAll: async ({ cashierId, date, from, to } = {}) => {
         const params = {};
-        if (cashier_id) params.cashier_id = cashier_id;
-        if (date) params.date = date;
-        if (from) params.from = from;
-        if (to) params.to = to;
+        if (cashierId) params.cashier_id = cashierId;
+        if (date)      params.date       = date;
+        if (from)      params.from       = from;
+        if (to)        params.to         = to;
         return await apiClient.get('/checks', { params });
     },
-    getByNumber: async (number) => await apiClient.get(`/checks/${number}`),
-    createHeader: async (data) => await apiClient.post('/checks', data),
-    addItem: async (number, data) => await apiClient.post(`/checks/${number}/items`, data),
-    delete: async (number) => await apiClient.delete(`/checks/${number}`),
+
+    getByNumber: async (number) =>
+        await apiClient.get(`/checks/${number}`),
+
+    createHeader: async (data) =>
+        await apiClient.post('/checks', data),
+
+    addItem: async (number, data) =>
+        await apiClient.post(`/checks/${number}/items`, data),
+
+    delete: async (number) =>
+        await apiClient.delete(`/checks/${number}`),
 
     getTotalSum: async ({ cashierId, from, to } = {}) => {
         const params = {};
-        if (cashierId && cashierId !== 'all') params.cashier_id = cashierId;
-        if (from) params.from = from;
-        if (to)   params.to   = to;
+        if (cashierId) params.cashier_id = cashierId;
+        if (from)      params.from       = from;
+        if (to)        params.to         = to;
         return await apiClient.get('/reports/checks/total', { params });
     },
 
@@ -26,6 +34,9 @@ export const checksApi = {
         const params = {};
         if (from) params.from = from;
         if (to)   params.to   = to;
-        return await apiClient.get(`/reports/products/${productId}/sold-quantity`, { params });
+        return await apiClient.get(
+            `/reports/products/${productId}/sold-quantity`,
+            { params }
+        );
     },
 };

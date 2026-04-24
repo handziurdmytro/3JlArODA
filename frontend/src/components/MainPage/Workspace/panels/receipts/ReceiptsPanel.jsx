@@ -14,32 +14,33 @@ export const ReceiptsPanel = ({ userRole }) => {
         applyFilters, fetchFullCheck, deleteCheck, fetchSoldQuantity,
     } = useChecks();
 
+    console.log(totalSum)
+    console.log(checks)
+
     const { employees }     = useEmployees();
     const { storeProducts } = useStoreProducts();
 
     const [selectedReceipt, setSelectedReceipt] = useState(null);
-    const [modalLoading, setModalLoading]        = useState(false);
-    const [opError, setOpError]                  = useState(null);
+    const [modalLoading, setModalLoading]       = useState(false);
+    const [opError, setOpError]                 = useState(null);
 
-    // Product units analysis
     const [selectedProductId, setSelectedProductId] = useState('');
-    const [soldQty, setSoldQty]                      = useState(null);
+    const [soldQty, setSoldQty]                     = useState(null);
     const [selectedProductName, setSelectedProductName] = useState('');
 
-    // Cashiers для фільтру — тільки cashier role
+    // Динамічний список касирів
     const cashiers = employees
         .filter(e => e.position === 'cashier')
         .map(e => ({ id: e.id, name: `${e.lastName} ${e.firstName}` }));
 
-    // Унікальні продукти зі storeProducts для випадаючого списку
+    // Динамічний список унікальних продуктів
     const products = storeProducts.map(sp => ({
-        // sold-quantity API приймає product_id, не upc
         id:   sp.productId,
         upc:  sp.upc,
         name: sp.productName,
     })).filter((p, i, arr) => arr.findIndex(x => x.id === p.id) === i);
 
-    // При зміні продукту або фільтрів — оновити sold quantity
+    // Автоматичне оновлення кількості проданого товару при зміні дати або товару
     useEffect(() => {
         if (!selectedProductId) {
             setSoldQty(null);
@@ -48,7 +49,7 @@ export const ReceiptsPanel = ({ userRole }) => {
         fetchSoldQuantity(selectedProductId)
             .then(setSoldQty)
             .catch(() => setSoldQty(null));
-    }, [selectedProductId, filters]);
+    }, [selectedProductId, filters, fetchSoldQuantity]);
 
     const handleProductChange = (productId) => {
         setSelectedProductId(productId);
@@ -86,17 +87,11 @@ export const ReceiptsPanel = ({ userRole }) => {
                 cashierId={filters.cashierId}
                 dateFrom={filters.from}
                 dateTo={filters.to}
-                productUpc={selectedProductId}
+                productId={selectedProductId} // Передаємо productId
                 products={products}
-                onCashierChange={(cashierId) =>
-                    applyFilters({ ...filters, cashierId })
-                }
-                onDateFromChange={(from) =>
-                    applyFilters({ ...filters, from })
-                }
-                onDateToChange={(to) =>
-                    applyFilters({ ...filters, to })
-                }
+                onCashierChange={(cashierId) => applyFilters({ ...filters, cashierId })}
+                onDateFromChange={(from) => applyFilters({ ...filters, from })}
+                onDateToChange={(to) => applyFilters({ ...filters, to })}
                 onProductChange={handleProductChange}
             />
 
@@ -114,6 +109,7 @@ export const ReceiptsPanel = ({ userRole }) => {
             ) : error ? (
                 <div className={styles.receipts__error}>{error}</div>
             ) : (
+
                 <ReceiptsList
                     receipts={checks}
                     onSelect={handleSelect}

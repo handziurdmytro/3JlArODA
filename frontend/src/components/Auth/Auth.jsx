@@ -31,7 +31,7 @@ export const Auth = () => {
                 </div>
                 <div className={styles['auth__image-bg']}> 
                     <video autoPlay loop muted playsInline>
-                    <source src="./public/rodion.mp4" type="video/mp4"/>
+                    <source src="./rodion.mp4" type="video/mp4"/>
                     Ваш браузер не підтримує відео.
                 </video>
                 </div>

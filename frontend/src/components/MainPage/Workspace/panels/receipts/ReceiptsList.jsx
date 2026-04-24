@@ -1,6 +1,7 @@
 import styles from './ReceiptsPanel.module.scss';
 
 export const ReceiptsList = ({ receipts, onSelect, onDelete }) => {
+    receipts.map(r => console.log(r));
     if (receipts.length === 0) return (
         <div className={styles.empty}>
             <img src='empty.png' alt="" />

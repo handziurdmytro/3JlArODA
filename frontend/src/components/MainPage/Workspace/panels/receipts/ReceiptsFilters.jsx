@@ -1,11 +1,10 @@
 import styles from './ReceiptsPanel.module.scss';
 
 export const ReceiptsFilters = ({
-    cashiers, cashierId, dateFrom, dateTo, productUpc, products,
+    cashiers, cashierId, dateFrom, dateTo, productId, products,
     onCashierChange, onDateFromChange, onDateToChange, onProductChange,
 }) => (
     <div className={styles.filters}>
-        {/* Cashier select */}
         <div className={styles.filters__group}>
             <label className={styles.filters__label}>Cashier</label>
             <select
@@ -20,7 +19,6 @@ export const ReceiptsFilters = ({
             </select>
         </div>
 
-        {/* Date range */}
         <div className={styles.filters__group}>
             <label className={styles.filters__label}>Period</label>
             <div className={styles.filters__dates}>
@@ -40,17 +38,16 @@ export const ReceiptsFilters = ({
             </div>
         </div>
 
-        {/* Product qty search */}
         <div className={styles.filters__group}>
             <label className={styles.filters__label}>Product Units Analysis</label>
             <select
                 className={styles.filters__select}
-                value={productUpc}
+                value={productId} // Використовуємо ID, а не UPC
                 onChange={e => onProductChange(e.target.value)}
             >
                 <option value="">Select product...</option>
                 {products.map(p => (
-                    <option key={p.upc} value={p.upc}>{p.name}</option>
+                    <option key={p.id} value={p.id}>{p.name}</option> // value={p.id}
                 ))}
             </select>
         </div>
